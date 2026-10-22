@@ -356,6 +356,59 @@ n.innerHTML=TABS.map(([k,l])=>`<button class="${tab==k?'on':''}" onclick="go('${
 trDom($('#app'));trDom(n);
 if(tab=='grafik')matList().forEach((m,k)=>draw($('#cv'+k),false,m));scrollTo(0,y)}
 function go(t){tab=t;scrollTo(0,0);render()}
+/* ---------- SINKRON MASTER KE APPWRITE ---------- */
+const AW_MT="6ad9e3270004fcc8e26d", AW_CH=15000;
+let awLast=null, awBusy=false, awT=null;
+const _awSave=save, _awLoad=load;
+const awSnap=()=>JSON.stringify({mains:D.mains,M:D.M});
+const awHdr=t=>{const m=/^(\d+)\/(\d+)\|/.exec(t||'');return m?{i:+m[1],n:+m[2],body:t.slice(m[0].length)}:null};
+async function awMasterPull(){
+  const u=U;
+  try{
+    const h=awHdr((await awDB.getDocument(AW_DB,AW_MT,'master_0')).data);
+    if(!h) throw {code:404};
+    let txt=h.body;
+    for(let i=1;i<h.n;i++){const c=awHdr((await awDB.getDocument(AW_DB,AW_MT,'master_'+i)).data);txt+=c?c.body:''}
+    const o=JSON.parse(txt);
+    if(U!==u||!D) return;
+    if(!D.masterT||o.t>D.masterT){
+      D.mains=o.mains;D.M=o.M;D.masterT=o.t;norm();_awSave(true);awLast=awSnap();
+      render();toast('Master diperbarui dari server');
+    }else if(D.masterT>o.t){awLast='';awMasterPush()}
+    else awLast=awSnap();
+  }catch(e){
+    if(e&&e.code==404&&U===u&&D){D.masterT=D.masterT||Date.now();_awSave(true);awLast='';awMasterPush()}
+    else console.error('Appwrite master (ambil) gagal:',e);
+  }
+}
+async function awMasterPush(){
+  if(!D||!U)return;
+  if(awBusy){clearTimeout(awT);awT=setTimeout(awMasterPush,1500);return}
+  awBusy=true;
+  try{
+    const snap=awSnap();
+    const json=JSON.stringify({t:D.masterT||Date.now(),mains:D.mains,M:D.M});
+    const parts=[];for(let i=0;i<json.length;i+=AW_CH)parts.push(json.slice(i,i+AW_CH));
+    let oldN=0;
+    try{const h=awHdr((await awDB.getDocument(AW_DB,AW_MT,'master_0')).data);if(h)oldN=h.n}catch(e){}
+    for(let i=0;i<parts.length;i++){
+      const id='master_'+i,data={data:i+'/'+parts.length+'|'+parts[i]};
+      try{await awDB.updateDocument(AW_DB,AW_MT,id,data)}
+      catch(e){if(e&&e.code==404)await awDB.createDocument(AW_DB,AW_MT,id,data);else throw e}
+    }
+    for(let k=parts.length;k<oldN;k++){try{await awDB.deleteDocument(AW_DB,AW_MT,'master_'+k)}catch(e){}}
+    awLast=snap;console.log('Appwrite: master terkirim');
+  }catch(e){console.error('Appwrite master (kirim) gagal:',e);toast('Master gagal dikirim: '+((e&&e.message)||e))}
+  awBusy=false;
+}
+function awMasterCheck(){
+  if(!D||!U||awLast===null)return;
+  if(awSnap()===awLast)return;
+  D.masterT=Date.now();_awSave(true);
+  clearTimeout(awT);awT=setTimeout(awMasterPush,1500);
+}
+save=function(now){_awSave(now);awMasterCheck()};
+load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0)};
 (function init(){document.documentElement.dataset.theme=L.woms_theme||'light';
 if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
