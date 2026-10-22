@@ -20,13 +20,24 @@ addEventListener('appinstalled',()=>{const b=document.getElementById('ib');if(b)
 <script src="server-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2"></script>
 <script>
-/* Appwrite: ganti ID_PROJECT_WMS dengan Project ID Anda (Console > Settings) */
-const client = new Appwrite.Client()
-  .setEndpoint("https://cloud.appwrite.io/v1")
-  .setProject("ID_PROJECT_WMS");
-client.ping();
+/* Appwrite: Project ID sudah diisi di setProject() di bawah */
 const AW_DB="6ad9dd52002c9a3515c5", AW_TB="6ad9ddb1003bfff1dbbd";
-const awDB = new Appwrite.Databases(client);
+let client=null, awDB=null, awErr="";
+try{
+  client = new Appwrite.Client()
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject("6ad88656002543a81d90");
+  awDB = new Appwrite.Databases(client);
+  try{client.ping()}catch(e){}
+}catch(e){awErr=(e&&e.message)||String(e);console.error("Appwrite init gagal:",e)}
+/* Cek kesiapan Appwrite; mengembalikan teks masalah, atau "" kalau siap */
+function awCheck(){
+  if(typeof Appwrite==="undefined")return "SDK Appwrite gagal dimuat. Cek koneksi internet atau akses ke cdn.jsdelivr.net.";
+  if(!awDB)return "Appwrite belum terhubung: "+awErr;
+  const pid=client&&client.config&&client.config.project;
+  if(!pid||pid==="ID_PROJECT_WMS")return "Project ID belum diisi di index.html (masih ID_PROJECT_WMS).";
+  return "";
+}
 /* Data pengecekan -> Appwrite. ID dokumen = ID record, jadi aman dikirim berulang (tidak dobel) */
 let awSyncing=false;
 const awRec=r=>{const d=new Date(r.dt);return{
@@ -88,21 +99,28 @@ async function awPullAll(silent){
 }
 /* Tombol "Update ke Server": kirim semua data lokal, lalu ambil data baru dari server */
 async function awSyncAll(){
-  if(awSyncing)return;
-  awSyncing=true;let ok=0,fail=0,err="";
-  const list=(D.insp||[]).slice();
-  for(let k=0;k<list.length;k+=3){
-    await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
-    toast("Mengirim "+Math.min(k+3,list.length)+"/"+list.length+"...");
-  }
-  const added=await awPullAll(true);
-  awSyncing=false;
-  let m=ok+" data terkirim";
-  if(added>0)m+=", "+added+" data baru dari server";
-  if(fail)m+=", gagal "+fail+": "+err;
-  if(added<0&&!fail)m+=" (ambil data dari server gagal)";
-  if(!list.length&&added===0){toast("Belum ada data");return}
-  if(!fail&&added>=0)awSuccess("Update berhasil",m);else toast(m);
+  if(awSyncing){toast("Update sedang berjalan...");return}
+  const pre=awCheck();
+  if(pre){alert(pre);return}
+  awSyncing=true;toast("Memulai update ke server...");
+  try{
+    let ok=0,fail=0,err="";
+    const list=(D.insp||[]).slice();
+    for(let k=0;k<list.length;k+=3){
+      await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
+      toast("Mengirim "+Math.min(k+3,list.length)+"/"+list.length+"...");
+    }
+    const added=await awPullAll(true);
+    let m=ok+" data terkirim";
+    if(added>0)m+=", "+added+" data baru dari server";
+    if(fail)m+=", gagal "+fail+": "+err;
+    if(added<0&&!fail)m+=" (ambil data dari server gagal)";
+    if(!list.length&&added===0){toast("Belum ada data di perangkat ini, server juga kosong")}
+    else if(!fail&&added>=0)awSuccess("Update berhasil",m);
+    else alert(m);
+  }catch(e){
+    console.error("Update gagal:",e);alert("Update gagal: "+((e&&e.message)||e));
+  }finally{awSyncing=false}
 }
 /* Animasi centang + notifikasi berhasil */
 function awSuccess(title,sub){
