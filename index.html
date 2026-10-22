@@ -101,8 +101,27 @@ async function awSyncAll(){
   if(added>0)m+=", "+added+" data baru dari server";
   if(fail)m+=", gagal "+fail+": "+err;
   if(added<0&&!fail)m+=" (ambil data dari server gagal)";
-  if(!list.length&&added===0)m="Belum ada data";
-  toast(m);
+  if(!list.length&&added===0){toast("Belum ada data");return}
+  if(!fail&&added>=0)awSuccess("Update berhasil",m);else toast(m);
+}
+/* Animasi centang + notifikasi berhasil */
+function awSuccess(title,sub){
+  if(!document.getElementById("aw-css")){
+    const st=document.createElement("style");st.id="aw-css";
+    st.textContent=".aw-ok{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);animation:awf .2s}"+
+    ".aw-card{background:var(--cd,#fff);color:var(--tx,#0f172a);border-radius:20px;padding:24px 34px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);animation:awp .3s;max-width:80%}"+
+    ".aw-ok circle{stroke-dasharray:166;stroke-dashoffset:166;animation:awd .6s .1s forwards}"+
+    ".aw-ok path{stroke-dasharray:48;stroke-dashoffset:48;animation:awd .4s .6s forwards}"+
+    "@keyframes awd{to{stroke-dashoffset:0}}@keyframes awf{from{opacity:0}}@keyframes awp{from{transform:scale(.8);opacity:0}}";
+    document.head.appendChild(st);
+  }
+  const t=document.getElementById("t");if(t)t.style.display="none";
+  const old=document.querySelector(".aw-ok");if(old)old.remove();
+  const d=document.createElement("div");d.className="aw-ok";
+  d.innerHTML='<div class="aw-card"><svg width="84" height="84" viewBox="0 0 52 52" fill="none" stroke="#16a34a" stroke-linecap="round" stroke-linejoin="round"><circle cx="26" cy="26" r="25" stroke-width="3"/><path d="M14 27l8 8 16-16" stroke-width="4"/></svg><div style="font-weight:700;font-size:18px;margin-top:10px">'+title+'</div><div style="font-size:13px;opacity:.7;margin-top:4px">'+sub+'</div></div>';
+  d.onclick=()=>d.remove();
+  document.body.appendChild(d);
+  setTimeout(()=>{if(d.parentNode)d.remove()},2400);
 }
 </script>
 <style>
