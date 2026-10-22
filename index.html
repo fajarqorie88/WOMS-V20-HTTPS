@@ -27,23 +27,82 @@ const client = new Appwrite.Client()
 client.ping();
 const AW_DB="6ad9dd52002c9a3515c5", AW_TB="6ad9ddb1003bfff1dbbd";
 const awDB = new Appwrite.Databases(client);
-/* Kirim satu data pengecekan ke tabel Appwrite (data lokal tetap tersimpan) */
-async function awPut(r){
+/* Data pengecekan -> Appwrite. ID dokumen = ID record, jadi aman dikirim berulang (tidak dobel) */
+let awSyncing=false;
+const awRec=r=>{const d=new Date(r.dt);return{
+  checker:[r.c1,r.c2].filter(Boolean).join(" / ")||"-",
+  job:r.job||"-",
+  shift:r.shift||"-",
+  tanggal:(isNaN(d)?new Date():d).toISOString(),
+  ampere:Number(r.kA),
+  deskripsi:r.desc||"",
+  json:JSON.stringify(Object.assign({},r,{photo:""}))}};
+async function awUpsert(r,retry){
+  const id=String(r.id),data=awRec(r);
   try{
-    const d = new Date(r.dt);
-    await awDB.createDocument(AW_DB, AW_TB, Appwrite.ID.unique(), {
-      checker: [r.c1, r.c2].filter(Boolean).join(" / ") || "-",
-      job: r.job || "-",
-      shift: r.shift || "-",
-      tanggal: (isNaN(d) ? new Date() : d).toISOString(),
-      ampere: Number(r.kA),
-      deskripsi: r.desc || ""
-    });
-    console.log("Appwrite: data terkirim");
+    try{await awDB.updateDocument(AW_DB,AW_TB,id,data)}
+    catch(e){if(e&&e.code==404)await awDB.createDocument(AW_DB,AW_TB,id,data);else throw e}
   }catch(e){
-    console.error("Appwrite gagal:", e);
-    if(typeof toast==="function") toast("Appwrite gagal: " + (e.message||e));
+    if(e&&e.code==429&&!retry){await new Promise(z=>setTimeout(z,1500));return awUpsert(r,true)}
+    throw e;
   }
+}
+async function awPut(r){
+  try{await awUpsert(r);console.log("Appwrite: data terkirim")}
+  catch(e){console.error("Appwrite gagal:",e);if(typeof toast==="function")toast("Appwrite gagal: "+((e&&e.message)||e))}
+}
+async function awDel(id){
+  try{await awDB.deleteDocument(AW_DB,AW_TB,String(id))}catch(e){if(!(e&&e.code==404))console.error("Appwrite hapus gagal:",e)}
+}
+/* Tarik data dari server yang belum ada di perangkat ini (foto tidak ikut) */
+async function awPullAll(silent){
+  const u=U;
+  try{
+    const docs=[];let last=null;
+    for(;;){
+      const q=[Appwrite.Query.limit(100)];if(last)q.push(Appwrite.Query.cursorAfter(last));
+      const r=await awDB.listDocuments(AW_DB,AW_TB,q);
+      docs.push(...r.documents);
+      if(r.documents.length<100)break;
+      last=r.documents[r.documents.length-1].$id;
+    }
+    if(U!==u||!D)return -1;
+    const have=new Set(D.insp.map(x=>String(x.id)));let added=0;
+    for(const d of docs){
+      if(!d.json)continue;
+      let o;try{o=JSON.parse(d.json)}catch(e){continue}
+      if(!o||!o.id||have.has(String(o.id)))continue;
+      o.photo=o.photo||"";D.insp.push(o);have.add(String(o.id));added++;
+    }
+    if(added){
+      D.insp.sort((x,y)=>(y.created||0)-(x.created||0));
+      _awSave(true);render();
+      toast(added+" data baru diambil dari server");
+    }
+    return added;
+  }catch(e){
+    console.error("Appwrite ambil data gagal:",e);
+    if(!silent)toast("Ambil data gagal: "+((e&&e.message)||e));
+    return -1;
+  }
+}
+/* Tombol "Update ke Server": kirim semua data lokal, lalu ambil data baru dari server */
+async function awSyncAll(){
+  if(awSyncing)return;
+  awSyncing=true;let ok=0,fail=0,err="";
+  const list=(D.insp||[]).slice();
+  for(let k=0;k<list.length;k+=3){
+    await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
+    toast("Mengirim "+Math.min(k+3,list.length)+"/"+list.length+"...");
+  }
+  const added=await awPullAll(true);
+  awSyncing=false;
+  let m=ok+" data terkirim";
+  if(added>0)m+=", "+added+" data baru dari server";
+  if(fail)m+=", gagal "+fail+": "+err;
+  if(added<0&&!fail)m+=" (ambil data dari server gagal)";
+  if(!list.length&&added===0)m="Belum ada data";
+  toast(m);
 }
 </script>
 <style>
@@ -204,7 +263,7 @@ D.insp.unshift(r);cloudPut(r);awPut(r);save(true);F={step:2,dt:F.dt,main:F.main,
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||i.status==q.st))}
 function dataView(){let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
-return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div class="flex gap-1"><button class="b" style="padding:8px 10px;font-size:13px" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="pdfData()">Bagikan</button></div></div><div class="c"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
+return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div class="flex gap-1 flex-wrap"><button class="b" style="padding:8px 10px;font-size:13px" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="pdfData()">Bagikan</button><button class="b" style="padding:8px 10px;font-size:13px;background:#16a34a" onclick="awSyncAll()">&#11014; Update ke Server</button></div></div><div class="c"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
 ${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div>
 <p class="text-xs opacity-60">${a.length} data</p>
 ${a.map(i=>`<div class="c flex gap-3" onclick="detail('${i.id}')"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div>${i.kA} kA (std ${i.min}-${i.max}) ${st(i)}</div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div><button class="text-red-600 text-xs mt-1 font-semibold" onclick="event.stopPropagation();delInsp('${i.id}')">&#128465; Hapus</button></div>${i.photo?`<img src="${i.photo}" style="width:64px;height:64px;object-fit:cover" class="rounded-lg">`:''}</div>`).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`}
@@ -299,8 +358,8 @@ else if(op=='mt')m.subs[b].mats[k].mt=v;
 else if(op=='tg'){const x=m.subs[b].mats[k],t=parseFloat(v)||0;x.tg=r2(t);x.min=Math.max(0,r2(t-0.5));x.max=r2(t+0.5)}
 else if(op=='min'||op=='max'){const x=m.subs[b].mats[k];x[op]=parseFloat(v)||0;x.tg=r2((x.min+x.max)/2)}
 render()}
-function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render()}
-function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i||!confirm('Hapus data '+i.main+' ('+i.kA+' kA) ini? Tidak bisa dibatalkan.'))return;D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);save(true);toast('Data dihapus');render()}
+function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render();awMasterNow()}
+function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i||!confirm('Hapus data '+i.main+' ('+i.kA+' kA) ini? Tidak bisa dibatalkan.'))return;D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id);save(true);toast('Data dihapus');render()}
 
 /* ---------- SETTING ---------- */
 const LISTS=[['checkers','Checker'],['locs','Lokasi'],['descs','Deskripsi'],['mats','Material'],['shifts','Shift'],['jobs','Job']];
@@ -382,8 +441,8 @@ async function awMasterPull(){
   }
 }
 async function awMasterPush(){
-  if(!D||!U)return;
-  if(awBusy){clearTimeout(awT);awT=setTimeout(awMasterPush,1500);return}
+  if(!D||!U)return false;
+  if(awBusy){clearTimeout(awT);awT=setTimeout(awMasterPush,1500);return false}
   awBusy=true;
   try{
     const snap=awSnap();
@@ -397,9 +456,13 @@ async function awMasterPush(){
       catch(e){if(e&&e.code==404)await awDB.createDocument(AW_DB,AW_MT,id,data);else throw e}
     }
     for(let k=parts.length;k<oldN;k++){try{await awDB.deleteDocument(AW_DB,AW_MT,'master_'+k)}catch(e){}}
-    awLast=snap;console.log('Appwrite: master terkirim');
+    awLast=snap;console.log('Appwrite: master terkirim');awBusy=false;return true;
   }catch(e){console.error('Appwrite master (kirim) gagal:',e);toast('Master gagal dikirim: '+((e&&e.message)||e))}
-  awBusy=false;
+  awBusy=false;return false;
+}
+async function awMasterNow(){
+  clearTimeout(awT);D.masterT=Date.now();_awSave(true);
+  if(await awMasterPush())toast('Master terkirim ke server (semua perangkat)');
 }
 function awMasterCheck(){
   if(!D||!U||awLast===null)return;
@@ -408,7 +471,7 @@ function awMasterCheck(){
   clearTimeout(awT);awT=setTimeout(awMasterPush,1500);
 }
 save=function(now){_awSave(now);awMasterCheck()};
-load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0)};
+load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0);setTimeout(()=>awPullAll(true),800)};
 (function init(){document.documentElement.dataset.theme=L.woms_theme||'light';
 if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
