@@ -47,7 +47,7 @@ const SRV=window.SRV_CFG||{};const SERVER=!!SRV.api;
 const L=localStorage,$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid8=()=>Math.random().toString(36).slice(2,9);
-let U=null,D=null,tab='input',F={},Q={sort:'new'},G={days:'30'},draft=null,saveT,syncT,ss={k:'dt',d:-1};
+let U=null,D=null,scr='home',tab='input',F={},Q={sort:'new'},G={days:'30'},draft=null,saveT,syncT,ss={k:'dt',d:-1};
 const TABS=[['input','Input'],['data','Data'],['grafik','Grafik'],['master','Master'],['setting','Setting']];
 /* ---------- BAHASA / LANGUAGE ---------- */
 let LG=L.woms_lang||'id';document.documentElement.lang=LG;
@@ -61,7 +61,7 @@ const EN=[["Masuk untuk mengakses data pengecekan Anda","Sign in to access your 
 ["Pilih grafik untuk diunduh","Select charts to download"],["Pilih grafik untuk dibagikan","Select charts to share"],["Pilih semua","Select all"],["Hapus semua","Clear all"],["Unduh","Download"],["Batal","Cancel"],["Grafik Arus Welding","Welding Current Chart"],["Grafik","Charts"],["callout NG = di luar standar","NG callout = outside standard"],["hari","days"],
 ["+ Tambah Sub Equipment","+ Add Sub Equipment"],["+ Tambah Material","+ Add Material"],["SIMPAN PERUBAHAN","SAVE CHANGES"],["Tambah","Add"],["Kelola","Manage"],
 ["Ganti ke Day","Switch to Day"],["Ganti ke Night","Switch to Night"],["Ganti Password","Change Password"],["Tema","Theme"],["Data milik:","Data owner:"],["Akun:","Account:"],["Akun","Account"],["Masukkan password lama dan password baru (min. 8 karakter).","Enter your old and new password (min. 8 characters)."],["Password lama","Old password"],["Konfirmasi password baru","Confirm new password"],["Password baru (min. 6)","New password (min. 6)"],["Password baru","New password"],["Kirim link via email","Send link via email"],["Masukkan kode yang dikirim ke","Enter the code sent to"],["Kode 6 digit","6-digit code"],["Kirim ulang","Resend"],["Konfirmasi lewat kode yang dikirim ke email Anda.","Confirm using the code sent to your email."],["Kirim Kode ke Email","Send Code to Email"],["Upload foto","Upload photo"],["Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.","Data is saved automatically on this device and is not lost on refresh."],["Sync Drive terakhir:","Last Drive sync:"],["belum pernah","never"],["Auto Sync (3 detik setelah perubahan)","Auto Sync (3 seconds after changes)"],["Sync Sekarang","Sync Now"],["Load dari Drive","Load from Drive"],["Catatan: sync Drive masih simulasi (disimpan di perangkat dengan nama WOMS_backup_{user}_{tanggal}.json). Integrasi Google Drive asli butuh OAuth Client ID.","Note: Drive sync is still a simulation (saved on the device as WOMS_backup_{user}_{date}.json). Real Google Drive integration requires an OAuth Client ID."],["Email (simulasi)","Email (simulation)"],["Kepada:","To:"],["Kode verifikasi ganti password Anda:","Your password change verification code:"],["Berlaku 10 menit. Pengiriman email sungguhan butuh server.","Valid for 10 minutes. Real email delivery requires a server."],["Nama","Name"],
-["Dibuat:","Created:"],["Jumlah","Count"],["Rata-rata","Average"],["Rentang","Range"],["Waktu","Time"],["Aktual","Actual"],["Standar","Standard"],["Lokasi","Location"],["Deskripsi","Description"],["Keterangan","Notes"],["Ringkasan","Summary"],["Inspeksi","Inspection"],["Pengecekan","Inspection"],["Setting","Settings"]];
+["Dibuat:","Created:"],["Jumlah","Count"],["Rata-rata","Average"],["Rentang","Range"],["Waktu","Time"],["Aktual","Actual"],["Standar","Standard"],["Lokasi","Location"],["Deskripsi","Description"],["Keterangan","Notes"],["Ringkasan","Summary"],["Inspeksi","Inspection"],["Pengecekan","Inspection"],["Setting","Settings"],["Pilih menu untuk memulai","Select a menu to start"],["Input, data, grafik &amp; master arus welding","Welding current input, data, charts &amp; master"],["Input, data, grafik & master arus welding","Welding current input, data, charts & master"],["Fitur ini sedang disiapkan.","This feature is being prepared."],["Segera hadir","Coming soon"],["Kembali ke Menu","Back to Menu"],["Selamat datang","Welcome"]];
 const _EM={},_ER=new RegExp(EN.slice().sort((a,b)=>b[0].length-a[0].length).map(([k,v])=>{_EM[k]=v;const e=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return(/^[A-Za-z]/.test(k)?'(?<![A-Za-z])':'')+e+(/[A-Za-z]$/.test(k)?'(?![A-Za-z])':'')}).join('|'),'g');
 const tr=s=>LG=='en'&&s?String(s).replace(_ER,m=>_EM[m]):s;
 function trDom(r){if(LG!='en'||!r)return;const w=document.createTreeWalker(r,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode&&/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.nodeName)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(n=>{const v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v});r.querySelectorAll('[placeholder],[title]').forEach(e=>['placeholder','title'].forEach(k=>{if(e.hasAttribute(k))e.setAttribute(k,tr(e.getAttribute(k)))}))}
@@ -99,7 +99,7 @@ function loginViewOld(){const rec=JSON.parse(L.woms_recent||'[]');return`<div cl
 <div class="c"><b>Google (Simulasi)</b><input id="ge" class="i" placeholder="email@gmail.com"><input id="gn" class="i" placeholder="Nama"><label>Foto (opsional)</label><input type="file" accept="image/*" class="i" onchange="gfoto(this.files[0])"><button class="b w-full" onclick="loginG()">Masuk dengan Google</button></div>
 ${rec.length?`<div class="c"><b>Login terakhir</b>${rec.map(r=>`<div class="text-sm py-1">${esc(r.name)} - ${esc(r.id)}</div>`).join('')}</div>`:''}</div>`}
 let gph='';function gfoto(f){if(f)compress(f,d=>gph=d)}
-function start(u){U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;save(true);render()}
+function start(u){U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;save(true);scr='home';tab='input';scrollTo(0,0);render()}
 
 let LM='login',PW=null;
 const accs=()=>JSON.parse(L.woms_acc||'{}');
@@ -301,10 +301,23 @@ XLSX.utils.book_append_sheet(wb,jts(mr),'Master');
 XLSX.utils.book_append_sheet(wb,jts(D.mains.map(m=>{const a=D.insp.filter(i=>i.mid==m.id);return{Main:m.code,Jumlah:a.length,OK:a.filter(i=>i.status=='OK').length,NG:a.filter(i=>i.status=='NG').length}})),tr('Ringkasan'));
 XLSX.writeFile(wb,`WOMS_${U.id}_${new Date().toISOString().slice(0,10)}.xlsx`)}
 
+/* ---------- FRONT PAGE ---------- */
+const MENUS=[['cow','Check Output Welding','Input, data, grafik & master arus welding','\u26A1'],['qg','Quality Gate','Segera hadir','\u2705']];
+function homeView(){const nm=esc((D.prof&&D.prof.name)||U.name||'');
+return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" style="color:#93c5fd"><button class="underline" style="font-weight:${LG=='id'?700:400}" onclick="setLang('id')">ID</button> | <button class="underline" style="font-weight:${LG=='en'?700:400}" onclick="setLang('en')">EN</button></div>
+<div class="text-center mb-6"><div class="logo text-4xl font-extrabold tracking-wide">WOMS</div><p class="text-sm mt-2" style="color:#bfdbfe">Selamat datang${nm?', '+nm:''}</p><p class="text-xs mt-1" style="color:#93c5fd">Pilih menu untuk memulai</p></div>
+${MENUS.map(([k,t,d,ic])=>`<button class="glass w-full text-left flex items-center gap-4 mb-3" onclick="openMenu('${k}')" style="color:#f1f5f9"><span style="width:52px;height:52px;border-radius:14px;background:#2563EB;display:flex;align-items:center;justify-content:center;font-size:26px;flex:none">${ic}</span><span class="flex-1"><b class="block text-base">${t}</b><span class="text-xs" style="color:#cbd5e1">${d}</span></span><span style="font-size:22px;color:#93c5fd">&#8250;</span></button>`).join('')}
+<button class="text-xs underline mt-4 mx-auto" style="color:#93c5fd" onclick="logout()">Logout</button></div></div>`}
+function qgView(){return`<div class="lg"><div class="in"><button class="text-sm mb-4 self-start" style="color:#93c5fd" onclick="openMenu('home')">&#8249; Kembali ke Menu</button>
+<div class="glass text-center"><div style="font-size:44px">&#9989;</div><h2 class="font-bold text-lg mt-2">Quality Gate</h2><p class="text-sm mt-1" style="color:#cbd5e1">Fitur ini sedang disiapkan.</p></div></div></div>`}
+function openMenu(k){scr=k=='cow'?'app':k;if(k=='cow')tab='input';scrollTo(0,0);render()}
+function backBar(){return`<div class="pt-3"><button class="text-sm text-blue-600 font-semibold" onclick="openMenu('home')">&#8249; Kembali ke Menu</button></div>`}
+
 /* ---------- RENDER ---------- */
 function render(){const y=scrollY;if(!U){$('#app').innerHTML=loginView();trDom($('#app'));return}
+if(scr!='app'){const n0=$('nav');if(n0)n0.remove();$('#app').innerHTML=scr=='qg'?qgView():homeView();trDom($('#app'));return}
 const v={input:inputView,data:dataView,grafik:grafikView,master:masterView,setting:settingView}[tab]();
-$('#app').innerHTML=v;let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
+$('#app').innerHTML=backBar()+v;let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
 n.innerHTML=TABS.map(([k,l])=>`<button class="${tab==k?'on':''}" onclick="go('${k}')">${l}${k=='master'&&pend()?' &#9679;':''}</button>`).join('');
 trDom($('#app'));trDom(n);
 if(tab=='grafik')matList().forEach((m,k)=>draw($('#cv'+k),false,m));scrollTo(0,y)}
