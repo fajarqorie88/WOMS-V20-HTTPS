@@ -18,6 +18,14 @@ addEventListener('appinstalled',()=>{const b=document.getElementById('ib');if(b)
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="server-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.0.2"></script>
+<script>
+/* Appwrite: ganti ID_PROJECT_WMS dengan Project ID Anda (Console > Settings) */
+const client = new Appwrite.Client()
+  .setEndpoint("https://cloud.appwrite.io/v1")
+  .setProject("ID_PROJECT_WMS");
+client.ping();
+</script>
 <style>
 :root{--bg:#f8fafc;--cd:#fff;--tx:#0f172a;--bd:#e2e8f0}
 :root[data-theme=dark]{--bg:#0f172a;--cd:#1e293b;--tx:#f1f5f9;--bd:#334155}
