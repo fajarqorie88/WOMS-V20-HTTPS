@@ -1,7 +1,7 @@
 {
  "id": "./",
- "name": "WOMS - Welding Output Monitoring System",
- "short_name": "WOMS",
+ "name": "WMS - Welding Monitoring System",
+ "short_name": "WMS",
  "description": "Monitoring output arus welding per equipment, grafik, dan laporan PDF",
  "start_url": "./",
  "scope": "./",
