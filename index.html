@@ -318,7 +318,7 @@ function compress(file,cb){const r=new FileReader();r.onload=e=>{const im=new Im
 function pick(k,cap,file){if(!file)return;compress(file,d=>{if(k=='prof')D.prof.photo=d;else F.photo=d;save();render()})}
 
 /* ---------- LOGIN ---------- */
-function loginView(){const rec=JSON.parse(L.woms_recent||'[]').filter(r=>String(r.id).includes('@'));return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" style="color:#93c5fd"><button class="underline" style="font-weight:${LG=='id'?700:400}" onclick="setLang('id')">ID</button> | <button class="underline" style="font-weight:${LG=='en'?700:400}" onclick="setLang('en')">EN</button></div>
+function loginView(){if(lockInfo())return lockView();const rec=JSON.parse(L.woms_recent||'[]').filter(r=>String(r.id).includes('@'));return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" style="color:#93c5fd"><button class="underline" style="font-weight:${LG=='id'?700:400}" onclick="setLang('id')">ID</button> | <button class="underline" style="font-weight:${LG=='en'?700:400}" onclick="setLang('en')">EN</button></div>
 <div class="text-center mb-6"><svg class="logo mx-auto" width="92" height="92" viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#lg1)"/><path d="M37 8 19 36h11l-4 20 19-30H34z" fill="#fff"/><circle class="spark" cx="50" cy="14" r="2.5" fill="#fde047"/><circle class="spark" cx="14" cy="48" r="2" fill="#fde047"/><circle class="spark" cx="52" cy="46" r="1.6" fill="#fde047"/></svg>
 <h1 class="text-5xl font-black tracking-widest mt-3" style="background:linear-gradient(90deg,#fff,#93c5fd);-webkit-background-clip:text;background-clip:text;color:transparent">WMS</h1>
 <p class="text-sm tracking-wide mt-1" style="color:#93c5fd">Welding Monitoring System</p></div>
@@ -336,7 +336,7 @@ function loginViewOld(){const rec=JSON.parse(L.woms_recent||'[]');return`<div cl
 <div class="c"><b>Google (Simulasi)</b><input id="ge" class="i" placeholder="email@gmail.com"><input id="gn" class="i" placeholder="Nama"><label>Foto (opsional)</label><input type="file" accept="image/*" class="i" onchange="gfoto(this.files[0])"><button class="b w-full" onclick="loginG()">Masuk dengan Google</button></div>
 ${rec.length?`<div class="c"><b>Login terakhir</b>${rec.map(r=>`<div class="text-sm py-1">${esc(r.name)} - ${esc(r.id)}</div>`).join('')}</div>`:''}</div>`}
 let gph='';function gfoto(f){if(f)compress(f,d=>gph=d)}
-function start(u){U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;save(true);scr='home';tab='input';scrollTo(0,0);render()}
+function start(u){L.removeItem('woms_lock');lastAct=Date.now();L.woms_act=String(lastAct);U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;save(true);scr='home';tab='input';scrollTo(0,0);render()}
 
 let LM='login',PW=null;
 const accs=()=>JSON.parse(L.woms_acc||'{}');
@@ -365,7 +365,7 @@ function fbErr(x){return x&&x.name=='TypeError'?'Tidak ada koneksi ke server':(x
 function enter(u){start({id:String(u.id),name:u.name||u.email,email:u.email,provider:'server'});flush();pull()}
 async function fbAuth(e,p){try{let j;if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(p.length<8)return toast('Password minimal 8 karakter');if(p!=$('#gp2').value)return toast('Konfirmasi password tidak sama');_nn=n;j=await api('register',{email:e,password:p,name:n});LM='login'}else j=await api('login',{email:e,password:p});TOK=j.token;L.woms_token=TOK;enter(j.user)}catch(x){if(_bio&&x&&x.code&&x.code<500)bioOff(_bio);toast(fbErr(x))}}
 async function fbPass(){const o=$('#po').value,n=$('#pn').value;if(!o)return toast('Isi password lama');if(n.length<8)return toast('Password baru minimal 8 karakter');if(n!=$('#pn2').value)return toast('Konfirmasi tidak sama');try{await api('changepw',{old:o,new:n});toast('Password berhasil diubah');render()}catch(x){toast(fbErr(x))}}
-async function fbInit(){let u=null;if(TOK){try{u=(await api('me')).user}catch(e){if(e.code==401){TOK='';L.removeItem('woms_token')}else{try{u=JSON.parse(L.woms_user||'null');if(u)u={id:u.id,name:u.name,email:u.email}}catch(x){}}}}
+async function fbInit(){let u=null;if(TOK&&!L.woms_lock){try{u=(await api('me')).user}catch(e){if(e.code==401){TOK='';L.removeItem('woms_token')}else{try{u=JSON.parse(L.woms_user||'null');if(u)u={id:u.id,name:u.name,email:u.email}}catch(x){}}}}
 if(u)enter(u);else{U=D=null;render()}
 addEventListener('online',()=>{flush();pull()});setInterval(()=>{flush();pull()},60000)}
 async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
@@ -375,17 +375,17 @@ if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(ac
 else{const a=ac[e];if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}start({id:e,name:a.name,email:e,provider:'google'})}}
 function pwSend(){PW={code:String(Math.floor(1e5+Math.random()*9e5)),exp:Date.now()+6e5};const d=document.createElement('div');d.className='fixed inset-0 z-50 flex items-center justify-center p-4';d.style.background='rgba(0,0,0,.6)';d.innerHTML=`<div class="c max-w-xs text-sm"><b>Email (simulasi)</b><p class="opacity-70 my-1">Kepada: ${esc(U.id)}</p><p>Kode verifikasi ganti password Anda:</p><p class="text-3xl font-black tracking-widest text-blue-600 my-2">${PW.code}</p><p class="text-xs opacity-60">Berlaku 10 menit. Pengiriman email sungguhan butuh server.</p><button class="b w-full mt-3" onclick="this.closest('.fixed').remove()">OK</button></div>`;trDom(d);document.body.appendChild(d);render()}
 async function pwChange(){const c=$('#pc').value.trim(),a=$('#pn').value;if(!PW||Date.now()>PW.exp)return toast('Kode kedaluwarsa, kirim ulang');if(c!=PW.code)return toast('Kode salah');if(a.length<6)return toast('Password minimal 6 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);PW=null;toast('Password berhasil diubah');render()}
-function logout(){save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');U=D=null;render()}
+function logout(){L.removeItem('woms_lock');save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');U=D=null;render()}
 
 /* ---------- LOGIN SIDIK JARI (WebAuthn + AES-GCM, kunci non-extractable di IndexedDB) ---------- */
-let _bio=null,bioOK=false;
+let _bio=null,bioOK=false;const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 const bioList=()=>{try{return JSON.parse(L.woms_bio||'[]')}catch(e){return[]}},bioOn=e=>bioList().some(x=>x.e==e);
 const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))),unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const idb=()=>new Promise((r,j)=>{const q=indexedDB.open('woms_bio',1);q.onupgradeneeded=()=>q.result.createObjectStore('k');q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)});
 const idbSet=async(k,v)=>{const d=await idb();return new Promise((r,j)=>{const t=d.transaction('k','readwrite');t.objectStore('k').put(v,k);t.oncomplete=()=>r();t.onerror=()=>j(t.error)})};
 const idbGet=async k=>{const d=await idb();return new Promise((r,j)=>{const q=d.transaction('k').objectStore('k').get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})};
 const idbDel=async k=>{try{const d=await idb();d.transaction('k','readwrite').objectStore('k').delete(k)}catch(e){}};
-(async()=>{try{bioOK=!!(window.PublicKeyCredential&&window.isSecureContext&&crypto.subtle&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());if(bioOK&&!U)render()}catch(e){}})();
+(async()=>{try{bioOK=!!(isMobile&&window.PublicKeyCredential&&window.isSecureContext&&crypto.subtle&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());if(bioOK&&!U)render()}catch(e){}})();
 function bioOff(e){L.woms_bio=JSON.stringify(bioList().filter(x=>x.e!=e));idbDel('c:'+e)}
 async function bioEnable(e,name,p){
  try{
@@ -398,11 +398,12 @@ async function bioEnable(e,name,p){
   toast('Login sidik jari aktif');return true
  }catch(x){toast(x&&x.name=='NotAllowedError'?'Dibatalkan':'Sidik jari tidak didukung di perangkat ini');return false}
 }
+async function bioVerify(e){const x=bioList().find(v=>v.e==e);if(!x)return false;
+ try{await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64(x.id),transports:['internal']}],userVerification:'required',timeout:60000}});return true}
+ catch(err){toast(err&&err.name=='NotAllowedError'?'Verifikasi sidik jari dibatalkan':'Verifikasi sidik jari gagal');return false}}
+async function bioSecret(e){try{const r=await idbGet('c:'+e);return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:r.iv},r.key,r.ct))}catch(err){bioOff(e);render();toast('Data sidik jari tidak ditemukan, aktifkan ulang setelah login');return null}}
 async function bioLogin(e){
- const x=bioList().find(v=>v.e==e);if(!x)return;
- try{await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:'public-key',id:unb64(x.id),transports:['internal']}],userVerification:'required',timeout:60000}})}
- catch(err){return toast(err&&err.name=='NotAllowedError'?'Verifikasi sidik jari dibatalkan':'Verifikasi sidik jari gagal')}
- let p;try{const r=await idbGet('c:'+e);p=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:r.iv},r.key,r.ct))}catch(err){bioOff(e);render();return toast('Data sidik jari tidak ditemukan, aktifkan ulang setelah login')}
+ if(!await bioVerify(e))return;const p=await bioSecret(e);if(p===null)return;
  if(LM!='login'){LM='login';render()}
  _bio=e;$('#ge').value=e;$('#gp').value=p;
  try{await loginG0()}finally{_bio=null;const g=$('#gp');if(g)g.value='';if(!U)render()}
@@ -415,6 +416,45 @@ function bioAsk(e,p){const d=document.createElement('div');d.className='fixed in
  d.querySelector('#bY').onclick=async()=>{let w=p;if(!w){w=d.querySelector('#bp').value;if(!w)return toast('Isi password');try{if(!await chkPw(e,w))return toast('Password salah')}catch(x){return toast(fbErr(x))}}
   const ok=await bioEnable(e,U&&U.name,w);if(ok){d.remove();if(U)render()}}}
 const bioKey=()=>String(U.email||U.id).toLowerCase();
+
+/* ---------- AUTO LOGOUT 10 MENIT TIDAK AKTIF ---------- */
+const IDLE=10*60*1000;let lastAct=Date.now(),actSv=0,lkPw=false;
+const lockInfo=()=>{try{return JSON.parse(L.woms_lock||'null')}catch(e){return null}};
+function initLock(){if(!L.woms_act)L.woms_act=String(Date.now());if(L.woms_lock||!L.woms_user)return;
+ if(Date.now()-(+L.woms_act)>=IDLE){try{const u=JSON.parse(L.woms_user);L.woms_lock=JSON.stringify({e:String(u.email||u.id).toLowerCase(),n:u.name,why:'idle'})}catch(e){}}}
+function lock(why){if(!U)return;
+ try{save(true);clearTimeout(mT);if(SERVER&&D&&(CS||D.metaUpd)){D.metaUpd=Date.now();cacheD();qadd({t:'meta'})}}catch(e){}
+ L.woms_lock=JSON.stringify({e:bioKey(),n:U.name,why});
+ document.querySelectorAll('body>.fixed').forEach(x=>x.remove());
+ lkPw=false;U=D=null;render()}
+const idleChk=()=>{if(U&&Date.now()-lastAct>=IDLE)lock('idle')};
+const act=()=>{if(!U)return;const n=Date.now();if(n-lastAct>=IDLE)return lock('idle');lastAct=n;if(n-actSv>5000){actSv=n;L.woms_act=String(n)}};
+['pointerdown','keydown','touchstart','wheel','scroll','input','mousemove'].forEach(k=>addEventListener(k,act,{capture:true,passive:true}));
+setInterval(idleChk,5000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)idleChk()});addEventListener('pageshow',idleChk);
+async function credLogin(e,p){LM='login';if(SERVER)return fbAuth(e,p);const a=accs()[e];if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');
+ if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}start({id:e,name:a.name,email:e,provider:'google'})}
+async function bioUnlock(){const lk=lockInfo();if(!lk)return;if(!await bioVerify(lk.e))return;
+ const s0=scr,t0=tab;let ok=false;
+ try{const u0=JSON.parse(L.woms_user||'null');
+  if(SERVER){if(TOK){try{enter((await api('me')).user);ok=true}catch(x){if(x&&x.code==401){TOK='';L.removeItem('woms_token')}else if(u0){enter({id:u0.id,name:u0.name,email:u0.email});ok=true}}}}
+  else if(u0){U=u0;load(u0.id);L.removeItem('woms_lock');lastAct=Date.now();ok=true}
+ }catch(x){}
+ if(!ok){const p=await bioSecret(lk.e);if(p!==null){_bio=lk.e;try{await credLogin(lk.e,p)}finally{_bio=null}}}
+ if(U){scr=s0;tab=t0;render()}}
+async function pwUnlock(){const lk=lockInfo();if(!lk)return;const i=$('#lkp'),p=i?i.value:'';if(!p)return toast('Isi password');
+ const s0=scr,t0=tab;await credLogin(lk.e,p);
+ if(U){scr=s0;tab=t0;render();if(isMobile&&bioOK&&!bioOn(lk.e)&&!L['woms_bn_'+lk.e])bioAsk(lk.e,p)}}
+function lockView(){const lk=lockInfo(),T=(a,b)=>LG=='en'?b:a,bio=isMobile&&bioOK&&bioOn(lk.e),sh=bio&&!lkPw;
+return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" style="color:#93c5fd"><button class="underline" style="font-weight:${LG=='id'?700:400}" onclick="setLang('id')">ID</button> | <button class="underline" style="font-weight:${LG=='en'?700:400}" onclick="setLang('en')">EN</button></div>
+<div class="text-center mb-6"><svg class="logo mx-auto" width="92" height="92" viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#lg1)"/><path d="M37 8 19 36h11l-4 20 19-30H34z" fill="#fff"/><circle class="spark" cx="50" cy="14" r="2.5" fill="#fde047"/><circle class="spark" cx="14" cy="48" r="2" fill="#fde047"/><circle class="spark" cx="52" cy="46" r="1.6" fill="#fde047"/></svg>
+<h1 class="text-5xl font-black tracking-widest mt-3" style="background:linear-gradient(90deg,#fff,#93c5fd);-webkit-background-clip:text;background-clip:text;color:transparent">WMS</h1>
+<p class="text-sm tracking-wide mt-1" style="color:#93c5fd">Welding Monitoring System</p></div>
+<div class="glass"><p class="text-center text-sm" style="color:#cbd5e1">${lk.why=='idle'?T('Sesi dikunci karena tidak ada aktivitas selama 10 menit.','Session locked after 10 minutes of inactivity.'):T('Sesi dikunci.','Session locked.')}</p>
+<p class="text-center font-bold mt-3" style="color:#fff">${esc(lk.n||lk.e)}</p><p class="text-center text-xs mb-4" style="color:#93c5fd">${esc(lk.e)}</p>
+${sh?`<button class="gb" style="background:#0f766e;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px" onclick="bioUnlock()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg>${T('Buka dengan Sidik Jari','Unlock with Fingerprint')}</button><p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="lkPw=true;render()">${T('Gunakan password','Use password')}</button></p>`:`<input id="lkp" class="i" type="password" placeholder="Password" autocomplete="current-password" autofocus onkeydown="if(event.key=='Enter')pwUnlock()"><button class="gb" style="background:#2563EB;color:#fff" onclick="pwUnlock()">${T('Buka','Unlock')}</button>${bio?`<p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="lkPw=false;render()">${T('Gunakan sidik jari','Use fingerprint')}</button></p>`:''}`}
+<p class="text-center text-xs mt-4"><button class="underline" style="color:#93c5fd" onclick="logout()">${T('Bukan Anda? Gunakan akun lain','Not you? Use another account')}</button></p></div>
+<p class="text-center text-xs mt-4" style="color:#94a3b8">Developed by Fajar Q.</p></div></div>`}
 
 /* ---------- INPUT ---------- */
 function inputView(){F.dt=F.dt||nowLocal();const last=D.insp[0];
@@ -738,9 +778,9 @@ function awMasterCheck(){
 }
 save=function(now){_awSave(now);awMasterCheck()};
 load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0);setTimeout(()=>awPullAll(true),800)};
-(function init(){document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
+(function init(){initLock();document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
 let rzT,lastW=innerWidth;const onRot=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(innerWidth==lastW)return;lastW=innerWidth;if(!L.woms_view){const v=curView();if(document.documentElement.dataset.view!=v)document.documentElement.dataset.view=v}if(U)render()},250)};addEventListener('resize',onRot);addEventListener('orientationchange',onRot);
-if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u){U=u;load(u.id)}}catch(e){}
+if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
 const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}};
 if(SERVER)fbInit();
