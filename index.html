@@ -22,12 +22,14 @@ addEventListener('appinstalled',()=>{const b=document.getElementById('ib');if(b)
 <script>
 /* Appwrite: Project ID sudah diisi di setProject() di bawah */
 const AW_DB="6ad9dd52002c9a3515c5", AW_TB="6ad9ddb1003bfff1dbbd";
-let client=null, awDB=null, awErr="";
+const AW_BK="6adb08f1000096bf9798";
+let client=null, awDB=null, awST=null, awErr="";
 try{
   client = new Appwrite.Client()
     .setEndpoint("https://cloud.appwrite.io/v1")
     .setProject("6ad88656002543a81d90");
   awDB = new Appwrite.Databases(client);
+  awST = new Appwrite.Storage(client);
   try{client.ping()}catch(e){}
 }catch(e){awErr=(e&&e.message)||String(e);console.error("Appwrite init gagal:",e)}
 /* Cek kesiapan Appwrite; mengembalikan teks masalah, atau "" kalau siap */
@@ -48,7 +50,40 @@ const awRec=r=>{const d=new Date(r.dt);return{
   ampere:Number(r.kA),
   deskripsi:r.desc||"",
   json:JSON.stringify(Object.assign({},r,{photo:""}))}};
+/* Foto -> Appwrite Storage (bucket AW_BK). Data hanya menyimpan photoId; perangkat lain mengunduh foto dari bucket */
+async function awPhotoUp(r){
+  if(!r.photo||r.photoId||!awST)return;
+  if(r.photo.startsWith("data:")&&r.photo.length>IMG_MAX){const d=await new Promise(ok=>imgPack(r.photo,ok));if(d&&d.length<r.photo.length)r.photo=d}
+  const b=await (await fetch(r.photo)).blob(),fid="f"+String(r.id);
+  try{await awST.createFile(AW_BK,fid,new File([b],fid+".jpg",{type:"image/jpeg"}))}
+  catch(e){if(!(e&&e.code==409))throw e}
+  r.photoId=fid;
+  try{if(typeof _awSave==="function"&&D)_awSave(true)}catch(e){}
+}
+async function awPhotoGet(r){
+  let href="";
+  try{
+    href=String(awST.getFileView(AW_BK,r.photoId));
+    const res=await fetch(href);if(!res.ok)throw new Error("HTTP "+res.status);
+    const b=await res.blob();
+    r.photo=await new Promise((ok,no)=>{const fr=new FileReader();fr.onload=()=>ok(fr.result);fr.onerror=no;fr.readAsDataURL(b)});
+    return true;
+  }catch(e){
+    console.error("Foto gagal diunduh:",e);
+    if(href){r.photo=href;return true}
+    return false;
+  }
+}
+async function awPhotosGet(list){
+  let got=0;
+  for(let k=0;k<list.length;k+=3){
+    const rs=await Promise.all(list.slice(k,k+3).map(awPhotoGet));
+    got+=rs.filter(Boolean).length;
+  }
+  return got;
+}
 async function awUpsert(r,retry){
+  if(r.photo&&!r.photoId){try{await awPhotoUp(r)}catch(e){console.error("Foto gagal diunggah:",e);if(typeof toast==="function")toast("Foto gagal diunggah: "+((e&&e.message)||e))}}
   const id=String(r.id),data=awRec(r);
   try{
     try{await awDB.updateDocument(AW_DB,AW_TB,id,data)}
@@ -62,7 +97,8 @@ async function awPut(r){
   try{await awUpsert(r);console.log("Appwrite: data terkirim")}
   catch(e){console.error("Appwrite gagal:",e);if(typeof toast==="function")toast("Appwrite gagal: "+((e&&e.message)||e))}
 }
-async function awDel(id){
+async function awDel(id,pid){
+  if(pid&&awST){try{await awST.deleteFile(AW_BK,String(pid))}catch(e){}}
   try{await awDB.deleteDocument(AW_DB,AW_TB,String(id))}catch(e){if(!(e&&e.code==404))console.error("Appwrite hapus gagal:",e)}
 }
 /* Tarik data dari server yang belum ada di perangkat ini (foto tidak ikut) */
@@ -78,17 +114,22 @@ async function awPullAll(silent){
       last=r.documents[r.documents.length-1].$id;
     }
     if(U!==u||!D)return -1;
-    const have=new Set(D.insp.map(x=>String(x.id)));let added=0;
+    const have=new Map(D.insp.map(x=>[String(x.id),x]));let added=0;const pend=[];
     for(const d of docs){
       if(!d.json)continue;
       let o;try{o=JSON.parse(d.json)}catch(e){continue}
-      if(!o||!o.id||have.has(String(o.id)))continue;
-      o.photo=o.photo||"";D.insp.push(o);have.add(String(o.id));added++;
+      if(!o||!o.id)continue;
+      const loc=have.get(String(o.id));
+      if(loc){if(!loc.photo&&o.photoId){loc.photoId=o.photoId;pend.push(loc)}continue}
+      o.photo=o.photo||"";D.insp.push(o);have.set(String(o.id),o);added++;
+      if(o.photoId&&!o.photo)pend.push(o);
     }
-    if(added){
+    const got=pend.length?await awPhotosGet(pend):0;
+    if(U!==u||!D)return -1;
+    if(added||got){
       D.insp.sort((x,y)=>(y.created||0)-(x.created||0));
       _awSave(true);render();
-      toast(added+" data baru diambil dari server");
+      toast((added?added+" data baru":"")+(added&&got?", ":"")+(got?got+" foto":"")+" diambil dari server");
     }
     return added;
   }catch(e){
@@ -332,7 +373,13 @@ const eqOpts=n=>{const l=(D.M&&D.M.equips)||[];return n&&!l.includes(n)?[n].conc
 const opts=(a,v,ph)=>(ph?`<option value="">${ph}</option>`:'')+a.map(x=>{const[val,lab]=Array.isArray(x)?x:[x,x];return`<option value="${esc(val)}"${val==v?' selected':''}>${esc(lab)}</option>`}).join('');
 const fld=(l,h)=>`<label>${l}</label>${h}`;
 const nowLocal=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)};
-function compress(file,cb){const r=new FileReader();r.onload=e=>{const im=new Image();im.onload=()=>{const s=Math.min(1,1024/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.75))};im.src=e.target.result};r.readAsDataURL(file)}
+/* Kompres foto: maks 1024px, JPEG adaptif (target ~110 KB), resize bertahap supaya tetap tajam */
+const IMG_MAX=150000;
+function imgPack(src,cb,max){const im=new Image();im.onload=()=>{try{const M=max||1024,W0=im.naturalWidth||im.width,H0=im.naturalHeight||im.height,k=Math.min(1,M/Math.max(W0,H0)),tw=Math.max(1,Math.round(W0*k)),th=Math.max(1,Math.round(H0*k));let a=im,w=W0,h=H0;
+while(w/2>=tw&&h/2>=th){const t=document.createElement('canvas');w=Math.round(w/2);h=Math.round(h/2);t.width=w;t.height=h;const g=t.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(a,0,0,w,h);a=t}
+const c=document.createElement('canvas');c.width=tw;c.height=th;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,tw,th);x.imageSmoothingQuality='high';x.drawImage(a,0,0,tw,th);
+let q=.72,d=c.toDataURL('image/jpeg',q);while(d.length>IMG_MAX&&q>.52){q-=.06;d=c.toDataURL('image/jpeg',q)}cb(d)}catch(e){cb(null)}};im.onerror=()=>cb(null);im.src=src}
+function compress(file,cb){const u=URL.createObjectURL(file);imgPack(u,d=>{URL.revokeObjectURL(u);if(d)cb(d);else toast('Foto gagal diproses')})}
 function pick(k,cap,file){if(!file)return;compress(file,d=>{if(k=='prof')D.prof.photo=d;else F.photo=d;save();render()})}
 
 /* ---------- LOGIN ---------- */
@@ -586,7 +633,7 @@ x.strokeStyle=fg;x.beginPath();x.moveTo(p,H-B);x.lineTo(W-10*sc,H-B);x.stroke();
 const pts=[];ct.forEach((k,i)=>{const s=sd[i],rs=[...k.rows].sort((u,w)=>new Date(u.dt)-new Date(w.dt)),st=Math.min(10*sc,cw*.8/rs.length);rs.forEach((o2,j)=>pts.push({px:X(i)+(j-(rs.length-1)/2)*st,o:o2,min:s.min,max:s.max}));
 {const b=LB[i],y0=H-B+4*sc+lf;x.save();x.textAlign='center';x.fillStyle=fg;x.font='bold '+lf+'px sans-serif';b.m.forEach((t,j)=>x.fillText(t,X(i),y0+j*lh));x.fillStyle=dk?'#cbd5e1':'#475569';x.font=lf+'px sans-serif';b.s.forEach((t,j)=>x.fillText(t,X(i),y0+(mL+j)*lh+3*sc));x.restore()}});
 const ln=(f,col,dash,w)=>{x.strokeStyle=col;x.lineWidth=w*sc;x.setLineDash(dash.map(d=>d*sc));x.lineJoin='round';x.beginPath();pts.forEach((q,j)=>{const yy=Y(f(q));j?x.lineTo(q.px,yy):x.moveTo(q.px,yy)});x.stroke();x.setLineDash([])};
-ln(q=>q.min,'#dc2626',[8,5],3.5);ln(q=>q.max,'#dc2626',[8,5],3.5);ln(q=>q.o.kA,'#2563EB',[],4);
+const ls=f=>{if(pts.length>1)return ln(f,'#dc2626',[8,5],3.5);const q=pts[0],yy=Y(f(q)),hw=Math.min(cw*.45,70*sc);x.strokeStyle='#dc2626';x.lineWidth=3.5*sc;x.setLineDash([8*sc,5*sc]);x.beginPath();x.moveTo(q.px-hw,yy);x.lineTo(q.px+hw,yy);x.stroke();x.setLineDash([])};ls(q=>q.min);ls(q=>q.max);ln(q=>q.o.kA,'#2563EB',[],4);
 pts.forEach(q=>{x.fillStyle='#2563EB';x.beginPath();x.arc(q.px,Y(q.o.kA),7*sc,0,7);x.fill();if(!ok(q.o)){x.strokeStyle='#dc2626';x.lineWidth=3*sc;x.beginPath();x.arc(q.px,Y(q.o.kA),11*sc,0,7);x.stroke()}
 x.fillStyle=fg;x.font='bold '+13*sc+'px sans-serif';x.textAlign='center';x.fillText(q.o.kA,q.px,Y(q.o.kA)-13*sc)});
 pts.forEach(q=>{if(ok(q.o))return;const py=Y(q.o.kA),w=28*sc,h=16*sc;let up=q.o.kA>q.max,gap=(up?32:16)*sc,by=up?py-gap-h:py+gap;if(up&&by<2*sc){up=false;by=py+16*sc}
@@ -628,7 +675,7 @@ function askYN(msg,fn){const en=LG=='en',d=document.createElement('div');d.class
  const no=()=>{d.remove();swClose()};d.onclick=e=>{if(e.target===d)no()};document.body.appendChild(d);
  d.querySelector('#qN').onclick=no;d.querySelector('#qY').onclick=()=>{d.remove();fn()}}
 function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i)return;const en=LG=='en';
- askYN(en?`Delete record ${esc(i.main)} (${i.kA} kA)? This cannot be undone.`:`Hapus data ${esc(i.main)} (${i.kA} kA) ini? Tidak bisa dibatalkan.`,()=>{D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id);save(true);toast('Data dihapus');render()})}
+ askYN(en?`Delete record ${esc(i.main)} (${i.kA} kA)? This cannot be undone.`:`Hapus data ${esc(i.main)} (${i.kA} kA) ini? Tidak bisa dibatalkan.`,()=>{D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id,i.photoId);save(true);toast('Data dihapus');render()})}
 /* geser kartu ke kiri untuk menampilkan tombol hapus (sentuh & mouse) */
 let swClose=()=>{};
 (function(){const W=84;let s=null,open=null,sup=0;
