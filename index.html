@@ -569,7 +569,7 @@ function dtOk(i,q){if(!q.d&&!q.mo&&!q.y)return true;const t=new Date(i.dt);if(is
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||i.status==q.st)&&dtOk(i,q))}
 function dataView(){let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
-return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div class="flex gap-1 flex-wrap"><button class="b" style="padding:8px 10px;font-size:13px" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="pdfData()">Bagikan</button><button class="b" style="padding:8px 10px;font-size:13px;background:#16a34a" onclick="awSyncAll()">&#11014; Update ke Server</button></div></div><div class="c"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
+return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div class="flex gap-1 flex-wrap">${UNDO&&U&&UNDO.by==U.id?`<button class="b b2" style="padding:8px 10px;font-size:13px" title="Kembalikan data yang terakhir dihapus" onclick="undoDel()">&#8630; Undo</button>`:''}<button class="b" style="padding:8px 10px;font-size:13px" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="pdfData()">Bagikan</button><button class="b" style="padding:8px 10px;font-size:13px;background:#16a34a" onclick="awSyncAll()">&#11014; Update ke Server</button></div></div><div class="c"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
 ${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}<div style="margin-top:6px">${S3('d',Q.d,'Semua Tanggal',Array.from({length:31},(_,k)=>String(k+1)))}${S3('mo',Q.mo,'Semua Bulan',(LG=='en'?['January','February','March','April','May','June','July','August','September','October','November','December']:['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']).map((n,k)=>[String(k+1),n]))}${S3('y',Q.y,'Semua Tahun',[...new Set(D.insp.map(i=>new Date(i.dt).getFullYear()).filter(y=>!isNaN(y)))].sort((x,y)=>y-x).map(String))}</div></div>
 <p class="text-xs opacity-60">${a.length} data</p>
 ${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`}
@@ -677,7 +677,7 @@ function askYN(msg,fn){const en=LG=='en',d=document.createElement('div');d.class
  const no=()=>{d.remove();swClose()};d.onclick=e=>{if(e.target===d)no()};document.body.appendChild(d);
  d.querySelector('#qN').onclick=no;d.querySelector('#qY').onclick=()=>{d.remove();fn()}}
 function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i)return;if(!canDel(i))return toast('Anda hanya bisa menghapus data yang Anda input');const en=LG=='en';
- askYN(en?`Delete record ${esc(i.main)} (${i.kA} kA)? This cannot be undone.`:`Hapus data ${esc(i.main)} (${i.kA} kA) ini? Tidak bisa dibatalkan.`,()=>{D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id,i.photoId);save(true);toast('Data dihapus');render()})}
+ askYN(en?`Delete record ${esc(i.main)} (${i.kA} kA)?`:`Hapus data ${esc(i.main)} (${i.kA} kA) ini?`,()=>{UNDO={rec:Object.assign({},i),by:U.id};D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id,i.photoId);save(true);toast('Data dihapus');render()})}
 /* geser kartu ke kiri untuk menampilkan tombol hapus (sentuh & mouse) */
 let swClose=()=>{};
 (function(){const W=84;let s=null,open=null,sup=0;
@@ -952,7 +952,7 @@ async function cloudBeat(){
   }catch(x){console.error('beat',x)}
 }
 function presOff(){try{if(U&&!cloudOff()){const e=myEm(),n=U.name||e;rid('p',e).then(id=>rdSet(id,{e,n,t:Date.now(),on:0})).catch(()=>{})}}catch(x){}}
-function cloudStop(){clearInterval(hbT);CB='';devBad=false;AC=[];acErr=''}
+function cloudStop(){UNDO=null;clearInterval(hbT);CB='';devBad=false;AC=[];acErr=''}
 /* Akun dihapus admin: keluarkan paksa dari perangkat ini */
 function forceOut(){
   const e=myEm(),id=U&&U.id;clearInterval(hbT);clearTimeout(saveT);
@@ -1008,6 +1008,16 @@ async function acDel(h){if(!isDev())return;
 async function acRestore(h){if(!isDev())return;
   try{const id='u_'+h,u=await rdGet(id);if(!u)return;delete u.x;delete u.xt;delete u.xb;await rdSet(id,u);toast('Akun dipulihkan');acLoad()}catch(e){acErrT(e)}}
 setInterval(()=>{if(U&&scr=='app'&&tab=='setting'&&isDev()&&document.visibilityState=='visible')acLoad()},30000);
+/* ---------- UNDO HAPUS DATA (1 data terakhir) ---------- */
+let UNDO=null;
+function undoDel(){
+  if(!U||!UNDO||UNDO.by!=U.id)return;
+  const r=UNDO.rec;UNDO=null;
+  if(D.insp.some(x=>x.id==r.id)){render();return}
+  delete r.photoId;
+  D.insp.push(r);save(true);cloudPut(r);
+  if(!awCheck())awUpsert(r).catch(e=>toast('Kirim ke server gagal: '+((e&&e.message)||e)));
+  toast('Data dikembalikan');render()}
 /* ---------- DATA: PENGINPUT & HAK HAPUS ---------- */
 const canDel=i=>isDev()||(!!i.userId&&!!U&&String(i.userId).toLowerCase()==String(U.id).toLowerCase());
 const inpName=i=>{const n=i.userName||'',e=i.userEmail||i.userId||'';return n&&e&&n!=e?n+' ('+e+')':(n||e||'-')};
