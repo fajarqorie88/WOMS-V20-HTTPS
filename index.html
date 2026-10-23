@@ -236,7 +236,7 @@ html[data-view=pc] #app{position:relative;z-index:1;max-width:1760px!important;p
 html[data-view=pc] body:not(.wn) #app{max-width:920px!important}
 html[data-view=pc] nav{top:0;bottom:0;right:auto;left:0;width:244px;flex-direction:column;justify-content:flex-start;gap:6px;padding:22px 14px;background:linear-gradient(180deg,rgba(2,8,23,.97),rgba(7,18,44,.97));border-right:1px solid rgba(56,189,248,.28);box-shadow:6px 0 44px rgba(14,165,233,.14);z-index:20}
 html[data-view=pc] nav::before{content:"\26A1  WMS";order:-2;display:block;font-weight:800;font-size:26px;letter-spacing:.16em;color:#e0f2fe;text-shadow:0 0 16px rgba(56,189,248,.85);padding:6px 10px 0}
-html[data-view=pc] nav::after{content:"WELDING OUTPUT MONITORING";order:-1;display:block;font-size:10px;letter-spacing:.2em;color:#64a8d8;padding:2px 12px 18px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,.22)}
+html[data-view=pc] nav::after{content:"WELDING MONITORING SYSTEM";order:-1;display:block;font-size:10px;letter-spacing:.2em;color:#64a8d8;padding:2px 12px 18px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,.22)}
 html[data-view=pc] nav button{background:transparent;flex:none;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;border-radius:12px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#7f93b5;border:1px solid transparent;transition:all .2s}
 html[data-view=pc] nav button::before{content:"\25C6";width:22px;text-align:center;font-size:16px}
 html[data-view=pc] nav button[data-k=input]::before{content:"\271A"}
@@ -524,7 +524,7 @@ ${sh?`<button class="gb" style="background:#0f766e;color:#fff;display:flex;align
 /* ---------- INPUT ---------- */
 function inputView(){F.dt=F.dt||nowLocal();const last=D.insp[0];
 const lc=last?`<div class="c"><b>Data Terakhir</b><div class="text-sm mt-1">${esc(last.main)} - ${esc(last.sub)} ${st(last)}</div><div class="text-xs opacity-70">${last.kA} kA (std ${last.min}-${last.max}) - ${new Date(last.dt).toLocaleString(LC())}</div></div>`:'';
-const hd='<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING OUTPUT MONITORING SYSTEM</h1>';
+const hd='<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING MONITORING SYSTEM</h1>';
 if(F.step!=2)return hd+`<div class="c"><b>Langkah 1 - Info Pengecekan</b><div class="text-xs opacity-60 mb-2">Diisi sekali, berlaku untuk semua data yang diinput berikutnya.</div>
 ${fld('Checker 1',`<select class="i" onchange="F.c1=this.value">${opts(D.M.checkers,F.c1,'- pilih -')}</select>`)}
 ${fld('Checker 2',`<select class="i" onchange="F.c2=this.value">${opts(D.M.checkers,F.c2,'- pilih -')}</select>`)}
