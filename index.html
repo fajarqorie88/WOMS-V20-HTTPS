@@ -185,7 +185,7 @@ const EN=[["Masuk untuk mengakses data pengecekan Anda","Sign in to access your 
 ["Pilih grafik untuk diunduh","Select charts to download"],["Pilih grafik untuk dibagikan","Select charts to share"],["Pilih semua","Select all"],["Hapus semua","Clear all"],["Unduh","Download"],["Batal","Cancel"],["Grafik Arus Welding","Welding Current Chart"],["Grafik","Charts"],["callout NG = di luar standar","NG callout = outside standard"],["hari","days"],
 ["+ Tambah Sub Equipment","+ Add Sub Equipment"],["+ Tambah Material","+ Add Material"],["SIMPAN PERUBAHAN","SAVE CHANGES"],["Tambah","Add"],["Kelola","Manage"],
 ["Ganti ke Day","Switch to Day"],["Ganti ke Night","Switch to Night"],["Ganti Password","Change Password"],["Tema","Theme"],["Data milik:","Data owner:"],["Akun:","Account:"],["Akun","Account"],["Masukkan password lama dan password baru (min. 8 karakter).","Enter your old and new password (min. 8 characters)."],["Password lama","Old password"],["Konfirmasi password baru","Confirm new password"],["Password baru (min. 6)","New password (min. 6)"],["Password baru","New password"],["Kirim link via email","Send link via email"],["Masukkan kode yang dikirim ke","Enter the code sent to"],["Kode 6 digit","6-digit code"],["Kirim ulang","Resend"],["Konfirmasi lewat kode yang dikirim ke email Anda.","Confirm using the code sent to your email."],["Kirim Kode ke Email","Send Code to Email"],["Upload foto","Upload photo"],["Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.","Data is saved automatically on this device and is not lost on refresh."],["Sync Drive terakhir:","Last Drive sync:"],["belum pernah","never"],["Auto Sync (3 detik setelah perubahan)","Auto Sync (3 seconds after changes)"],["Sync Sekarang","Sync Now"],["Load dari Drive","Load from Drive"],["Catatan: sync Drive masih simulasi (disimpan di perangkat dengan nama WMS_backup_{user}_{tanggal}.json). Integrasi Google Drive asli butuh OAuth Client ID.","Note: Drive sync is still a simulation (saved on the device as WMS_backup_{user}_{date}.json). Real Google Drive integration requires an OAuth Client ID."],["Email (simulasi)","Email (simulation)"],["Kepada:","To:"],["Kode verifikasi ganti password Anda:","Your password change verification code:"],["Berlaku 10 menit. Pengiriman email sungguhan butuh server.","Valid for 10 minutes. Real email delivery requires a server."],["Nama","Name"],
-["Dibuat:","Created:"],["Jumlah","Count"],["Rata-rata","Average"],["Rentang","Range"],["Waktu","Time"],["Aktual","Actual"],["Standar","Standard"],["Lokasi","Location"],["Deskripsi","Description"],["Keterangan","Notes"],["Ringkasan","Summary"],["Inspeksi","Inspection"],["Pengecekan","Inspection"],["Setting","Settings"],["Target ± Allowance % = Min & Max otomatis","Target ± Allowance % = Min & Max automatic"],["Allowance (%)","Allowance (%)"],["Per Material","By Material"],["Per Lokasi","By Location"],["Belum ada data untuk lokasi ini","No data for this location"],["Daftar dengan Email","Sign up with Email"],["Masuk dengan Email","Sign in with Email"],["Login Google butuh OAuth Client ID (belum dikonfigurasi). Gunakan email.","Google sign-in needs an OAuth Client ID (not configured). Please use email."],["atau","or"],["Pilih menu untuk memulai","Select a menu to start"],["Input, data, grafik &amp; master arus welding","Welding current input, data, charts &amp; master"],["Input, data, grafik & master arus welding","Welding current input, data, charts & master"],["Fitur ini sedang disiapkan.","This feature is being prepared."],["Segera hadir","Coming soon"],["Kembali ke Menu","Back to Menu"],["Selamat datang","Welcome"]];
+["Dibuat:","Created:"],["Jumlah","Count"],["Rata-rata","Average"],["Rentang","Range"],["Waktu","Time"],["Aktual","Actual"],["Standar","Standard"],["Lokasi","Location"],["Deskripsi","Description"],["Keterangan","Notes"],["Ringkasan","Summary"],["Inspeksi","Inspection"],["Pengecekan","Inspection"],["Setting","Settings"],["Target ± Allowance % = Min & Max otomatis","Target ± Allowance % = Min & Max automatic"],["Allowance (%)","Allowance (%)"],["Update Data Server","Update Server Data"],["Per Material","By Material"],["Per Lokasi","By Location"],["Belum ada data untuk lokasi ini","No data for this location"],["Daftar dengan Email","Sign up with Email"],["Masuk dengan Email","Sign in with Email"],["Login Google butuh OAuth Client ID (belum dikonfigurasi). Gunakan email.","Google sign-in needs an OAuth Client ID (not configured). Please use email."],["atau","or"],["Pilih menu untuk memulai","Select a menu to start"],["Input, data, grafik &amp; master arus welding","Welding current input, data, charts &amp; master"],["Input, data, grafik & master arus welding","Welding current input, data, charts & master"],["Fitur ini sedang disiapkan.","This feature is being prepared."],["Segera hadir","Coming soon"],["Kembali ke Menu","Back to Menu"],["Selamat datang","Welcome"]];
 const _EM={},_ER=new RegExp(EN.slice().sort((a,b)=>b[0].length-a[0].length).map(([k,v])=>{_EM[k]=v;const e=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return(/^[A-Za-z]/.test(k)?'(?<![A-Za-z])':'')+e+(/[A-Za-z]$/.test(k)?'(?![A-Za-z])':'')}).join('|'),'g');
 const tr=s=>LG=='en'&&s?String(s).replace(_ER,m=>_EM[m]):s;
 function trDom(r){if(LG!='en'||!r)return;const w=document.createTreeWalker(r,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode&&/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.nodeName)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(n=>{const v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v});r.querySelectorAll('[placeholder],[title]').forEach(e=>['placeholder','title'].forEach(k=>{if(e.hasAttribute(k))e.setAttribute(k,tr(e.getAttribute(k)))}))}
@@ -196,10 +196,8 @@ function def(){return{mains:Array.from({length:23},(_,i)=>({id:'m'+(i+1),code:'T
 M:{checkers:['Checker 1'],locs:['Line 1','Line 2'],descs:['Welding Spot'],mats:['SCGA','SPCC'],shifts:['Shift 1','Shift 2','Shift 3']},
 insp:[],prof:{name:'',nip:'',dept:'',role:'Checker',hp:'',email:'',photo:''},sync:{last:null,auto:true}}}
 function load(id){let r=L['woms_data_'+id]||L['woms_data'];try{D=r?JSON.parse(r):def()}catch(e){D=def()}D.prof=D.prof||def().prof;D.sync=D.sync||{last:null,auto:true};D.M=D.M||def().M;norm()}
-function save(now){clearTimeout(saveT);const f=()=>{if(U){L['woms_data_'+U.id]=JSON.stringify(D)}};now?f():saveT=setTimeout(f,300);if(SERVER&&U)metaPush();
- if(D&&D.sync.auto&&U){clearTimeout(syncT);syncT=setTimeout(()=>drive(true),3000)}}
+function save(now){clearTimeout(saveT);const f=()=>{if(U){L['woms_data_'+U.id]=JSON.stringify(D)}};now?f():saveT=setTimeout(f,300);if(SERVER&&U)metaPush()}
 addEventListener('beforeunload',()=>save(true));
-function drive(q){if(!U)return;L['woms_drive_'+U.id]=JSON.stringify({file:`WMS_backup_${U.id}_${new Date().toISOString().slice(0,10)}.json`,data:D});D.sync.last=new Date().toLocaleString(LC());L['woms_data_'+U.id]=JSON.stringify(D);if(!q){toast('Tersinkron (simulasi Drive)');render()}}
 const mainBy=id=>D.mains.find(m=>m.id==id),subBy=(m,id)=>m&&m.subs.find(s=>s.id==id);
 const opts=(a,v,ph)=>(ph?`<option value="">${ph}</option>`:'')+a.map(x=>{const[val,lab]=Array.isArray(x)?x:[x,x];return`<option value="${esc(val)}"${val==v?' selected':''}>${esc(lab)}</option>`}).join('');
 const fld=(l,h)=>`<label>${l}</label>${h}`;
@@ -413,8 +411,8 @@ ${P('name','Nama')}${P('nip','NIP')}${P('dept','Dept')}${fld('Role',`<select cla
 ${LISTS.map(([k,l])=>`<div class="c"><b>Kelola ${l}</b><div class="my-2">${D.M[k].map((x,i)=>`<span class="bg">${esc(x)} ${k!='mats'?`<button onclick="renM('${k}',${i})">&#9998;</button> `:''}<button onclick="delM('${k}',${i})">&#10005;</button></span>`).join('')}</div><div class="flex gap-2"><input id="n_${k}" class="i" style="margin:0" placeholder="Tambah ${l}"><button class="b" onclick="addM('${k}')">+</button></div></div>`).join('')}
 <div class="c text-sm"><b>Data &amp; Storage</b><p>${D.insp.length} data pengecekan - ${(sz/1024).toFixed(1)} KB</p><p class="text-xs opacity-60">Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.</p>
 <div class="flex flex-wrap gap-2 my-2"><button class="b" onclick="xl()">Export Excel</button><button class="b" onclick="bk()">Backup JSON</button><label class="b b2">Restore JSON<input type="file" accept=".json" hidden onchange="rs(this.files[0])"></label><button class="b bd" onclick="wipe()">Hapus Semua</button></div>
-<p>Sync Drive terakhir: ${D.sync.last||'belum pernah'}</p><label class="flex gap-2 items-center my-2"><input type="checkbox" ${D.sync.auto?'checked':''} onchange="D.sync.auto=this.checked;save();render()"> Auto Sync (3 detik setelah perubahan)</label><div class="flex gap-2"><button class="b" onclick="drive()">Sync Sekarang</button><button class="b b2" onclick="fromDrive()">Load dari Drive</button></div>
-<p class="text-xs opacity-60 mt-1">Catatan: sync Drive masih simulasi (disimpan di perangkat dengan nama WMS_backup_{user}_{tanggal}.json). Integrasi Google Drive asli butuh OAuth Client ID.</p></div>
+<p>Update server terakhir: ${D.sync.last||'belum pernah'}</p><div class="flex gap-2 mt-2"><button class="b" style="background:#16a34a" onclick="awUpdateServer()">&#11014; Update Data Server</button></div>
+<p class="text-xs opacity-60 mt-1">Mengirim data setting (lokasi, checker, material, shift, deskripsi), master equipment, dan data pengecekan ke server Appwrite, lalu mengambil data baru dari server. Perangkat lain menerima pembaruan saat aplikasi dibuka kembali.</p></div>
 <div class="c text-sm text-center">WMS v2.9 - Welding Monitoring System<p class="text-xs opacity-60 mt-1">Developed by Fajar Q.</p></div>`}
 function theme(){const n=document.documentElement.dataset.theme=='dark'?'light':'dark';document.documentElement.dataset.theme=n;L.woms_theme=n;render()}
 function addM(k){const el=$('#n_'+k),v=el.value.trim();if(!v||D.M[k].includes(v))return;D.M[k].push(v);save();render()}
@@ -424,7 +422,6 @@ function dl(name,txt,type){const a=document.createElement('a');a.href=URL.create
 function bk(){dl(`WMS_backup_${U.id}_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(D),'application/json')}
 function rs(f){if(!f)return;const r=new FileReader();r.onload=e=>{try{D=JSON.parse(e.target.result);load_fix();if(SERVER)D.insp.forEach(cloudPut);save(true);draft=null;toast('Restore berhasil');render()}catch(x){toast('File tidak valid')}};r.readAsText(f)}
 function load_fix(){D.M=D.M||def().M;D.prof=D.prof||def().prof;D.sync=D.sync||{last:null,auto:true};norm()}
-function fromDrive(){const r=L['woms_drive_'+U.id];if(!r)return toast('Belum ada backup Drive');D=JSON.parse(r).data;save(true);draft=null;toast('Dimuat dari Drive');render()}
 function wipe(){if(confirm('Hapus semua data akun ini?')){if(SERVER)D.insp.forEach(i=>cloudDel(i.id));D=def();save(true);draft=null;render()}}
 function xl(){if(!window.XLSX)return toast('Library Excel belum termuat');const wb=XLSX.utils.book_new(),jts=a=>XLSX.utils.json_to_sheet(a.map(o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[tr(k),v]))));
 XLSX.utils.book_append_sheet(wb,jts(D.insp.map(i=>({Waktu:i.dt,Main:i.main,Sub:i.sub,Type:i.subType,Material:i.mat,Aktual_kA:i.kA,Std_Min:i.min,Std_Max:i.max,Status:i.status,Checker1:i.c1,Checker2:i.c2,Shift:i.shift,Lokasi:i.loc,Description:i.desc,Job:i.job,Keterangan:i.ket}))),tr('Inspeksi'));
@@ -503,6 +500,36 @@ async function awMasterNow(){
   clearTimeout(awT);D.masterT=Date.now();_awSave(true);
   if(await awMasterPush())toast('Master terkirim ke server (semua perangkat)');
 }
+async function awUpdateServer(){
+  if(awSyncing){toast("Update sedang berjalan...");return}
+  const pre=awCheck();
+  if(pre){alert(pre);return}
+  if(!D||!U)return;
+  awSyncing=true;toast("Mengirim setting ke server...");
+  try{
+    clearTimeout(awT);D.masterT=Date.now();_awSave(true);
+    let mok=await awMasterPush();
+    if(!mok){await new Promise(z=>setTimeout(z,1600));mok=await awMasterPush()}
+    let ok=0,fail=0,err="";
+    const list=(D.insp||[]).slice();
+    for(let k=0;k<list.length;k+=3){
+      await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
+      toast("Mengirim data "+Math.min(k+3,list.length)+"/"+list.length+"...");
+    }
+    const added=await awPullAll(true);
+    let m="Setting & master "+(mok?"terkirim":"GAGAL dikirim")+", "+ok+" data pengecekan terkirim";
+    if(added>0)m+=", "+added+" data baru dari server";
+    if(fail)m+=", gagal "+fail+": "+err;
+    if(added<0&&!fail)m+=" (ambil data dari server gagal)";
+    if(mok&&!fail&&added>=0){D.sync.last=new Date().toLocaleString(LC());_awSave(true);awSuccess("Update berhasil",m)}
+    else alert(m);
+    render();
+  }catch(e){
+    console.error("Update gagal:",e);alert("Update gagal: "+((e&&e.message)||e));
+  }finally{awSyncing=false}
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&U&&D&&!pend())awMasterPull()});
+setInterval(()=>{if(U&&D&&document.visibilityState==="visible"&&tab!=="master"&&!pend())awMasterPull()},60000);
 function awMasterCheck(){
   if(!D||!U||awLast===null)return;
   if(awSnap()===awLast)return;
