@@ -114,22 +114,22 @@ async function awPullAll(silent){
       last=r.documents[r.documents.length-1].$id;
     }
     if(U!==u||!D)return -1;
-    const have=new Map(D.insp.map(x=>[String(x.id),x]));let added=0;const pend=[];
+    const have=new Map(D.insp.map(x=>[String(x.id),x]));let added=0,upd=0;const pend=[];
     for(const d of docs){
       if(!d.json)continue;
       let o;try{o=JSON.parse(d.json)}catch(e){continue}
       if(!o||!o.id)continue;
       const loc=have.get(String(o.id));
-      if(loc){if(!loc.photo&&o.photoId){loc.photoId=o.photoId;pend.push(loc)}continue}
+      if(loc){if((o.ea||0)>(loc.ea||0)){const ph=loc.photo,op=loc.photoId;Object.assign(loc,o);loc.photo=(o.photoId||'')==(op||'')?ph:'';upd++;if(!loc.photo&&o.photoId)pend.push(loc)}else if(!loc.photo&&o.photoId){loc.photoId=o.photoId;pend.push(loc)}continue}
       o.photo=o.photo||"";D.insp.push(o);have.set(String(o.id),o);added++;
       if(o.photoId&&!o.photo)pend.push(o);
     }
     const got=pend.length?await awPhotosGet(pend):0;
     if(U!==u||!D)return -1;
-    if(added||got){
+    if(added||got||upd){
       D.insp.sort((x,y)=>(y.created||0)-(x.created||0));
       _awSave(true);render();
-      toast((added?added+" data baru":"")+(added&&got?", ":"")+(got?got+" foto":"")+" diambil dari server");
+      {const ps=[];if(added)ps.push(added+" data baru");if(upd)ps.push(upd+" data diperbarui");if(got)ps.push(got+" foto");toast(ps.join(", ")+" diambil dari server")}
     }
     return added;
   }catch(e){
@@ -145,6 +145,7 @@ async function awSyncAll(){
   if(pre){alert(pre);return}
   awSyncing=true;toast("Memulai update ke server...");
   try{
+    await awPullAll(true);
     let ok=0,fail=0,err="";
     const list=(D.insp||[]).slice();
     for(let k=0;k<list.length;k+=3){
@@ -574,7 +575,7 @@ ${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,
 <p class="text-xs opacity-60">${a.length} data</p>
 ${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
-d.innerHTML=`<div class="c max-w-xl mx-auto text-sm"><div class="flex justify-between"><b>${esc(i.main)} - ${esc(i.sub)}</b><button onclick="this.closest('.fixed').remove()">&#10005;</button></div>${st(i)}<table class="w-full mt-2">${[['Waktu',new Date(i.dt).toLocaleString(LC())],['Type',i.subType],['Material',i.mat],['Aktual',i.kA+' kA'],['Standar',i.min+' - '+i.max],['Shift',i.shift],['Checker',i.c1+' / '+i.c2],['Lokasi',i.loc],['Description',i.desc],['Job',i.job],['Keterangan',i.ket]].concat(isDev()?[['Diinput oleh',inpName(i)]]:[]).map(r=>`<tr><td class="opacity-60 py-1">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>${i.photo?`<img src="${i.photo}" class="w-full rounded-lg mt-2">`:''}</div>`;trDom(d);document.body.appendChild(d)}
+d.innerHTML=`<div class="c max-w-xl mx-auto text-sm"><div class="flex justify-between"><b>${esc(i.main)} - ${esc(i.sub)}</b><button onclick="this.closest('.fixed').remove()">&#10005;</button></div>${st(i)}<table class="w-full mt-2">${[['Waktu',new Date(i.dt).toLocaleString(LC())],['Type',i.subType],['Material',i.mat],['Aktual',i.kA+' kA'],['Standar',i.min+' - '+i.max],['Shift',i.shift],['Checker',i.c1+' / '+i.c2],['Lokasi',i.loc],['Description',i.desc],['Job',i.job],['Keterangan',i.ket]].concat(isDev()?[['Diinput oleh',inpName(i)]].concat(i.ea?[['Terakhir diedit',(i.editedByName||i.editedBy||'-')+' - '+new Date(i.ea).toLocaleString(LC())]]:[]):[]).map(r=>`<tr><td class="opacity-60 py-1">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>${i.photo?`<img src="${i.photo}" class="w-full rounded-lg mt-2">`:''}${canEdit(i)?`<button class="b w-full mt-3" onclick="editInsp('${i.id}')">&#9998; Edit Data</button>`:''}</div>`;trDom(d);document.body.appendChild(d)}
 
 /* ---------- GRAFIK ---------- */
 function grafikView(){const a=gData(),v=a.map(i=>i.kA),n=v.length,LG=G.view=='loc'?locGroups(a):[];
@@ -828,6 +829,7 @@ async function awUpdateServer(){
     clearTimeout(awT);D.masterT=Date.now();_awSave(true);
     let mok=await awMasterPush();
     if(!mok){await new Promise(z=>setTimeout(z,1600));mok=await awMasterPush()}
+    await awPullAll(true);
     let ok=0,fail=0,err="";
     const list=(D.insp||[]).slice();
     for(let k=0;k<list.length;k+=3){
@@ -1019,6 +1021,59 @@ function undoDel(){
   D.insp.push(r);save(true);cloudPut(r);
   if(!awCheck())awUpsert(r).catch(e=>toast('Kirim ke server gagal: '+((e&&e.message)||e)));
   toast('Data dikembalikan');render()}
+/* ---------- EDIT DATA (developer & penginput) ---------- */
+let EF=null;
+const canEdit=i=>canDel(i);
+const dtIn=v=>{if(/^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(String(v)))return String(v).slice(0,16);const d=new Date(v);if(isNaN(d))return '';const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())};
+const withCur=(a,c)=>c&&!a.includes(c)?[...a,c]:a;
+function editInsp(id){
+  const i=D.insp.find(x=>x.id==id);if(!i)return;
+  if(!canEdit(i))return toast('Anda hanya bisa mengedit data yang Anda input');
+  document.querySelectorAll('.fixed.z-40').forEach(e=>e.remove());
+  EF={id:i.id,dt:dtIn(i.dt),mid:String(i.mid),sid:String(i.sid),mat:i.mat,kA:String(i.kA),loc:i.loc||'',shift:i.shift||'',c1:i.c1||'',c2:i.c2||'',job:i.job||'',desc:i.desc||'',ket:i.ket||'',photo:i.photo||'',pc:0};
+  edDraw()}
+function edClose(){const d=$('#edm');if(d)d.remove();EF=null}
+function edDraw(){
+  if(!EF)return;
+  let d=$('#edm');if(!d){d=document.createElement('div');d.id='edm';d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';document.body.appendChild(d)}
+  const m=mainBy(EF.mid),sub=subBy(m,EF.sid),sb=m?m.subs.map(x=>[x.id,`${x.name} (${x.type})`]):[],mt=sub?sub.mats.map(x=>x.mt):[];
+  const sel=(k,list,ph)=>`<select class="i" onchange="EF.${k}=this.value">${opts(withCur(list,EF[k]),EF[k],ph||'- pilih -')}</select>`;
+  d.innerHTML=`<div class="c max-w-xl mx-auto text-sm"><div class="flex justify-between"><b>&#9998; Edit Data</b><button onclick="edClose()">&#10005;</button></div>
+${fld('Tanggal & Waktu Pengecekan',`<input type="datetime-local" class="i" value="${esc(EF.dt)}" oninput="EF.dt=this.value">`)}
+${fld('Main Equipment',`<select class="i" onchange="EF.mid=this.value;EF.sid='';EF.mat='';edDraw()">${opts(D.mains.map(x=>[x.id,x.code]),EF.mid,'- pilih -')}</select>`)}
+${fld('Sub Equipment',`<select class="i" onchange="EF.sid=this.value;EF.mat='';edDraw()">${opts(sb,EF.sid,'- pilih -')}</select>`)}
+${fld('Material Type',`<select class="i" onchange="EF.mat=this.value">${opts(mt,EF.mat,'- pilih -')}</select>`)}
+${fld('Arus (kA)',`<input type="number" step="0.1" inputmode="decimal" class="i" value="${esc(EF.kA)}" oninput="EF.kA=this.value">`)}
+${fld('Lokasi',sel('loc',D.M.locs))}
+${fld('Shift',sel('shift',D.M.shifts))}
+${fld('Checker 1',sel('c1',D.M.checkers))}
+${fld('Checker 2',sel('c2',D.M.checkers))}
+${fld('Job',sel('job',D.M.jobs))}
+${fld('Deskripsi',sel('desc',D.M.descs))}
+${fld('Keterangan',`<textarea class="i" rows="2" oninput="EF.ket=this.value">${esc(EF.ket)}</textarea>`)}
+<label>Foto</label><div class="flex gap-2 my-1"><label class="b flex-1 text-center">Buka Kamera<input type="file" accept="image/*" capture="environment" hidden onchange="edPick(this.files[0])"></label><label class="b b2 flex-1 text-center">Pilih Galeri<input type="file" accept="image/*" hidden onchange="edPick(this.files[0])"></label></div>
+${EF.photo?`<img src="${EF.photo}" style="max-height:260px" class="rounded-lg my-2"><button class="b bd" onclick="EF.photo='';EF.pc=1;edDraw()">Hapus Foto</button>`:''}
+<div class="flex gap-2 mt-3"><button class="b flex-1" onclick="edSave()">Simpan Perubahan</button><button class="b b2" onclick="edClose()">Batal</button></div></div>`;
+  if(typeof trDom==='function')trDom(d)}
+function edPick(f){if(!f||!EF)return;compress(f,x=>{EF.photo=x;EF.pc=1;edDraw()})}
+async function edSave(){
+  if(!EF)return;
+  const i=D.insp.find(x=>x.id==EF.id);if(!i)return edClose();
+  if(!canEdit(i))return toast('Anda hanya bisa mengedit data yang Anda input');
+  const m=mainBy(EF.mid),sub=subBy(m,EF.sid),mat=sub&&sub.mats.find(x=>x.mt==EF.mat),k=parseFloat(EF.kA);
+  if(!m||!sub||!mat||isNaN(k))return toast('Lengkapi Main, Sub, Material & kA');
+  if(!EF.dt)return toast('Isi tanggal pengecekan');
+  if(!EF.loc)return toast('Pilih lokasi');
+  const oldPid=i.photoId,pc=EF.pc==1;
+  Object.assign(i,{dt:EF.dt,mid:m.id,main:m.code,sid:sub.id,sub:sub.name,subType:sub.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:k>=mat.min&&k<=mat.max?'OK':'NG',c1:EF.c1,c2:EF.c2,shift:EF.shift,loc:EF.loc,desc:EF.desc,job:EF.job,ket:EF.ket,editedBy:U.email||U.id,editedByName:(D.prof&&D.prof.name)||U.name||'',ea:Date.now()});
+  if(pc){i.photo=EF.photo;i.photoId=''}
+  save(true);cloudPut(i);edClose();toast('Perubahan disimpan');render();
+  if(!awCheck()){
+    try{
+      if(pc&&oldPid&&typeof awST!=='undefined'&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}
+      await awUpsert(i);
+    }catch(e){toast('Kirim ke server gagal: '+((e&&e.message)||e))}
+  }}
 /* ---------- DATA: PENGINPUT & HAK HAPUS ---------- */
 const canDel=i=>isDev()||(!!i.userId&&!!U&&String(i.userId).toLowerCase()==String(U.id).toLowerCase());
 const inpName=i=>{const n=i.userName||'',e=i.userEmail||i.userId||'';return n&&e&&n!=e?n+' ('+e+')':(n||e||'-')};
