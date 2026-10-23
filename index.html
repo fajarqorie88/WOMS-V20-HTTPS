@@ -122,12 +122,29 @@ async function awSyncAll(){
     console.error("Update gagal:",e);alert("Update gagal: "+((e&&e.message)||e));
   }finally{awSyncing=false}
 }
+/* Suara "cling" (sintesis Web Audio, tanpa file) */
+let awAC=null;
+function awAudio(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;if(!awAC)awAC=new C();if(awAC.state==="suspended")awAC.resume();return awAC}catch(e){return null}}
+document.addEventListener("pointerdown",awAudio,{passive:true});
+function awCling(){
+  const a=awAudio();if(!a)return;
+  try{
+    const t=a.currentTime,g=a.createGain();
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.35,t+0.005);g.gain.exponentialRampToValueAtTime(0.0001,t+1.1);
+    g.connect(a.destination);
+    [[1318.5,0],[1975.5,0.09],[2637,0.09]].forEach(([f,d],i)=>{
+      const o=a.createOscillator(),h=a.createGain();
+      o.type="sine";o.frequency.value=f;h.gain.value=i==2?0.25:1;
+      o.connect(h);h.connect(g);o.start(t+d);o.stop(t+1.2);
+    });
+  }catch(e){}
+}
 /* Animasi centang + notifikasi berhasil */
 function awSuccess(title,sub){
   if(!document.getElementById("aw-css")){
     const st=document.createElement("style");st.id="aw-css";
     st.textContent=".aw-ok{position:fixed;top:0;left:0;width:100%;height:100%;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);animation:awf .2s}"+
-    ".aw-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--cd,#fff);color:var(--tx,#0f172a);border-radius:20px;padding:26px 34px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);animation:awp .3s;max-width:80%}"+
+    ".aw-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--cd,#fff);color:var(--tx,#0f172a);border-radius:16px;padding:16px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);animation:awp .3s;max-width:80%}"+
     ".aw-ok svg{display:block;margin:0 auto;flex:none}"+
     ".aw-ok circle{transform:rotate(-90deg);transform-origin:26px 26px}"+
     ".aw-ok circle{stroke-dasharray:166;stroke-dashoffset:166;animation:awd .6s .1s forwards}"+
@@ -138,9 +155,10 @@ function awSuccess(title,sub){
   const t=document.getElementById("t");if(t)t.style.display="none";
   const old=document.querySelector(".aw-ok");if(old)old.remove();
   const d=document.createElement("div");d.className="aw-ok";
-  d.innerHTML='<div class="aw-card"><svg width="84" height="84" viewBox="0 0 52 52" fill="none" stroke="#16a34a" stroke-linecap="round" stroke-linejoin="round"><circle cx="26" cy="26" r="25" stroke-width="3"/><path d="M14 26l8 8 16-16" stroke-width="4"/></svg><div style="font-weight:700;font-size:18px;margin-top:10px">'+title+'</div><div style="font-size:13px;opacity:.7;margin-top:4px">'+sub+'</div></div>';
+  d.innerHTML='<div class="aw-card"><svg width="52" height="52" viewBox="-2 -2 56 56" fill="none" stroke="#16a34a" stroke-linecap="round" stroke-linejoin="round"><circle cx="26" cy="26" r="24" stroke-width="3"/><path d="M14 26l8 8 16-16" stroke-width="4"/></svg><div style="font-weight:700;font-size:15px;margin-top:6px">'+title+'</div><div style="font-size:12px;opacity:.7;margin-top:2px">'+sub+'</div></div>';
   d.onclick=()=>d.remove();
   document.body.appendChild(d);
+  awCling();
   try{const H=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Haptics;if(H&&H.impact)H.impact({style:"LIGHT"});else if(navigator.vibrate)navigator.vibrate(40)}catch(e){}
   setTimeout(()=>{if(d.parentNode)d.remove()},2400);
 }
@@ -285,7 +303,7 @@ const TABS=[['input','Input'],['data','Data'],['grafik','Grafik'],['master','Mas
 let LG=L.woms_lang||'id';document.documentElement.lang=LG;
 const LC=()=>LG=='en'?'en-GB':'id-ID';
 const EN=[["Masuk untuk mengakses data pengecekan Anda","Sign in to access your inspection data"],["atau akun lain","or another account"],["Nama lengkap","Full name"],["Konfirmasi password (min. 8 karakter)","Confirm password (min. 8 characters)"],["Foto profil (opsional)","Profile photo (optional)"],["Daftar dengan Google","Sign up with Google"],["Masuk dengan Google","Sign in with Google"],["Sudah punya akun? Masuk","Already have an account? Sign in"],["Belum punya akun? Daftar","Don't have an account? Sign up"],["Lupa password?","Forgot password?"],["Data tersimpan terpisah per akun","Data is stored separately per account"],["Daftar","Sign up"],["Masuk","Sign in"],
-["Langkah 1 - Info Pengecekan","Step 1 - Inspection Info"],["Langkah 2 - Input Data","Step 2 - Data Input"],["Diisi sekali, berlaku untuk semua data yang diinput berikutnya.","Filled once, applies to all data entered afterwards."],["Tanggal & Waktu Pengecekan","Inspection Date & Time"],["Cek Output","Check Output"],["Ubah Password","Change Password"],["Ubah nama","Rename"],["Ubah","Edit"],["Lokasi (default dari Master, pilihan dari Setting)","Location (default from Master, options from Setting)"],["Arus (kA)","Current (kA)"],["Buka Kamera","Open Camera"],["Pilih Galeri","Choose from Gallery"],["Hapus Foto","Remove Photo"],["Simpan Data","Save Data"],["Data otomatis masuk ke tab Data dan Grafik.","Data automatically goes to the Data and Charts tabs."],["Data Terakhir","Latest Data"],["Cari Trafo...","Search Trafo..."],["Cari...","Search..."],["- pilih lokasi -","- select location -"],["- belum ada, tambah di Setting -","- none yet, add in Setting -"],["- pilih -","- select -"],["Foto","Photo"],
+["Langkah 1 - Info Pengecekan","Step 1 - Inspection Info"],["Langkah 2 - Input Data","Step 2 - Data Input"],["Diisi sekali, berlaku untuk semua data yang diinput berikutnya.","Filled once, applies to all data entered afterwards."],["Tanggal & Waktu Pengecekan","Inspection Date & Time"],["Cek Output","Check Output"],["Ubah Password","Change Password"],["Ubah nama","Rename"],["Ubah","Edit"],["Lokasi (default dari Master, pilihan dari Setting)","Location (default from Master, options from Setting)"],["Arus (kA)","Current (kA)"],["Buka Kamera","Open Camera"],["Pilih Galeri","Choose from Gallery"],["Hapus Foto","Remove Photo"],["Simpan Data dan Update Server","Save Data and Update Server"],["Simpan Data","Save Data"],["Data otomatis masuk ke tab Data dan Grafik.","Data automatically goes to the Data and Charts tabs."],["Data Terakhir","Latest Data"],["Cari Trafo...","Search Trafo..."],["Cari...","Search..."],["- pilih lokasi -","- select location -"],["- belum ada, tambah di Setting -","- none yet, add in Setting -"],["- pilih -","- select -"],["Foto","Photo"],
 ["Data & Grafik diperbarui","Data & Charts updated"],["Tersimpan di folder Documents:","Saved to Documents folder:"],["Master tersimpan","Master saved"],["Tersimpan","Saved"],["Tersinkron (simulasi Drive)","Synced (Drive simulation)"],
 ["Akun belum terdaftar. Klik Daftar untuk membuat password","Account not registered. Click Sign up to create a password"],["Belum ada backup Drive","No Drive backup yet"],["Data dihapus","Data deleted"],["Dimuat dari Drive","Loaded from Drive"],["Email sudah terdaftar, silakan masuk","Email already registered, please sign in"],["Email tidak valid","Invalid email"],["File tidak valid","Invalid file"],["Gagal membagikan PDF","Failed to share PDF"],["Isi password lama","Enter old password"],["Isi password","Enter password"],["Isi nama","Enter name"],["Isi tanggal pengecekan","Enter inspection date"],["Kode kedaluwarsa, kirim ulang","Code expired, resend"],["Kode salah","Wrong code"],["Konfirmasi password tidak sama","Password confirmation does not match"],["Konfirmasi tidak sama","Confirmation does not match"],["Lengkapi Main, Sub, Material & kA","Complete Main, Sub, Material & kA"],["Library Excel belum termuat","Excel library not loaded yet"],["Library PDF belum termuat","PDF library not loaded yet"],["Nama sudah ada","Name already exists"],["PDF diunduh","PDF downloaded"],["Password baru minimal 8 karakter","New password must be at least 8 characters"],["Password minimal 8 karakter","Password must be at least 8 characters"],["Password minimal 6 karakter","Password must be at least 6 characters"],["Password berhasil diubah","Password changed successfully"],["Password salah","Wrong password"],["Pilih Checker 1","Select Checker 1"],["Pilih Shift","Select Shift"],["Pilih lokasi","Select location"],["Pilih minimal 1 grafik","Select at least 1 chart"],["Restore berhasil","Restore successful"],["Tidak ada koneksi ke server","No connection to server"],["Gagal","Failed"],["Sesi berakhir, silakan login lagi","Session expired, please sign in again"],
 ["Kode Main Equipment (mis. Trafo 24)","Main Equipment code (e.g. Trafo 24)"],["dipakai Main Equipment. Hapus dan kosongkan lokasinya di Master?","is used by Main Equipment. Delete and clear its location in Master?"],["Hapus semua data akun ini?","Delete all data of this account?"],["Hapus data","Delete data"],[" kA) ini? Tidak bisa dibatalkan."," kA)? This cannot be undone."],
@@ -473,12 +491,15 @@ return hd+`<div class="c flex justify-between items-center"><div class="text-sm"
 ${fld('Main Equipment',`<div class="cb"><input id="mq" class="i" autocomplete="off" value="${esc(m?m.code:F.mq||'')}" oninput="F.mq=this.value;cbOpen(false)" onfocus="cbOpen(!!mainBy(F.main))" onkeydown="cbKey(event)" onchange="selMain(this.value)" placeholder="Ketik atau pilih Main Equipment"><button type="button" class="cb-b" tabindex="-1" aria-label="Pilih" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="cbTog()">&#9662;</button><div id="cbl" class="cb-l"></div></div>`)}
 ${fld('Sub Equipment',`<select class="i" onchange="F.sub=this.value;F.mat='';render()">${opts(sb,F.sub,'- pilih -')}</select>`)}
 ${fld('Material Type',`<select class="i" onchange="F.mat=this.value;render()">${opts(mt,F.mat,'- pilih -')}</select>`)}
-${fld('Arus (kA)',`<input type="number" step="0.1" class="i" value="${esc(F.kA||'')}" oninput="F.kA=this.value">`)}
+${fld('Arus (kA)',`<input id="ka" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" class="i" value="${esc(F.kA||'')}" oninput="F.kA=this.value;F.kC=null;kpvUp()" onkeydown="kEnter(event)"><div id="kpv">${kpv()}</div>`)}
 ${fld('Lokasi (default dari Master, pilihan dari Setting)',`<select class="i" onchange="F.loc=this.value">${opts(D.M.locs,F.loc||(m?m.loc:''),'- pilih -')}</select>`)}
 ${fld('Keterangan',`<textarea class="i" rows="2" oninput="F.ket=this.value">${esc(F.ket||'')}</textarea>`)}
 <label>Foto</label><div class="flex gap-2 my-1"><label class="b flex-1 text-center">Buka Kamera<input type="file" accept="image/*" capture="environment" hidden onchange="pick('f',0,this.files[0])"></label><label class="b b2 flex-1 text-center">Pilih Galeri<input type="file" accept="image/*" hidden onchange="pick('f',0,this.files[0])"></label></div>
 ${F.photo?`<img src="${F.photo}" style="max-height:300px" class="rounded-lg my-2"><button class="b bd" onclick="F.photo='';render()">Hapus Foto</button>`:''}
-<button class="b w-full mt-3" onclick="saveInsp()">Simpan Data</button><p class="text-xs opacity-60 text-center mt-2">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
+<button id="bsv" class="b w-full mt-3" onclick="saveInsp()">Simpan Data dan Update Server</button><p class="text-xs opacity-60 text-center mt-2">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
+function kpv(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);if(F.kC==null||F.kC!==F.kA||!mat||isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<div class="text-xs mt-1"><span class="bg ${ok?'ok':'no'}">${ok?'OK':'NG'}</span> ${k} kA (std ${mat.min}-${mat.max}) - tekan Simpan Data</div>`}
+function kpvUp(){const e=$('#kpv');if(e)e.innerHTML=kpv()}
+function kEnter(e){if(e.key!='Enter')return;e.preventDefault();const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat);F.kA=e.target.value;if(!mat)return toast('Pilih Main, Sub & Material dulu');if(isNaN(parseFloat(F.kA)))return toast('Isi nilai Arus (kA)');F.kC=F.kA;kpvUp();e.target.blur();setTimeout(()=>{const b=$('#bsv');if(b)b.scrollIntoView({block:'center',behavior:'smooth'})},200)}
 function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');F.step=2;scrollTo(0,0);render()}
 function cbFill(all){const l=$('#cbl'),i=$('#mq');if(!l||!i)return[];const q=all?'':i.value.trim().toLowerCase(),cur=mainBy(F.main),a=D.mains.filter(m=>!q||m.code.toLowerCase().includes(q));
  l.innerHTML=a.length?a.map(m=>`<div class="cb-o${cur&&cur.id==m.id?' on':''}" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="cbPick('${esc(String(m.id))}')">${esc(m.code)}</div>`).join(''):`<div class="cb-o" style="opacity:.6">${LG=='en'?'Not found':'Tidak ditemukan'}</div>`;return a}
@@ -493,7 +514,7 @@ const st=i=>`<span class="bg ${i.status=='OK'?'ok':'no'}">${i.status}</span>`;
 function saveInsp(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);
 if(!m||!sub||!mat||isNaN(k))return toast('Lengkapi Main, Sub, Material & kA');if(!(F.loc||m.loc))return toast('Pilih lokasi');
 const r={id:uid8(),dt:F.dt,mid:m.id,main:m.code,sid:sub.id,sub:sub.name,subType:sub.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:k>=mat.min&&k<=mat.max?'OK':'NG',c1:F.c1||'',c2:F.c2||'',shift:F.shift||'',loc:F.loc||m.loc,desc:F.desc||'',job:F.job||'',ket:F.ket||'',photo:F.photo||'',userId:U.id,created:Date.now()};
-D.insp.unshift(r);cloudPut(r);awPut(r);save(true);F={step:2,dt:F.dt,main:F.main,sub:F.sub,mat:F.mat,shift:F.shift,c1:F.c1,c2:F.c2,job:F.job,desc:F.desc};toast('Tersimpan ('+r.status+') - Data & Grafik diperbarui');render()}
+D.insp.unshift(r);cloudPut(r);save(true);awSaveSync(r);F={step:2,dt:F.dt,main:F.main,sub:F.sub,mat:F.mat,shift:F.shift,c1:F.c1,c2:F.c2,job:F.job,desc:F.desc};toast('Tersimpan ('+r.status+') - Data & Grafik diperbarui');render()}
 
 /* ---------- DATA (read only) ---------- */
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||i.status==q.st))}
@@ -771,6 +792,27 @@ async function awUpdateServer(){
     render();
   }catch(e){
     console.error("Update gagal:",e);alert("Update gagal: "+((e&&e.message)||e));
+  }finally{awSyncing=false}
+}
+async function awSaveSync(r){
+  const pre=awCheck();
+  if(pre){toast("Tersimpan di perangkat. Server: "+pre);return}
+  if(awSyncing){try{await awUpsert(r)}catch(e){toast("Kirim ke server gagal: "+((e&&e.message)||e))}return}
+  awSyncing=true;toast("Mengirim ke server...");
+  try{
+    await awUpsert(r);
+    let mok=true;
+    if(D&&awLast!==null&&awSnap()!==awLast){clearTimeout(awT);D.masterT=Date.now();_awSave(true);mok=await awMasterPush()}
+    await awMasterPull();
+    const added=await awPullAll(true);
+    if(D){D.sync.last=new Date().toLocaleString(LC());_awSave(true)}
+    let m="Data terkirim ke server";
+    if(added>0)m+=", "+added+" data baru dari perangkat lain";
+    if(mok&&added>=0)awSuccess("Tersimpan & terupdate",m);
+    else alert(m+(mok?"":" (master gagal dikirim)")+(added<0?" (ambil data dari server gagal)":""));
+  }catch(e){
+    console.error("Simpan & update server gagal:",e);
+    alert("Data tersimpan di perangkat, tetapi gagal dikirim ke server: "+((e&&e.message)||e)+". Coba lagi lewat tombol Update ke Server di tab Data.");
   }finally{awSyncing=false}
 }
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&U&&D&&!pend())awMasterPull()});
