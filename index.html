@@ -401,7 +401,7 @@ return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" styl
 <h1 class="text-5xl font-black tracking-widest mt-3" style="background:linear-gradient(90deg,#fff,#93c5fd);-webkit-background-clip:text;background-clip:text;color:transparent">WMS</h1>
 <p class="text-sm tracking-wide mt-1" style="color:#93c5fd">Welding Monitoring System</p></div>
 <div class="glass">${body}</div>
-<p class="text-center text-xs mt-4" style="color:#64748b">Data tersimpan terpisah per akun - v2.9</p>
+<p class="text-center text-xs mt-4" style="color:#64748b">Data tersimpan terpisah per akun - v3.0</p>
 <p class="text-center text-xs mt-1" style="color:#94a3b8">Developed by Fajar Q.</p></div></div>`}
 let gph='';function gfoto(f){if(f)compress(f,d=>gph=d)}
 function start(u){LV='menu';LM='login';if(u.email)L.woms_lastmail=u.email;L.removeItem('woms_lock');lastAct=Date.now();L.woms_act=String(lastAct);U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;save(true);scr='home';tab='input';scrollTo(0,0);render()}
@@ -439,10 +439,10 @@ addEventListener('online',()=>{flush();pull()});setInterval(()=>{flush();pull()}
 async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function loginG(){const e=$('#ge').value.trim().toLowerCase(),p=$('#gp').value;await loginG0();if(U&&bioOK&&!_bio&&p&&String(U.email||U.id).toLowerCase()==e&&!bioOn(e)&&!L['woms_bn_'+e])bioAsk(e,p)}
 async function loginG0(){const e=$('#ge').value.trim().toLowerCase(),p=$('#gp').value;if(!/^\S+@\S+\.\S+$/.test(e))return toast('Email tidak valid');if(!p)return toast('Isi password');if(SERVER)return fbAuth(e,p);const ac=accs();
-if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(ac[e])return toast('Email sudah terdaftar, silakan masuk');if(p.length<6)return toast('Password minimal 6 karakter');if(p!=$('#gp2').value)return toast('Konfirmasi password tidak sama');ac[e]={name:n,hash:await sha(e+p)};L.woms_acc=JSON.stringify(ac);LM='login';start({id:e,name:n,email:e,provider:'email',photo:gph})}
-else{const a=ac[e];if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}start({id:e,name:a.name,email:e,provider:'email'})}}
+if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(ac[e])return toast('Email sudah terdaftar, silakan masuk');if(p.length<6)return toast('Password minimal 6 karakter');if(p!=$('#gp2').value)return toast('Konfirmasi password tidak sama');{const cc=await cloudClaim(e,n,p);if(!cc.ok)return toast(cc.msg)}_lp=p;ac[e]={name:n,hash:await sha(e+p)};L.woms_acc=JSON.stringify(ac);LM='login';start({id:e,name:n,email:e,provider:'email',photo:gph})}
+else{const a=ac[e];if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}_lp=p;start({id:e,name:a.name,email:e,provider:'email'})}}
 function pwSend(){PW={code:String(Math.floor(1e5+Math.random()*9e5)),exp:Date.now()+6e5};const d=document.createElement('div');d.className='fixed inset-0 z-50 flex items-center justify-center p-4';d.style.background='rgba(0,0,0,.6)';d.innerHTML=`<div class="c max-w-xs text-sm"><b>Email (simulasi)</b><p class="opacity-70 my-1">Kepada: ${esc(U.id)}</p><p>Kode verifikasi ganti password Anda:</p><p class="text-3xl font-black tracking-widest text-blue-600 my-2">${PW.code}</p><p class="text-xs opacity-60">Berlaku 10 menit. Pengiriman email sungguhan butuh server.</p><button class="b w-full mt-3" onclick="this.closest('.fixed').remove()">OK</button></div>`;trDom(d);document.body.appendChild(d);render()}
-async function pwChange(){const c=$('#pc').value.trim(),a=$('#pn').value;if(!PW||Date.now()>PW.exp)return toast('Kode kedaluwarsa, kirim ulang');if(c!=PW.code)return toast('Kode salah');if(a.length<6)return toast('Password minimal 6 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);PW=null;toast('Password berhasil diubah');render()}
+async function pwChange(){const c=$('#pc').value.trim(),a=$('#pn').value;if(!PW||Date.now()>PW.exp)return toast('Kode kedaluwarsa, kirim ulang');if(c!=PW.code)return toast('Kode salah');if(a.length<6)return toast('Password minimal 6 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);PW=null;cloudPw(U.id,a);toast('Password berhasil diubah');render()}
 function logout(){LV='menu';L.removeItem('woms_lock');save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');U=D=null;render()}
 
 /* ---------- LOGIN SIDIK JARI (WebAuthn + AES-GCM, kunci non-extractable di IndexedDB) ---------- */
@@ -499,7 +499,7 @@ const act=()=>{if(!U)return;const n=Date.now();if(n-lastAct>=IDLE)return lock('i
 setInterval(idleChk,5000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)idleChk()});addEventListener('pageshow',idleChk);
 async function credLogin(e,p){LM='login';if(SERVER)return fbAuth(e,p);const a=accs()[e];if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');
- if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}start({id:e,name:a.name,email:e,provider:'email'})}
+ if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}_lp=p;start({id:e,name:a.name,email:e,provider:'email'})}
 async function bioUnlock(){const lk=lockInfo();if(!lk)return;if(!await bioVerify(lk.e))return;
  const s0=scr,t0=tab;let ok=false;
  try{const u0=JSON.parse(L.woms_user||'null');
@@ -714,21 +714,22 @@ const LISTS=[['equips','Equipment'],['checkers','Checker'],['locs','Lokasi'],['d
 function toggleMute(){if(L.woms_mute==='1')L.removeItem('woms_mute');else L.woms_mute='1';const m=L.woms_mute==='1';render();toast(m?'Suara notifikasi di-mute':'Suara notifikasi aktif');if(!m)awCling()}
 function settingView(){const p=D.prof,dk=document.documentElement.dataset.theme=='dark',sz=(L['woms_data_'+U.id]||'').length,mu=L.woms_mute==='1';
 const P=(k,l,t)=>fld(l,`<input class="i" ${t?'type='+t:''} value="${esc(p[k])}" onchange="D.prof.${k}=this.value;save()">`);
-return`<h2 class="font-bold py-3">Setting</h2>
+return`<div class="flex justify-between items-center py-3"><h2 class="font-bold">Setting</h2><div class="flex items-center gap-2"><button class="b" style="padding:4px 12px;font-size:11px;border-radius:999px" onclick="shareApp()" title="Bagikan link aplikasi">&#10150; Share</button>${roleBadge()}</div></div>
 <div class="c flex justify-between items-center"><b>Bahasa / Language</b><select class="i" style="width:auto;margin:0" onchange="setLang(this.value)"><option value="id"${LG=='id'?' selected':''}>Indonesia</option><option value="en"${LG=='en'?' selected':''}>English</option></select></div>
 <div class="c flex justify-between items-center"><b>Tema ${dk?'Night':'Day'}</b><button class="b" onclick="theme()">${dk?'Ganti ke Day':'Ganti ke Night'}</button></div>
 <div class="c"><div class="flex justify-between items-center"><b>Suara Notifikasi</b><button class="b ${mu?'b2':''}" onclick="toggleMute()">${mu?'&#128276; Unmute Suara':'&#128277; Mute Suara'}</button></div><p class="text-xs opacity-60 mt-1">Suara cling saat data berhasil diupdate. ${mu?'Saat ini: mute.':'Saat ini: bersuara.'} Berlaku di perangkat ini.</p></div>
 <div class="c flex justify-between items-center"><b>Tampilan HP &amp; PC</b><div class="flex gap-1"><button class="b ${curView()=='hp'?'':'b2'}" onclick="setView('hp')">HP</button><button class="b ${curView()=='pc'?'':'b2'}" onclick="setView('pc')">PC</button></div></div>
-<div class="c"><b>Akun</b><div class="text-sm">${esc(U.name)} (${U.provider=='google'?'email':U.provider})<br>Data milik: ${esc(U.id)}</div><button class="b bd mt-2" onclick="logout()">Logout</button></div>
-${bioOK?`<div class="c"><b>Login Sidik Jari</b><p class="text-xs opacity-70 my-2">Masuk tanpa mengetik password di perangkat ini.</p>${bioOn(bioKey())?`<button class="b bd" onclick="bioOff(bioKey());render()">Nonaktifkan</button>`:`<button class="b" onclick="bioAsk(bioKey())">Aktifkan</button>`}</div>`:''}
+<div class="c"><b>Akun</b><div class="text-sm">${esc(U.name)} (${U.provider=='google'?'email':U.provider})<br>Data milik: ${esc(U.id)}<br>Hak akses: <b>${roleLabel()}</b></div><button class="b bd mt-2" onclick="logout()">Logout</button></div>
+${isDev()?acCard():''}
+${isDev()&&bioOK?`<div class="c"><b>Login Sidik Jari</b><p class="text-xs opacity-70 my-2">Masuk tanpa mengetik password di perangkat ini.</p>${bioOn(bioKey())?`<button class="b bd" onclick="bioOff(bioKey());render()">Nonaktifkan</button>`:`<button class="b" onclick="bioAsk(bioKey())">Aktifkan</button>`}</div>`:''}
 ${SERVER?`<div class="c"><b>Ganti Password</b><p class="text-xs opacity-70 my-2">Masukkan password lama dan password baru (min. 8 karakter).</p><input id="po" class="i" type="password" placeholder="Password lama"><input id="pn" class="i" type="password" placeholder="Password baru"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru"><div class="flex gap-2"><button class="b" onclick="fbPass()">Ubah Password</button>${SRV.resetUrl?`<button class="b b2" onclick="fbReset(U.email)">Kirim link via email</button>`:''}</div></div>`:accs()[U.id]?`<div class="c"><b>Ganti Password</b>${PW?`<p class="text-xs opacity-70 my-2">Masukkan kode yang dikirim ke ${esc(U.id)}</p><input id="pc" class="i" placeholder="Kode 6 digit" inputmode="numeric"><input id="pn" class="i" type="password" placeholder="Password baru (min. 6)"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru"><div class="flex gap-2"><button class="b" onclick="pwChange()">Ubah Password</button><button class="b b2" onclick="pwSend()">Kirim ulang</button></div>`:`<p class="text-xs opacity-70 my-2">Konfirmasi lewat kode yang dikirim ke email Anda.</p><button class="b" onclick="pwSend()">Kirim Kode ke Email</button>`}</div>`:''}<div class="c"><b>Profile</b><div class="flex items-center gap-3 my-2"><div style="width:64px;height:64px;border-radius:50%;background:#2563EB;overflow:hidden" class="flex items-center justify-center text-white text-2xl">${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover">`:esc((p.name||U.name)[0]||'?').toUpperCase()}</div><label class="b b2">Upload foto<input type="file" accept="image/*" hidden onchange="pick('prof',0,this.files[0])"></label></div>
 ${P('name','Nama')}${P('nip','NIP')}${P('dept','Dept')}${fld('Role',`<select class="i" onchange="D.prof.role=this.value;save()">${opts(['Admin','Checker','Supervisor'],p.role)}</select>`)}${P('hp','HP','tel')}${P('email','Email','email')}</div>
-${LISTS.map(([k,l])=>`<div class="c"><b>Kelola ${l}</b><div class="my-2">${D.M[k].map((x,i)=>`<span class="bg">${esc(x)} ${k!='mats'?`<button onclick="renM('${k}',${i})">&#9998;</button> `:''}<button onclick="delM('${k}',${i})">&#10005;</button></span>`).join('')}</div><div class="flex gap-2"><input id="n_${k}" class="i" style="margin:0" placeholder="Tambah ${l}"><button class="b" onclick="addM('${k}')">+</button></div></div>`).join('')}
-<div class="c text-sm"><b>Data &amp; Storage</b><p>${D.insp.length} data pengecekan - ${(sz/1024).toFixed(1)} KB</p><p class="text-xs opacity-60">Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.</p>
+${isDev()?LISTS.map(([k,l])=>`<div class="c"><b>Kelola ${l}</b><div class="my-2">${D.M[k].map((x,i)=>`<span class="bg">${esc(x)} ${k!='mats'?`<button onclick="renM('${k}',${i})">&#9998;</button> `:''}<button onclick="delM('${k}',${i})">&#10005;</button></span>`).join('')}</div><div class="flex gap-2"><input id="n_${k}" class="i" style="margin:0" placeholder="Tambah ${l}"><button class="b" onclick="addM('${k}')">+</button></div></div>`).join(''):''}
+${isDev()?`<div class="c text-sm"><b>Data &amp; Storage</b><p>${D.insp.length} data pengecekan - ${(sz/1024).toFixed(1)} KB</p><p class="text-xs opacity-60">Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.</p>
 <div class="flex flex-wrap gap-2 my-2"><button class="b" onclick="xl()">Export Excel</button><button class="b" onclick="bk()">Backup JSON</button><label class="b b2">Restore JSON<input type="file" accept=".json" hidden onchange="rs(this.files[0])"></label><button class="b bd" onclick="wipe()">Hapus Semua</button></div>
 <p>Update server terakhir: ${D.sync.last||'belum pernah'}</p><div class="flex gap-2 mt-2"><button class="b" style="background:#16a34a" onclick="awUpdateServer()">&#11014; Update Data Server</button></div>
-<p class="text-xs opacity-60 mt-1">Mengirim data setting (lokasi, checker, material, shift, deskripsi), master equipment, dan data pengecekan ke server Appwrite, lalu mengambil data baru dari server. Perangkat lain menerima pembaruan saat aplikasi dibuka kembali.</p></div>
-<div class="c text-sm text-center">WMS v2.9 - Welding Monitoring System<p class="text-xs opacity-60 mt-1">Developed by Fajar Q.</p></div>`}
+<p class="text-xs opacity-60 mt-1">Mengirim data setting (lokasi, checker, material, shift, deskripsi), master equipment, dan data pengecekan ke server Appwrite, lalu mengambil data baru dari server. Perangkat lain menerima pembaruan saat aplikasi dibuka kembali.</p></div>`:''}
+<div class="c text-sm text-center">WMS v3.0 - Welding Monitoring System<p class="text-xs opacity-60 mt-1">Developed by Fajar Q.</p></div>`}
 function curView(){return L.woms_view||(innerWidth>=1024?'pc':'hp')}
 function setView(v){L.woms_view=v;document.documentElement.dataset.view=v;render()}
 function theme(){const n=document.documentElement.dataset.theme=='dark'?'light':'dark';document.documentElement.dataset.theme=n;L.woms_theme=n;render()}
@@ -762,12 +763,12 @@ function backBar(){return`<div class="pt-3"><button class="text-sm text-blue-600
 /* ---------- RENDER ---------- */
 function render(){const y=scrollY;document.body.classList.toggle('wn',!!U&&scr=='app');if(!U){$('#app').innerHTML=loginView();trDom($('#app'));return}
 if(scr!='app'){const n0=$('nav');if(n0)n0.remove();$('#app').innerHTML=scr=='qg'?qgView():homeView();trDom($('#app'));return}
-const v={input:inputView,data:dataView,grafik:grafikView,master:masterView,setting:settingView}[tab]();
+if(!tabOK(tab))tab='input';const v={input:inputView,data:dataView,grafik:grafikView,master:masterView,setting:settingView}[tab]();
 $('#app').innerHTML=backBar()+'<div class="vw vw-'+tab+'">'+v+'</div>';let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
-n.innerHTML=TABS.map(([k,l])=>`<button data-k="${k}" class="${tab==k?'on':''}" onclick="go('${k}')">${l}${k=='master'&&pend()?' &#9679;':''}</button>`).join('');
+n.innerHTML=visTabs().map(([k,l])=>`<button data-k="${k}" class="${tab==k?'on':''}" onclick="go('${k}')">${l}${k=='master'&&pend()?' &#9679;':''}</button>`).join('');
 trDom($('#app'));trDom(n);
-if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>draw($('#cl'+k),false,g.mat,{sub:g.all}));else matList().forEach((m,k)=>draw($('#cv'+k),false,m))}scrollTo(0,y)}
-function go(t){tab=t;scrollTo(0,0);render()}
+if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>draw($('#cl'+k),false,g.mat,{sub:g.all}));else matList().forEach((m,k)=>draw($('#cv'+k),false,m))}if(tab=='setting'&&isDev())acLoad();scrollTo(0,y)}
+function go(t){if(!tabOK(t))return toast('Akses ditolak: khusus Developer / Admin');tab=t;scrollTo(0,0);render()}
 /* ---------- SINKRON MASTER KE APPWRITE ---------- */
 const AW_MT="6ad9e3270004fcc8e26d", AW_CH=15000;
 let awLast=null, awBusy=false, awT=null;
@@ -876,10 +877,147 @@ function awMasterCheck(){
 }
 save=function(now){_awSave(now);awMasterCheck()};
 load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0);setTimeout(()=>awPullAll(true),800)};
+/* ---------- HAK AKSES, MONITORING AKUN & HAPUS AKUN (v3.0) ---------- */
+const DEV_EMAILS=['fajar.qar88@gmail.com','fajar.qorrie@daihatsu.astra.co.id'];
+/* true  = Admin yang diotorisasi Developer juga boleh membuka tab Setting & Master
+   false = hanya 2 akun Developer di atas */
+const ADM_TABS=true;
+const ON_MS=150000,HB_MS=60000;
+let _lp='',CB='',devBad=false,hbT=null,AC=[],acErr='',acQ='',acBusy=false;
+const myEm=()=>String((U&&(U.email||U.id))||'').toLowerCase();
+const isDevEm=e=>DEV_EMAILS.includes(String(e||'').toLowerCase());
+const isDev=()=>!!U&&isDevEm(myEm())&&!devBad;
+const rlGet=()=>{try{return L['woms_rl_'+myEm()]||''}catch(e){return ''}};
+const isAdmRole=()=>!!U&&rlGet()==='admin';
+const canAdm=()=>isDev()||(ADM_TABS&&isAdmRole());
+const tabOK=t=>t!='master'||canAdm();
+const visTabs=()=>TABS.filter(([k])=>tabOK(k));
+const roleBadge=()=>isDev()?'<span style="background:#f59e0b;color:#111;font-weight:700;font-size:11px;letter-spacing:.06em;padding:4px 12px;border-radius:999px">&#9733; Developer</span>':'<span style="background:#475569;color:#fff;font-weight:700;font-size:11px;letter-spacing:.06em;padding:4px 12px;border-radius:999px">User</span>';
+const roleLabel=()=>isDev()?'Developer / Master Admin':isAdmRole()?'Admin':'User';
+/* --- kripto: verifier password (PBKDF2 + salt) supaya email developer tidak bisa "diklaim" orang lain --- */
+const hx=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+const unhx=s=>new Uint8Array((s.match(/../g)||[]).map(x=>parseInt(x,16)));
+async function pbk(p,s){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveBits']);return hx(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:s,iterations:150000},k,256))}
+async function mkVer(e,p){const s=crypto.getRandomValues(new Uint8Array(16));return{s:hx(s),h:await pbk(e+'|'+p,s)}}
+async function chkVer(v,e,p){return (await pbk(e+'|'+p,unhx(v.s)))===v.h}
+/* --- penyimpanan di Appwrite (koleksi master): u_=akun, v_=verifier, p_=presence --- */
+const rid=async(k,e)=>k+'_'+(await sha('wms|'+String(e).toLowerCase())).slice(0,32);
+async function rdGet(id){try{const d=await awDB.getDocument(AW_DB,AW_MT,id);return JSON.parse(d.data)}catch(e){if(e&&e.code==404)return null;throw e}}
+async function rdSet(id,o){const data={data:JSON.stringify(o)};try{await awDB.updateDocument(AW_DB,AW_MT,id,data)}catch(e){if(e&&e.code==404)await awDB.createDocument(AW_DB,AW_MT,id,data);else throw e}}
+const cloudOff=()=>!!awCheck()||!navigator.onLine;
+/* Saat daftar: cek email belum dipakai / tidak diblokir di server */
+async function cloudClaim(e,n,p){
+  if(cloudOff())return{ok:true};
+  try{
+    const ui=await rid('u',e),u=await rdGet(ui);
+    if(u&&u.x)return{ok:false,msg:'Akun ini sudah dihapus/diblokir admin'};
+    const vi=await rid('v',e),v=await rdGet(vi);
+    if(v){return(await chkVer(v,e,p))?{ok:true}:{ok:false,msg:'Email sudah terdaftar di server dengan password lain'}}
+    await rdSet(vi,await mkVer(e,p));
+    if(!u)await rdSet(ui,{e,n,r:'user',c:Date.now(),l:Date.now()});
+    return{ok:true};
+  }catch(x){console.error('claim',x);return{ok:true}}
+}
+async function cloudPw(e,np){if(cloudOff())return;try{await rdSet(await rid('v',e),await mkVer(e,np))}catch(x){console.error('pw',x)}}
+/* Dijalankan sekali setiap sesi login: daftarkan akun, cek role, mulai presence */
+async function cloudBoot(){
+  const e=myEm(),pw=_lp;_lp='';CB=e;if(!e)return;
+  clearInterval(hbT);hbT=setInterval(cloudBeat,HB_MS);
+  if(cloudOff())return;
+  try{
+    const ui=await rid('u',e);let u=await rdGet(ui);
+    if(u&&u.x)return forceOut();
+    if(isDevEm(e)){
+      const vi=await rid('v',e),v=await rdGet(vi);
+      if(v&&pw){devBad=!(await chkVer(v,e,pw));if(devBad)toast('Email developer ini sudah diklaim dengan password lain. Akses developer dinonaktifkan.')}
+      else if(!v&&pw)await rdSet(vi,await mkVer(e,pw));
+    }
+    if(!u){u={e,n:(U&&U.name)||e,r:'user',c:Date.now(),l:Date.now()};await rdSet(ui,u)}
+    const r=isDevEm(e)?'admin':(u.r||'user'),ch=rlGet()!==r;
+    try{L['woms_rl_'+e]=r}catch(x){}
+    await rdSet(await rid('p',e),{e,n:(U&&U.name)||e,t:Date.now(),on:1});
+    if(ch||devBad)render();
+  }catch(x){console.error('boot',x)}
+}
+async function cloudBeat(){
+  if(!U||cloudOff())return;const e=myEm();
+  try{
+    const ui=await rid('u',e),u=await rdGet(ui);
+    if(!U||myEm()!=e)return;
+    if(u&&u.x)return forceOut();
+    if(!u)await rdSet(ui,{e,n:U.name||e,r:'user',c:Date.now(),l:Date.now()});
+    const r=isDevEm(e)?'admin':((u&&u.r)||'user');
+    if(rlGet()!==r){try{L['woms_rl_'+e]=r}catch(x){}render()}
+    await rdSet(await rid('p',e),{e,n:U.name||e,t:Date.now(),on:1});
+  }catch(x){console.error('beat',x)}
+}
+function presOff(){try{if(U&&!cloudOff()){const e=myEm(),n=U.name||e;rid('p',e).then(id=>rdSet(id,{e,n,t:Date.now(),on:0})).catch(()=>{})}}catch(x){}}
+function cloudStop(){clearInterval(hbT);CB='';devBad=false;AC=[];acErr=''}
+/* Akun dihapus admin: keluarkan paksa dari perangkat ini */
+function forceOut(){
+  const e=myEm(),id=U&&U.id;clearInterval(hbT);clearTimeout(saveT);
+  try{const ac=accs();delete ac[e];L.woms_acc=JSON.stringify(ac)}catch(x){}
+  try{if(typeof bioOff==='function')bioOff(e)}catch(x){}
+  ['woms_user','woms_lock','woms_token','woms_rl_'+e,'woms_data_'+id,'woms_bn_'+e].forEach(k=>{try{L.removeItem(k)}catch(x){}});
+  U=D=null;TOK='';LV='menu';CB='';devBad=false;scr='home';render();
+  alert('Akun Anda telah dihapus oleh administrator. Hubungi admin jika ini keliru.');
+}
+const _lgo=logout;logout=function(){presOff();cloudStop();_lgo()};
+const _lck=lock;lock=function(w){presOff();cloudStop();_lck(w)};
+/* --- UI Monitoring Akun (khusus Developer / Master Admin) --- */
+function ago(t){if(!t)return '-';const s=Math.max(0,(Date.now()-t)/1000|0);if(s<60)return 'baru saja';if(s<3600)return (s/60|0)+' mnt lalu';if(s<86400)return (s/3600|0)+' jam lalu';return new Date(t).toLocaleDateString(LC())}
+function acCard(){return`<div class="c"><div class="flex justify-between items-center"><b>Monitoring Akun</b><button class="b b2" onclick="acLoad()">&#8635; Refresh</button></div><p class="text-xs opacity-60 my-1">Hanya terlihat oleh Developer / Master Admin. Online = aktif dalam 2,5 menit terakhir. Admin dapat membuka tab Setting &amp; Master.</p><input class="i" placeholder="Cari nama / email" value="${esc(acQ)}" oninput="acQ=this.value;acDraw()"><div id="acl" class="text-sm"></div></div>`}
+function acDraw(){const el=$('#acl');if(!el)return;
+  if(acErr){el.innerHTML=`<p class="text-xs" style="color:#dc2626">${esc(acErr)}</p>`;return}
+  const now=Date.now(),q=acQ.trim().toLowerCase();
+  const on=a=>!!(a.p&&a.p.on&&now-a.p.t<ON_MS),seen=a=>(a.p&&a.p.t)||a.l||a.c||0;
+  const rows=AC.filter(a=>!q||(String(a.e)+' '+(a.n||'')).toLowerCase().includes(q));
+  const act=rows.filter(a=>!a.x).sort((a,b)=>(on(b)-on(a))||(seen(b)-seen(a))),del=rows.filter(a=>a.x);
+  const nOn=AC.filter(a=>!a.x&&on(a)).length,nAll=AC.filter(a=>!a.x).length;
+  const row=a=>{const dv=isDevEm(a.e),o=on(a),rl=dv?'Developer':a.r=='admin'?'Admin':'User',nw=!a.x&&a.c&&now-a.c<3*864e5;
+    const st=a.x?'&#128683; Dihapus '+ago(a.xt):o?'<span style="color:#16a34a">&#9679; Online</span>':'&#9675; Terakhir aktif '+ago(seen(a));
+    const bt=dv?'':a.x?`<button class="b b2" onclick="acRestore('${a.h}')">Pulihkan</button>`:`<button class="b ${a.r=='admin'?'b2':''}" onclick="acRole('${a.h}','${a.r=='admin'?'user':'admin'}')">${a.r=='admin'?'Cabut Admin':'Jadikan Admin'}</button><button class="b bd" onclick="acDel('${a.h}')">Hapus</button>`;
+    return`<div class="py-2" style="border-top:1px solid rgba(128,128,128,.25)"><div class="flex justify-between items-start gap-2"><div style="min-width:0"><b>${esc(a.n||'-')}</b>${nw?' <span class="bg">BARU</span>':''}<div class="text-xs opacity-70" style="word-break:break-all">${esc(a.e)}</div><div class="text-xs mt-1">${st} - ${rl}</div></div><div class="flex flex-col gap-1" style="flex:none">${bt}</div></div></div>`};
+  el.innerHTML=`<p class="text-xs my-2"><b>${nOn}</b> online dari ${nAll} akun</p>`+(act.map(row).join('')||'<p class="text-xs opacity-60">Belum ada akun.</p>')+(del.length?`<p class="text-xs mt-3 opacity-70"><b>Akun dihapus (${del.length})</b></p>`+del.map(row).join(''):'');
+  trDom(el)}
+async function acLoad(){
+  if(!isDev()||acBusy)return;
+  const pre=awCheck();if(pre){acErr=pre;acDraw();return}
+  acBusy=true;acDraw();
+  try{
+    const docs=[];let last=null;
+    for(;;){const q=[Appwrite.Query.limit(100)];if(last)q.push(Appwrite.Query.cursorAfter(last));const r=await awDB.listDocuments(AW_DB,AW_MT,q);docs.push(...r.documents);if(r.documents.length<100)break;last=r.documents[r.documents.length-1].$id}
+    const us={},ps={};
+    for(const d of docs){const id=d.$id;if(id[1]!='_')continue;let o;try{o=JSON.parse(d.data)}catch(e){continue}if(id[0]=='u')us[id.slice(2)]=o;else if(id[0]=='p')ps[id.slice(2)]=o}
+    AC=Object.keys(us).map(h=>Object.assign({h,p:ps[h]},us[h]));acErr='';
+  }catch(e){console.error('acLoad',e);acErr='Gagal memuat akun: '+((e&&e.message)||e)}
+  acBusy=false;acDraw();
+}
+const acErrT=e=>toast('Gagal: '+((e&&e.message)||e));
+async function acRole(h,r){if(!isDev())return;
+  try{const id='u_'+h,u=await rdGet(id);if(!u)return toast('Akun tidak ditemukan');if(isDevEm(u.e))return;
+    if(r=='admin'&&!confirm('Jadikan '+(u.n||u.e)+' sebagai Admin?'))return;
+    u.r=r;await rdSet(id,u);toast(r=='admin'?'Admin ditambahkan':'Admin dicabut');acLoad()}catch(e){acErrT(e)}}
+async function acDel(h){if(!isDev())return;
+  try{const id='u_'+h,u=await rdGet(id);if(!u)return;
+    if(isDevEm(u.e)||String(u.e).toLowerCase()==myEm())return toast('Akun ini tidak bisa dihapus');
+    if(!confirm('Hapus akun '+(u.n||'')+' ('+u.e+')?\n\nAkun akan dikeluarkan dari semua perangkat dan tidak bisa login/daftar lagi sampai dipulihkan. Data pengecekan yang sudah ada di server tidak ikut terhapus.'))return;
+    u.x=1;u.xt=Date.now();u.xb=myEm();u.r='user';await rdSet(id,u);
+    try{await awDB.deleteDocument(AW_DB,AW_MT,'p_'+h)}catch(x){}
+    toast('Akun dihapus');acLoad()}catch(e){acErrT(e)}}
+async function acRestore(h){if(!isDev())return;
+  try{const id='u_'+h,u=await rdGet(id);if(!u)return;delete u.x;delete u.xt;delete u.xb;await rdSet(id,u);toast('Akun dipulihkan');acLoad()}catch(e){acErrT(e)}}
+setInterval(()=>{if(U&&scr=='app'&&tab=='setting'&&isDev()&&document.visibilityState=='visible')acLoad()},30000);
+/* ---------- BAGIKAN APLIKASI ---------- */
+const appUrl=()=>/^https?:$/.test(location.protocol)?location.origin+location.pathname.replace(/index\.html$/,''):'';
+async function shareApp(){const url=appUrl();
+  if(!url)return toast('Link belum tersedia: buka aplikasi lewat alamat web (https)');
+  if(navigator.share){try{await navigator.share({title:'WMS - Welding Monitoring System',text:'Buka aplikasi WMS (Welding Monitoring System):',url});return}catch(e){if(e&&e.name=='AbortError')return}}
+  try{await navigator.clipboard.writeText(url);toast('Link aplikasi disalin')}catch(e){prompt('Salin link aplikasi:',url)}}
 (function init(){initLock();document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
 let rzT,lastW=innerWidth;const onRot=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(innerWidth==lastW)return;lastW=innerWidth;if(!L.woms_view){const v=curView();if(document.documentElement.dataset.view!=v)document.documentElement.dataset.view=v}if(U)render()},250)};addEventListener('resize',onRot);addEventListener('orientationchange',onRot);
 if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
-const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}};
+const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}else if(CB!==myEm())cloudBoot()};
 if(SERVER)fbInit();
 </script></body></html>
