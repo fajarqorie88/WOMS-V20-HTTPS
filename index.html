@@ -226,6 +226,19 @@ html[data-view=pc] ::-webkit-scrollbar-thumb{background:rgba(56,189,248,.35);bor
 html[data-view=pc] ::-webkit-scrollbar-track{background:transparent}
 @media(max-width:1500px){html[data-view=pc] .vw-data>.c,html[data-view=pc] .vw-setting>.c{grid-column:span 6}}
 @media(max-width:1000px){html[data-view=pc] .vw>.c{grid-column:span 12}}
+/* ===== GESER UNTUK HAPUS (tab Data) ===== */
+.sw-c{padding:0!important;overflow:hidden;position:relative}
+.sw-in{display:flex;gap:12px;padding:12px;touch-action:pan-y;-webkit-user-select:none;user-select:none;cursor:pointer;transition:transform .28s cubic-bezier(.2,.8,.2,1);will-change:transform}
+html[data-view=pc] .sw-in{padding:18px}
+.sw-in.drag{transition:none}
+.sw-in img{-webkit-user-drag:none;user-drag:none}
+.sw-del{position:absolute;top:0;right:0;bottom:0;width:84px;border:0;background:#dc2626;color:#fff;font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:0;transition:opacity .2s}
+.sw-del:active{background:#b91c1c}
+.sw-c.open .sw-del,.sw-c.drag .sw-del{opacity:1}
+@keyframes swH{0%,100%{transform:none}30%,70%{transform:translateX(-52px)}}
+@keyframes swHB{0%,100%{opacity:0}30%,70%{opacity:1}}
+.sw-c.hint .sw-in{animation:swH 1.7s ease .6s 1}
+.sw-c.hint .sw-del{animation:swHB 1.7s ease .6s 1}
 /* ===== AUTO ROTATE: landscape HP & PC sempit ===== */
 @media (orientation:landscape) and (max-height:620px){
 html[data-view=hp] #app{max-width:980px!important}
@@ -429,7 +442,7 @@ const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" on
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div class="flex gap-1 flex-wrap"><button class="b" style="padding:8px 10px;font-size:13px" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="pdfData()">Bagikan</button><button class="b" style="padding:8px 10px;font-size:13px;background:#16a34a" onclick="awSyncAll()">&#11014; Update ke Server</button></div></div><div class="c"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
 ${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div>
 <p class="text-xs opacity-60">${a.length} data</p>
-${a.map(i=>`<div class="c flex gap-3" onclick="detail('${i.id}')"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div>${i.kA} kA (std ${i.min}-${i.max}) ${st(i)}</div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div><button class="text-red-600 text-xs mt-1 font-semibold" onclick="event.stopPropagation();delInsp('${i.id}')">&#128465; Hapus</button></div>${i.photo?`<img src="${i.photo}" style="width:64px;height:64px;object-fit:cover" class="rounded-lg">`:''}</div>`).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`}
+${a.map((i,n)=>`<div class="c sw-c${n==0&&!L.woms_swh?(L.woms_swh=1,' hint'):''}"><button type="button" class="sw-del" onclick="event.stopPropagation();delInsp('${i.id}')"><span style="font-size:20px">&#128465;</span>Hapus</button><div class="sw-in" onclick="detail('${i.id}')"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div>${i.kA} kA (std ${i.min}-${i.max}) ${st(i)}</div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div></div>${i.photo?`<img src="${i.photo}" style="width:64px;height:64px;object-fit:cover" class="rounded-lg">`:''}</div></div>`).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.innerHTML=`<div class="c max-w-xl mx-auto text-sm"><div class="flex justify-between"><b>${esc(i.main)} - ${esc(i.sub)}</b><button onclick="this.closest('.fixed').remove()">&#10005;</button></div>${st(i)}<table class="w-full mt-2">${[['Waktu',new Date(i.dt).toLocaleString(LC())],['Type',i.subType],['Material',i.mat],['Aktual',i.kA+' kA'],['Standar',i.min+' - '+i.max],['Shift',i.shift],['Checker',i.c1+' / '+i.c2],['Lokasi',i.loc],['Description',i.desc],['Job',i.job],['Keterangan',i.ket]].map(r=>`<tr><td class="opacity-60 py-1">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>${i.photo?`<img src="${i.photo}" class="w-full rounded-lg mt-2">`:''}</div>`;trDom(d);document.body.appendChild(d)}
 
@@ -524,7 +537,42 @@ else if(op=='al'){const x=m.subs[b].mats[k],p=parseFloat(v);if(v===''||isNaN(p))
 else if(op=='min'||op=='max'){const x=m.subs[b].mats[k];x[op]=parseFloat(v)||0;x.tg=r2((x.min+x.max)/2);x.al=x.tg>0?r2((x.max-x.min)/2/x.tg*100):''}
 render()}
 function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render();awMasterNow()}
-function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i||!confirm('Hapus data '+i.main+' ('+i.kA+' kA) ini? Tidak bisa dibatalkan.'))return;D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id);save(true);toast('Data dihapus');render()}
+function askYN(msg,fn){const en=LG=='en',d=document.createElement('div');d.className='fixed inset-0 z-50 flex items-center justify-center p-4';d.style.background='rgba(0,0,0,.6)';
+ d.innerHTML=`<div class="c max-w-xs w-full text-sm"><b>${en?'Delete data?':'Hapus data?'}</b><p class="my-2 opacity-80">${msg}</p><div class="flex gap-2 mt-3"><button type="button" class="b b2 flex-1" id="qN">${en?'No':'Tidak'}</button><button type="button" class="b bd flex-1" id="qY">${en?'Yes':'Ya'}</button></div></div>`;
+ const no=()=>{d.remove();swClose()};d.onclick=e=>{if(e.target===d)no()};document.body.appendChild(d);
+ d.querySelector('#qN').onclick=no;d.querySelector('#qY').onclick=()=>{d.remove();fn()}}
+function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i)return;const en=LG=='en';
+ askYN(en?`Delete record ${esc(i.main)} (${i.kA} kA)? This cannot be undone.`:`Hapus data ${esc(i.main)} (${i.kA} kA) ini? Tidak bisa dibatalkan.`,()=>{D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id);save(true);toast('Data dihapus');render()})}
+/* geser kartu ke kiri untuk menampilkan tombol hapus (sentuh & mouse) */
+let swClose=()=>{};
+(function(){const W=84;let s=null,open=null,sup=0;
+ const shut=c=>{if(!c)return;c.classList.remove('open');const n=c.querySelector('.sw-in');if(n)n.style.transform='';if(open===c)open=null};
+ swClose=()=>shut(open);
+ document.addEventListener('pointerdown',e=>{
+  if(open&&!document.contains(open))open=null;
+  const t=e.target.closest?e.target:e.target.parentNode;if(t.closest('.sw-del'))return;
+  const inn=t.closest('.sw-in');
+  if(open&&(!inn||inn.parentNode!==open))shut(open);
+  if(!inn||(e.pointerType=='mouse'&&e.button!==0))return;
+  const c=inn.parentNode;c.classList.remove('hint');inn.style.animation='none';
+  s={c,inn,x:e.clientX,y:e.clientY,base:c.classList.contains('open')?-W:0,id:e.pointerId,lock:null,t:0}});
+ document.addEventListener('pointermove',e=>{
+  if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;
+  if(s.lock===null){if(Math.abs(dx)<6&&Math.abs(dy)<6)return;s.lock=Math.abs(dx)>Math.abs(dy)?'x':'y';
+   if(s.lock=='x'){s.inn.classList.add('drag');s.c.classList.add('drag');try{s.inn.setPointerCapture(e.pointerId)}catch(x){}}}
+  if(s.lock!=='x')return;
+  s.t=Math.min(0,Math.max(-W-20,s.base+dx));s.inn.style.transform='translateX('+s.t+'px)'});
+ const end=e=>{if(!s||e.pointerId!==s.id)return;const{c,inn}=s;inn.classList.remove('drag');c.classList.remove('drag');
+  if(s.lock=='x'){sup=Date.now();
+   if(s.t<-W/2){if(open&&open!==c)shut(open);c.classList.add('open');open=c;inn.style.transform='translateX(-'+W+'px)'}
+   else{c.classList.remove('open');if(open===c)open=null;inn.style.transform=''}}
+  s=null};
+ document.addEventListener('pointerup',end);document.addEventListener('pointercancel',end);
+ document.addEventListener('click',e=>{
+  if(Date.now()-sup<350){e.stopPropagation();e.preventDefault();sup=0;return}
+  const t=e.target.closest?e.target:e.target.parentNode,inn=t.closest('.sw-in');
+  if(inn&&inn.parentNode.classList.contains('open')){e.stopPropagation();e.preventDefault();shut(inn.parentNode)}},true);
+})();
 
 /* ---------- SETTING ---------- */
 const LISTS=[['equips','Equipment'],['checkers','Checker'],['locs','Lokasi'],['descs','Deskripsi'],['mats','Material'],['shifts','Shift'],['jobs','Job']];
