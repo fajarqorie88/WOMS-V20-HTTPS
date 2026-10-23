@@ -226,6 +226,28 @@ html[data-view=pc] ::-webkit-scrollbar-thumb{background:rgba(56,189,248,.35);bor
 html[data-view=pc] ::-webkit-scrollbar-track{background:transparent}
 @media(max-width:1500px){html[data-view=pc] .vw-data>.c,html[data-view=pc] .vw-setting>.c{grid-column:span 6}}
 @media(max-width:1000px){html[data-view=pc] .vw>.c{grid-column:span 12}}
+/* ===== AUTO ROTATE: landscape HP & PC sempit ===== */
+@media (orientation:landscape) and (max-height:620px){
+html[data-view=hp] #app{max-width:980px!important}
+html[data-view=hp] body{padding-bottom:calc(46px + env(safe-area-inset-bottom,0px))}
+html[data-view=hp] nav button{padding:6px 0}
+html[data-view=hp] .fixbar{bottom:calc(46px + env(safe-area-inset-bottom,0px))!important}
+html[data-view=hp] :is(.vw-data,.vw-setting,.vw-master,.vw-grafik){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+html[data-view=hp] :is(.vw-data,.vw-setting,.vw-master,.vw-grafik)>*{grid-column:1/-1;margin:0}
+html[data-view=hp] :is(.vw-data,.vw-setting,.vw-master,.vw-grafik)>.c{grid-column:auto}
+html[data-view=hp] :is(.vw-data,.vw-setting,.vw-master,.vw-grafik)>.c:has(>select.i),html[data-view=hp] :is(.vw-data,.vw-setting,.vw-master,.vw-grafik)>.c.grid-cols-4,html[data-view=hp] :is(.vw-data,.vw-setting,.vw-master,.vw-grafik)>.c.overflow-x-auto{grid-column:1/-1}
+}
+@media (max-width:1000px){
+html[data-view=pc] body.wn{padding-left:84px}
+html[data-view=pc] nav{width:84px;padding:18px 10px;align-items:stretch}
+html[data-view=pc] nav::before{content:"\26A1";font-size:26px;text-align:center;letter-spacing:0;padding:6px 0 14px}
+html[data-view=pc] nav::after{display:none}
+html[data-view=pc] nav button{font-size:0;justify-content:center;padding:14px 0;gap:0}
+html[data-view=pc] nav button::before{font-size:20px;width:auto}
+html[data-view=pc] .fixbar{left:84px!important;padding:12px 16px!important}
+html[data-view=pc] #app{padding:6px 16px 48px!important}
+}
+
 </style></head>
 <body><div id="t"></div><div id="app" class="max-w-xl mx-auto px-3"></div>
 <script>
@@ -605,7 +627,8 @@ function awMasterCheck(){
 }
 save=function(now){_awSave(now);awMasterCheck()};
 load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0);setTimeout(()=>awPullAll(true),800)};
-(function init(){document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(U&&scr=='app'&&tab=='grafik')render()},250)});
+(function init(){document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
+let rzT,lastW=innerWidth;const onRot=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(innerWidth==lastW)return;lastW=innerWidth;if(!L.woms_view){const v=curView();if(document.documentElement.dataset.view!=v)document.documentElement.dataset.view=v}if(U)render()},250)};addEventListener('resize',onRot);addEventListener('orientationchange',onRot);
 if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
 const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}};
