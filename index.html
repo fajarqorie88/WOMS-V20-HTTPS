@@ -300,6 +300,28 @@ html[data-view=pc] .sw-in{padding:18px}
 @keyframes swHB{0%,100%{opacity:0}30%,70%{opacity:1}}
 .sw-c.hint .sw-in{animation:swH 1.7s ease .6s 1}
 .sw-c.hint .sw-del{animation:swHB 1.7s ease .6s 1}
+/* ===== KALENDER (tab Data) ===== */
+.cal-h{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px}
+.cal-n{width:38px;height:38px;border-radius:10px;font-size:24px;line-height:1;background:var(--bd);color:var(--tx);flex:none}
+.cal-t{flex:1;display:flex;justify-content:center;gap:4px}
+.cal-t button{padding:6px 10px;border-radius:10px;background:transparent;color:var(--tx);font-weight:700;font-size:16px}
+.cal-t button:hover{background:var(--bd)}
+.cal-w,.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-w span{text-align:center;font-size:11px;font-weight:700;opacity:.6;padding:2px 0}
+.cal-g{touch-action:pan-y;-webkit-user-select:none;user-select:none;min-height:240px;align-content:start}
+.cal-d{position:relative;aspect-ratio:1/1;max-height:46px;border-radius:10px;font-size:14px;color:var(--tx);background:transparent;border:1px solid transparent;display:flex;align-items:center;justify-content:center}
+.cal-d:hover{background:var(--bd)}
+.cal-d.td{border-color:#2563EB;font-weight:700}
+.cal-d.sl{background:#2563EB;color:#fff;font-weight:700}
+.cal-d.hd::after{content:"";position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:#16a34a}
+.cal-d.sl.hd::after{background:#fff}
+.cal-pk{height:272px;overflow-y:auto;overscroll-behavior:contain}
+.cal-ms{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;align-content:start}
+.cal-ys{position:relative;display:flex;flex-direction:column;gap:2px}
+.cal-o{padding:12px 6px;border-radius:10px;font-size:15px;color:var(--tx);background:transparent;text-align:center;flex:none}
+.cal-o:hover{background:var(--bd)}
+.cal-o.on{background:#2563EB;color:#fff;font-weight:700}
+html[data-view=pc] .vw>.c.cal{grid-column:1/-1;max-width:520px;width:100%}
 /* ===== COMBOBOX (ketik + dropdown) ===== */
 .cb{position:relative}
 .cb .i{padding-right:42px}
@@ -567,14 +589,43 @@ const r={id:uid8(),dt:F.dt,mid:m.id,main:m.code,sid:sub.id,sub:sub.name,subType:
 D.insp.unshift(r);cloudPut(r);save(true);awSaveSync(r);F={step:2,dt:F.dt,main:F.main,sub:F.sub,mat:F.mat,shift:F.shift,c1:F.c1,c2:F.c2,job:F.job,desc:F.desc};toast('Tersimpan ('+r.status+') - Data & Grafik diperbarui');render()}
 
 /* ---------- DATA (read only) ---------- */
-function dtOk(i,q){if(!q.d&&!q.mo&&!q.y)return true;const t=new Date(i.dt);if(isNaN(t))return false;return(!q.d||t.getDate()==q.d)&&(!q.mo||t.getMonth()+1==q.mo)&&(!q.y||t.getFullYear()==q.y)}
+function dtOk(i,q){if(!q.cal)return true;return dtIn(i.dt).slice(0,10)==q.cal}
+/* ---------- KALENDER TAB DATA ---------- */
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+let calSw=0;
+function calInit(){const n=new Date();if(Q.cy==null){Q.cy=n.getFullYear();Q.cm=n.getMonth()}if(!Q.cal)Q.cal=ymd(n)}
+function calMove(n){let m=Q.cm+n,y=Q.cy;if(m<0){m=11;y--}else if(m>11){m=0;y++}Q.cm=m;Q.cy=y;Q.pk=null;render()}
+function calPk(k){Q.pk=Q.pk==k?null:k;render()}
+function calMon(m){Q.cm=m;Q.pk=null;render()}
+function calYear(y){Q.cy=y;Q.pk=null;render()}
+function calSel(ds){if(Date.now()-calSw<350)return;Q.cal=ds;render()}
+function calTog(){Q.show=!Q.show;render()}
+function calFix(){if(Q.pk!='y')return;const c=$('#cal-y'),e=c&&c.querySelector('.on');if(c&&e)c.scrollTop=e.offsetTop-c.clientHeight/2+e.offsetHeight/2}
+(function(){let s=null;
+ document.addEventListener('pointerdown',e=>{const t=e.target.closest?e.target:e.target.parentNode;s=t.closest('.cal-g')?{x:e.clientX,y:e.clientY,id:e.pointerId}:null});
+ document.addEventListener('pointerup',e=>{if(!s||e.pointerId!==s.id)return;const dx=e.clientX-s.x,dy=e.clientY-s.y;s=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5){calSw=Date.now();calMove(dx<0?1:-1)}});
+ document.addEventListener('pointercancel',()=>{s=null});
+})();
+function calView(){
+ const en=LG=='en',MN=en?['January','February','March','April','May','June','July','August','September','October','November','December']:['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+ WD=en?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Sen','Sel','Rab','Kam','Jum','Sab','Min'],y=Q.cy,m=Q.cm,td=ymd(new Date()),cnt={};
+ filt(Object.assign({},Q,{cal:''})).forEach(i=>{const k=dtIn(i.dt).slice(0,10);cnt[k]=(cnt[k]||0)+1});
+ let body;
+ if(Q.pk=='m')body=`<div class="cal-pk cal-ms">${MN.map((n,k)=>`<button type="button" class="cal-o${k==m?' on':''}" onclick="calMon(${k})">${n}</button>`).join('')}</div>`;
+ else if(Q.pk=='y'){const cur=new Date().getFullYear(),a=Math.min(cur-40,y),b=Math.max(cur+20,y);let h='';for(let k=a;k<=b;k++)h+=`<button type="button" class="cal-o${k==y?' on':''}" onclick="calYear(${k})">${k}</button>`;body=`<div id="cal-y" class="cal-pk cal-ys">${h}</div>`}
+ else{const first=(new Date(y,m,1).getDay()+6)%7,dim=new Date(y,m+1,0).getDate();let cells='<span></span>'.repeat(first);
+  for(let d=1;d<=dim;d++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');cells+=`<button type="button" class="cal-d${ds==td?' td':''}${ds==Q.cal?' sl':''}${cnt[ds]?' hd':''}" onclick="calSel('${ds}')">${d}</button>`}
+  body=`<div class="cal-w">${WD.map(w=>`<span>${w}</span>`).join('')}</div><div class="cal-g">${cells}</div>`}
+ const p=Q.cal.split('-').map(Number),lb=new Date(p[0],p[1]-1,p[2]).toLocaleDateString(LC(),{day:'numeric',month:'long',year:'numeric'});
+ return`<div class="c cal"><div class="cal-h"><button type="button" class="cal-n" onclick="calMove(-1)">&#8249;</button><div class="cal-t"><button type="button" onclick="calPk('m')">${MN[m]}</button><button type="button" onclick="calPk('y')">${y}</button></div><button type="button" class="cal-n" onclick="calMove(1)">&#8250;</button></div>${body}<div class="text-xs opacity-70 text-center mt-2">${lb} - ${cnt[Q.cal]||0} data</div><button type="button" class="b w-full mt-2" onclick="calTog()">${Q.show?'&#9650; Hide Data':'&#9660; Show Data'}</button></div>`}
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||stV(i)==q.st)&&dtOk(i,q))}
-function dataView(){let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
+function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;background:#16a34a" onclick="awSyncAll()">&#11014; Update ke Server</button>${UNDO&&U&&UNDO.by==U.id?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;background:#f59e0b;color:#111" title="Kembalikan data yang terakhir dihapus" onclick="undoDel()">&#8630; Undo</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada data yang dihapus" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
-${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}<div style="margin-top:6px">${S3('d',Q.d,'Semua Tanggal',Array.from({length:31},(_,k)=>String(k+1)))}${S3('mo',Q.mo,'Semua Bulan',(LG=='en'?['January','February','March','April','May','June','July','August','September','October','November','December']:['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']).map((n,k)=>[String(k+1),n]))}${S3('y',Q.y,'Semua Tahun',[...new Set(D.insp.map(i=>new Date(i.dt).getFullYear()).filter(y=>!isNaN(y)))].sort((x,y)=>y-x).map(String))}</div></div>
-<p class="text-xs opacity-60">${a.length} data</p>
-${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`}
+${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div>
+${calView()}
+${Q.show?`<p class="text-xs opacity-60">${a.length} data</p>
+${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}`}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.onclick=e=>{if(e.target.closest('button[onclick^="editInsp"]'))return;d.remove()};
 const sv=stV(i);
@@ -771,7 +822,7 @@ if(!tabOK(tab))tab='input';const v={input:inputView,data:dataView,grafik:grafikV
 $('#app').innerHTML=backBar()+'<div class="vw vw-'+tab+'">'+v+'</div>';let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
 n.innerHTML=visTabs().map(([k,l])=>`<button data-k="${k}" class="${tab==k?'on':''}" onclick="go('${k}')">${l}${k=='master'&&pend()?' &#9679;':''}</button>`).join('');
 trDom($('#app'));trDom(n);
-if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>draw($('#cl'+k),false,g.mat,{sub:g.all}));else matList().forEach((m,k)=>draw($('#cv'+k),false,m))}if(tab=='setting'&&isDev())acLoad();scrollTo(0,y)}
+if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>draw($('#cl'+k),false,g.mat,{sub:g.all}));else matList().forEach((m,k)=>draw($('#cv'+k),false,m))}if(tab=='setting'&&isDev())acLoad();if(tab=='data')calFix();scrollTo(0,y)}
 function go(t){if(!tabOK(t))return toast('Akses ditolak: khusus Developer / Admin');tab=t;scrollTo(0,0);render()}
 /* ---------- SINKRON MASTER KE APPWRITE ---------- */
 const AW_MT="6ad9e3270004fcc8e26d", AW_CH=15000;
