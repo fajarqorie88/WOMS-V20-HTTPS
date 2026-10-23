@@ -167,6 +167,65 @@ nav button{flex:1;padding:10px 0;color:#94a3b8;font-size:11px}nav button.on{colo
 .gb{width:100%;background:#fff;color:#0f172a;border-radius:12px;padding:12px;font-weight:600;display:flex;gap:10px;justify-content:center;align-items:center}
 .spark{animation:sp 2.4s ease-in-out infinite}@keyframes sp{0%,100%{opacity:1}50%{opacity:.35}}
 .logo{filter:drop-shadow(0 0 22px #3b82f6aa)}
+/* ===== MODE TAMPILAN PC (futuristik, widescreen) ===== */
+html[data-view=pc][data-theme=dark]{--bg:#050b1a;--cd:rgba(13,25,50,.72);--tx:#e6f1ff;--bd:rgba(56,189,248,.24);--ac:#38bdf8;--ib:rgba(2,10,28,.65)}
+html[data-view=pc]:not([data-theme=dark]){--bg:#e8f1fb;--cd:rgba(255,255,255,.78);--tx:#0b1b33;--bd:rgba(2,132,199,.28);--ac:#0284c7;--ib:rgba(255,255,255,.8)}
+html[data-view=pc] body{font-size:15px;padding-bottom:0;background:radial-gradient(1100px 560px at 88% -8%,rgba(56,189,248,.20),transparent 62%),radial-gradient(900px 520px at 6% 108%,rgba(99,102,241,.20),transparent 62%),var(--bg);background-attachment:fixed}
+html[data-view=pc] body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(56,189,248,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.07) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(ellipse at 60% 40%,#000 25%,transparent 78%);mask-image:radial-gradient(ellipse at 60% 40%,#000 25%,transparent 78%)}
+html[data-view=pc] body.wn{padding-left:244px}
+html[data-view=pc] #app{position:relative;z-index:1;max-width:1760px!important;padding:6px 36px 48px!important}
+html[data-view=pc] body:not(.wn) #app{max-width:920px!important}
+html[data-view=pc] nav{top:0;bottom:0;right:auto;left:0;width:244px;flex-direction:column;justify-content:flex-start;gap:6px;padding:22px 14px;background:linear-gradient(180deg,rgba(2,8,23,.97),rgba(7,18,44,.97));border-right:1px solid rgba(56,189,248,.28);box-shadow:6px 0 44px rgba(14,165,233,.14);z-index:20}
+html[data-view=pc] nav::before{content:"\26A1  WMS";order:-2;display:block;font-weight:800;font-size:26px;letter-spacing:.16em;color:#e0f2fe;text-shadow:0 0 16px rgba(56,189,248,.85);padding:6px 10px 0}
+html[data-view=pc] nav::after{content:"WELDING OUTPUT MONITORING";order:-1;display:block;font-size:10px;letter-spacing:.2em;color:#64a8d8;padding:2px 12px 18px;margin-bottom:10px;border-bottom:1px solid rgba(56,189,248,.22)}
+html[data-view=pc] nav button{background:transparent;flex:none;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;border-radius:12px;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#7f93b5;border:1px solid transparent;transition:all .2s}
+html[data-view=pc] nav button::before{content:"\25C6";width:22px;text-align:center;font-size:16px}
+html[data-view=pc] nav button[data-k=input]::before{content:"\271A"}
+html[data-view=pc] nav button[data-k=data]::before{content:"\25A4"}
+html[data-view=pc] nav button[data-k=grafik]::before{content:"\2197"}
+html[data-view=pc] nav button[data-k=master]::before{content:"\25C8"}
+html[data-view=pc] nav button[data-k=setting]::before{content:"\2699"}
+html[data-view=pc] nav button:hover{color:#e0f2fe;background:rgba(56,189,248,.09)}
+html[data-view=pc] nav button.on{color:#e0f2fe;font-weight:700;background:linear-gradient(90deg,rgba(14,165,233,.30),rgba(99,102,241,.14));border-color:rgba(56,189,248,.55);box-shadow:0 0 20px rgba(14,165,233,.28),inset 3px 0 0 #38bdf8}
+html[data-view=pc] .vw{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start}
+html[data-view=pc] .vw>*{grid-column:1/-1;margin:0}
+html[data-view=pc] .vw>.c{grid-column:span 6}
+html[data-view=pc] .vw-data>.c,html[data-view=pc] .vw-setting>.c{grid-column:span 4}
+html[data-view=pc] .vw>.c:has(>select.i),html[data-view=pc] .vw>.c.grid-cols-4,html[data-view=pc] .vw>.c.overflow-x-auto{grid-column:1/-1}
+html[data-view=pc] .vw-input{max-width:1040px;margin:0 auto}
+html[data-view=pc] .vw-input>.c{grid-column:1/-1}
+html[data-view=pc] .vw-master{padding-bottom:96px}
+html[data-view=pc] .vw-grafik>.flex:first-child{order:-4}
+html[data-view=pc] .vw-grafik>.c:has(>select.i){order:-3}
+html[data-view=pc] .vw-grafik>.c.grid-cols-4{order:-2}
+html[data-view=pc] .vw-grafik>.c.overflow-x-auto{order:2}
+html[data-view=pc] .vw-grafik .grid-cols-4 b{font-size:30px;color:var(--ac);text-shadow:0 0 14px rgba(56,189,248,.55)}
+html[data-view=pc] .vw select.i[style*="width:48%"]{width:auto!important;min-width:190px;margin-right:10px}
+html[data-view=pc] h2{font-size:21px;letter-spacing:.1em;text-transform:uppercase;background:linear-gradient(90deg,#38bdf8,#a5b4fc);-webkit-background-clip:text;background-clip:text;color:transparent;padding-top:14px;padding-bottom:14px}
+html[data-view=pc] h3{letter-spacing:.08em;color:var(--ac);text-transform:uppercase;font-size:14px}
+html[data-view=pc] .c{position:relative;background:var(--cd);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--bd);border-radius:16px;padding:18px;box-shadow:0 10px 34px rgba(0,0,0,.22),inset 0 0 0 1px rgba(255,255,255,.025);transition:border-color .2s,box-shadow .2s}
+html[data-view=pc] .c::before{content:"";position:absolute;top:0;left:22px;right:22px;height:1px;background:linear-gradient(90deg,transparent,var(--ac),transparent);opacity:.75;pointer-events:none}
+html[data-view=pc] .c:hover{border-color:rgba(56,189,248,.55);box-shadow:0 10px 34px rgba(0,0,0,.22),0 0 26px rgba(56,189,248,.14)}
+html[data-view=pc] .i{background:var(--ib);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;transition:all .2s}
+html[data-view=pc] .i:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(56,189,248,.25)}
+html[data-view=pc] .b{background:linear-gradient(135deg,#0ea5e9,#6366f1);box-shadow:0 0 18px rgba(14,165,233,.35);letter-spacing:.03em;transition:all .2s;cursor:pointer}
+html[data-view=pc] .b:hover{filter:brightness(1.12);box-shadow:0 0 26px rgba(56,189,248,.55);transform:translateY(-1px)}
+html[data-view=pc] .b.b2{background:rgba(148,163,184,.18);color:var(--tx);box-shadow:none;border:1px solid var(--bd)}
+html[data-view=pc] .b.bd{background:linear-gradient(135deg,#ef4444,#be123c);box-shadow:0 0 18px rgba(239,68,68,.35);color:#fff}
+html[data-view=pc] .bg{background:rgba(56,189,248,.15);color:var(--ac);border:1px solid rgba(56,189,248,.35)}
+html[data-view=pc] .ok{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.45)}
+html[data-view=pc] .no{background:rgba(239,68,68,.15);color:#f87171;border-color:rgba(239,68,68,.45)}
+html[data-view=pc] .or{background:rgba(251,146,60,.15);color:#fb923c;border-color:rgba(251,146,60,.45)}
+html[data-view=pc] table th{color:var(--ac);letter-spacing:.06em;text-transform:uppercase;padding:6px 4px}
+html[data-view=pc] table td{padding:5px 4px;border-top:1px solid var(--bd)}
+html[data-view=pc] table tr:hover td{background:rgba(56,189,248,.07)}
+html[data-view=pc] .fixbar{left:244px!important;bottom:0!important;padding:14px 36px!important;background:linear-gradient(180deg,transparent,var(--bg) 45%)}
+html[data-view=pc] .fixbar .b{max-width:560px;margin:0 auto;display:block}
+html[data-view=pc] ::-webkit-scrollbar{width:10px;height:10px}
+html[data-view=pc] ::-webkit-scrollbar-thumb{background:rgba(56,189,248,.35);border-radius:8px}
+html[data-view=pc] ::-webkit-scrollbar-track{background:transparent}
+@media(max-width:1500px){html[data-view=pc] .vw-data>.c,html[data-view=pc] .vw-setting>.c{grid-column:span 6}}
+@media(max-width:1000px){html[data-view=pc] .vw>.c{grid-column:span 12}}
 </style></head>
 <body><div id="t"></div><div id="app" class="max-w-xl mx-auto px-3"></div>
 <script>
@@ -188,7 +247,7 @@ const EN=[["Masuk untuk mengakses data pengecekan Anda","Sign in to access your 
 ["Pilih grafik untuk diunduh","Select charts to download"],["Pilih grafik untuk dibagikan","Select charts to share"],["Pilih semua","Select all"],["Hapus semua","Clear all"],["Unduh","Download"],["Batal","Cancel"],["Grafik Arus Welding","Welding Current Chart"],["Grafik","Charts"],["callout NG = di luar standar","NG callout = outside standard"],["hari","days"],
 ["+ Tambah Sub Equipment","+ Add Sub Equipment"],["+ Tambah Material","+ Add Material"],["SIMPAN PERUBAHAN","SAVE CHANGES"],["Tambah","Add"],["Kelola","Manage"],
 ["Ganti ke Day","Switch to Day"],["Ganti ke Night","Switch to Night"],["Ganti Password","Change Password"],["Tema","Theme"],["Data milik:","Data owner:"],["Akun:","Account:"],["Akun","Account"],["Masukkan password lama dan password baru (min. 8 karakter).","Enter your old and new password (min. 8 characters)."],["Password lama","Old password"],["Konfirmasi password baru","Confirm new password"],["Password baru (min. 6)","New password (min. 6)"],["Password baru","New password"],["Kirim link via email","Send link via email"],["Masukkan kode yang dikirim ke","Enter the code sent to"],["Kode 6 digit","6-digit code"],["Kirim ulang","Resend"],["Konfirmasi lewat kode yang dikirim ke email Anda.","Confirm using the code sent to your email."],["Kirim Kode ke Email","Send Code to Email"],["Upload foto","Upload photo"],["Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.","Data is saved automatically on this device and is not lost on refresh."],["Sync Drive terakhir:","Last Drive sync:"],["belum pernah","never"],["Auto Sync (3 detik setelah perubahan)","Auto Sync (3 seconds after changes)"],["Sync Sekarang","Sync Now"],["Load dari Drive","Load from Drive"],["Catatan: sync Drive masih simulasi (disimpan di perangkat dengan nama WMS_backup_{user}_{tanggal}.json). Integrasi Google Drive asli butuh OAuth Client ID.","Note: Drive sync is still a simulation (saved on the device as WMS_backup_{user}_{date}.json). Real Google Drive integration requires an OAuth Client ID."],["Email (simulasi)","Email (simulation)"],["Kepada:","To:"],["Kode verifikasi ganti password Anda:","Your password change verification code:"],["Berlaku 10 menit. Pengiriman email sungguhan butuh server.","Valid for 10 minutes. Real email delivery requires a server."],["Nama","Name"],
-["Dibuat:","Created:"],["Jumlah","Count"],["Rata-rata","Average"],["Rentang","Range"],["Waktu","Time"],["Aktual","Actual"],["Standar","Standard"],["Lokasi","Location"],["Deskripsi","Description"],["Keterangan","Notes"],["Ringkasan","Summary"],["Inspeksi","Inspection"],["Pengecekan","Inspection"],["Setting","Settings"],["Target ± Allowance % = Min & Max otomatis","Target ± Allowance % = Min & Max automatic"],["Allowance (%)","Allowance (%)"],["Update Data Server","Update Server Data"],["Per Material","By Material"],["Per Lokasi","By Location"],["Belum ada data untuk lokasi ini","No data for this location"],["Daftar dengan Email","Sign up with Email"],["Masuk dengan Email","Sign in with Email"],["Login Google butuh OAuth Client ID (belum dikonfigurasi). Gunakan email.","Google sign-in needs an OAuth Client ID (not configured). Please use email."],["atau","or"],["Pilih menu untuk memulai","Select a menu to start"],["Input, data, grafik &amp; master arus welding","Welding current input, data, charts &amp; master"],["Input, data, grafik & master arus welding","Welding current input, data, charts & master"],["Fitur ini sedang disiapkan.","This feature is being prepared."],["Segera hadir","Coming soon"],["Kembali ke Menu","Back to Menu"],["Selamat datang","Welcome"]];
+["Dibuat:","Created:"],["Jumlah","Count"],["Rata-rata","Average"],["Rentang","Range"],["Waktu","Time"],["Aktual","Actual"],["Standar","Standard"],["Lokasi","Location"],["Deskripsi","Description"],["Keterangan","Notes"],["Ringkasan","Summary"],["Inspeksi","Inspection"],["Pengecekan","Inspection"],["Setting","Settings"],["Target ± Allowance % = Min & Max otomatis","Target ± Allowance % = Min & Max automatic"],["Allowance (%)","Allowance (%)"],["Update Data Server","Update Server Data"],["Tampilan HP & PC","Phone & PC Display"],["Per Material","By Material"],["Per Lokasi","By Location"],["Belum ada data untuk lokasi ini","No data for this location"],["Daftar dengan Email","Sign up with Email"],["Masuk dengan Email","Sign in with Email"],["Login Google butuh OAuth Client ID (belum dikonfigurasi). Gunakan email.","Google sign-in needs an OAuth Client ID (not configured). Please use email."],["atau","or"],["Pilih menu untuk memulai","Select a menu to start"],["Input, data, grafik &amp; master arus welding","Welding current input, data, charts &amp; master"],["Input, data, grafik & master arus welding","Welding current input, data, charts & master"],["Fitur ini sedang disiapkan.","This feature is being prepared."],["Segera hadir","Coming soon"],["Kembali ke Menu","Back to Menu"],["Selamat datang","Welcome"]];
 const _EM={},_ER=new RegExp(EN.slice().sort((a,b)=>b[0].length-a[0].length).map(([k,v])=>{_EM[k]=v;const e=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return(/^[A-Za-z]/.test(k)?'(?<![A-Za-z])':'')+e+(/[A-Za-z]$/.test(k)?'(?![A-Za-z])':'')}).join('|'),'g');
 const tr=s=>LG=='en'&&s?String(s).replace(_ER,m=>_EM[m]):s;
 function trDom(r){if(LG!='en'||!r)return;const w=document.createTreeWalker(r,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentNode&&/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.parentNode.nodeName)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}),a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(n=>{const v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v});r.querySelectorAll('[placeholder],[title]').forEach(e=>['placeholder','title'].forEach(k=>{if(e.hasAttribute(k))e.setAttribute(k,tr(e.getAttribute(k)))}))}
@@ -352,7 +411,7 @@ function stdOf(i){const m=mainBy(i.mid),s=subBy(m,i.sid),x=s&&s.mats.find(t=>t.m
 function ok(i){const s=stdOf(i);return i.kA>=s.min&&i.kA<=s.max}
 function gData(){const lim=G.days=='all'?0:Date.now()-G.days*864e5;return D.insp.filter(i=>(!G.main||i.mid==G.main)&&(!G.loc||(i.loc||'')==G.loc)&&(!G.type||i.subType==G.type)&&(!G.mat||i.mat==G.mat)&&(!lim||new Date(i.dt)>=lim)).sort((x,y)=>new Date(x.dt)-new Date(y.dt))}
 function cats(a){const m=new Map();a.forEach(i=>{const k=i.mid+'|'+i.sid;if(!m.has(k))m.set(k,{main:i.main,sub:i.sub,rows:[]});m.get(k).rows.push(i)});return[...m.values()].sort((x,y)=>x.main.localeCompare(y.main,undefined,{numeric:true})||x.sub.localeCompare(y.sub))}
-function draw(c,lt,mat,o){if(!c)return;o=o||{};const sc=o.sc||1,pr=!!o.W,ct=o.sub||cats(gData().filter(i=>i.mat==mat)),n=ct.length,p=44*sc,B=100*sc,W=o.W||Math.max(400,n*44+p+20),H=o.H||360;c.width=W;c.height=H;c.style.width=W+'px';c.style.maxWidth='none';
+function draw(c,lt,mat,o){if(!c)return;o=o||{};const sc=o.sc||1,pr=!!o.W,ct=o.sub||cats(gData().filter(i=>i.mat==mat)),n=ct.length,p=44*sc,B=100*sc,pcW=(!o.W&&document.documentElement.dataset.view=='pc'&&c.parentElement)?c.parentElement.clientWidth-2:0,W=o.W||Math.max(400,n*44+p+20,pcW),H=o.H||(document.documentElement.dataset.view=='pc'&&!o.W?420:360);c.width=W;c.height=H;c.style.width=W+'px';c.style.maxWidth='none';
 const x=c.getContext('2d'),dk=!lt&&document.documentElement.dataset.theme=='dark',fg=dk?'#f1f5f9':'#0f172a';x.clearRect(0,0,W,H);if(lt){x.fillStyle='#fff';x.fillRect(0,0,W,H)}x.fillStyle=fg;x.font=12*sc+'px sans-serif';
 {const ft=x.fillText.bind(x);x.fillText=(t,...a)=>ft(tr(String(t)),...a)}
 if(!n){x.fillText('Belum ada data '+mat,16,H/2);return}
@@ -382,7 +441,7 @@ ${s.mats.map((x,k)=>`<div class="mt-2 p-2 rounded-lg" style="border:1px solid va
 <div class="flex gap-2 mt-1"><div class="flex-1"><label>Target (kA)</label><input type="number" step="0.1" class="i" style="margin:0;border-color:#2563EB" value="${tgOf(x)}" onchange="mm('tg',${a},${b},${k},this.value)"></div><div class="flex-1"><label>Allowance (%)</label><input type="number" step="0.1" min="0" inputmode="decimal" class="i" style="margin:0;border-color:#16a34a" value="${alOf(x)}" onchange="mm('al',${a},${b},${k},this.value)"></div></div><div class="flex gap-2 mt-1"><div class="flex-1"><label>Min</label><input type="number" step="0.1" class="i" style="margin:0" value="${x.min}" onchange="mm('min',${a},${b},${k},this.value)"></div><div class="flex-1"><label>Max</label><input type="number" step="0.1" class="i" style="margin:0" value="${x.max}" onchange="mm('max',${a},${b},${k},this.value)"></div></div><p class="text-xs opacity-60 mt-1">Target &plusmn; Allowance % = Min &amp; Max otomatis</p></div>`).join('')}
 <button class="text-blue-600 text-sm mt-1" onclick="mm('addMat',${a},${b})">+ Tambah Material</button></div>`).join('')}
 <button class="text-blue-600 text-sm mt-2" onclick="mm('addSub',${a})">+ Tambah Sub Equipment</button></div>`).join('')}
-<div style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;padding:0 12px;z-index:15"><button class="b w-full" style="padding:13px;box-shadow:0 4px 14px #0004" onclick="commit()">UPDATE &amp; SIMPAN PERUBAHAN ${pend()?'<span class="bg or">pending</span>':''}</button></div><div style="height:60px"></div>`}
+<div class="fixbar" style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;padding:0 12px;z-index:15"><button class="b w-full" style="padding:13px;box-shadow:0 4px 14px #0004" onclick="commit()">UPDATE &amp; SIMPAN PERUBAHAN ${pend()?'<span class="bg or">pending</span>':''}</button></div><div style="height:60px"></div>`}
 function mm(op,a,b,k,v){const m=draft[a];
 if(op=='addMain'){const c=prompt('Kode Main Equipment (mis. Trafo 24)');if(!c)return;draft.push({id:'m'+uid8(),code:c,loc:D.M.locs[0]||'',subs:[]})}
 else if(op=='delMain'){if(confirm('Hapus '+m.code+'?'))draft.splice(a,1)}
@@ -408,6 +467,7 @@ const P=(k,l,t)=>fld(l,`<input class="i" ${t?'type='+t:''} value="${esc(p[k])}" 
 return`<h2 class="font-bold py-3">Setting</h2>
 <div class="c flex justify-between items-center"><b>Bahasa / Language</b><select class="i" style="width:auto;margin:0" onchange="setLang(this.value)"><option value="id"${LG=='id'?' selected':''}>Indonesia</option><option value="en"${LG=='en'?' selected':''}>English</option></select></div>
 <div class="c flex justify-between items-center"><b>Tema ${dk?'Night':'Day'}</b><button class="b" onclick="theme()">${dk?'Ganti ke Day':'Ganti ke Night'}</button></div>
+<div class="c flex justify-between items-center"><b>Tampilan HP &amp; PC</b><div class="flex gap-1"><button class="b ${curView()=='hp'?'':'b2'}" onclick="setView('hp')">HP</button><button class="b ${curView()=='pc'?'':'b2'}" onclick="setView('pc')">PC</button></div></div>
 <div class="c"><b>Akun</b><div class="text-sm">${esc(U.name)} (${U.provider})<br>Data milik: ${esc(U.id)}</div><button class="b bd mt-2" onclick="logout()">Logout</button></div>
 ${SERVER?`<div class="c"><b>Ganti Password</b><p class="text-xs opacity-70 my-2">Masukkan password lama dan password baru (min. 8 karakter).</p><input id="po" class="i" type="password" placeholder="Password lama"><input id="pn" class="i" type="password" placeholder="Password baru"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru"><div class="flex gap-2"><button class="b" onclick="fbPass()">Ubah Password</button>${SRV.resetUrl?`<button class="b b2" onclick="fbReset(U.email)">Kirim link via email</button>`:''}</div></div>`:accs()[U.id]?`<div class="c"><b>Ganti Password</b>${PW?`<p class="text-xs opacity-70 my-2">Masukkan kode yang dikirim ke ${esc(U.id)}</p><input id="pc" class="i" placeholder="Kode 6 digit" inputmode="numeric"><input id="pn" class="i" type="password" placeholder="Password baru (min. 6)"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru"><div class="flex gap-2"><button class="b" onclick="pwChange()">Ubah Password</button><button class="b b2" onclick="pwSend()">Kirim ulang</button></div>`:`<p class="text-xs opacity-70 my-2">Konfirmasi lewat kode yang dikirim ke email Anda.</p><button class="b" onclick="pwSend()">Kirim Kode ke Email</button>`}</div>`:''}<div class="c"><b>Profile</b><div class="flex items-center gap-3 my-2"><div style="width:64px;height:64px;border-radius:50%;background:#2563EB;overflow:hidden" class="flex items-center justify-center text-white text-2xl">${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover">`:esc((p.name||U.name)[0]||'?').toUpperCase()}</div><label class="b b2">Upload foto<input type="file" accept="image/*" hidden onchange="pick('prof',0,this.files[0])"></label></div>
 ${P('name','Nama')}${P('nip','NIP')}${P('dept','Dept')}${fld('Role',`<select class="i" onchange="D.prof.role=this.value;save()">${opts(['Admin','Checker','Supervisor'],p.role)}</select>`)}${P('hp','HP','tel')}${P('email','Email','email')}</div>
@@ -417,6 +477,8 @@ ${LISTS.map(([k,l])=>`<div class="c"><b>Kelola ${l}</b><div class="my-2">${D.M[k
 <p>Update server terakhir: ${D.sync.last||'belum pernah'}</p><div class="flex gap-2 mt-2"><button class="b" style="background:#16a34a" onclick="awUpdateServer()">&#11014; Update Data Server</button></div>
 <p class="text-xs opacity-60 mt-1">Mengirim data setting (lokasi, checker, material, shift, deskripsi), master equipment, dan data pengecekan ke server Appwrite, lalu mengambil data baru dari server. Perangkat lain menerima pembaruan saat aplikasi dibuka kembali.</p></div>
 <div class="c text-sm text-center">WMS v2.9 - Welding Monitoring System<p class="text-xs opacity-60 mt-1">Developed by Fajar Q.</p></div>`}
+function curView(){return L.woms_view||(innerWidth>=1024?'pc':'hp')}
+function setView(v){L.woms_view=v;document.documentElement.dataset.view=v;render()}
 function theme(){const n=document.documentElement.dataset.theme=='dark'?'light':'dark';document.documentElement.dataset.theme=n;L.woms_theme=n;render()}
 function addM(k){const el=$('#n_'+k),v=el.value.trim();if(!v||D.M[k].includes(v))return;D.M[k].push(v);save();render()}
 function renM(k,i){const o=D.M[k][i],n=(prompt('Ubah nama',o)||'').trim();if(!n||n==o)return;if(D.M[k].includes(n))return toast('Nama sudah ada');D.M[k][i]=n;if(k=='locs'){D.mains.forEach(m=>{if(m.loc==o)m.loc=n});if(draft)draft.forEach(m=>{if(m.loc==o)m.loc=n})}save();render()}
@@ -446,11 +508,11 @@ function openMenu(k){scr=k=='cow'?'app':k;if(k=='cow')tab='input';scrollTo(0,0);
 function backBar(){return`<div class="pt-3"><button class="text-sm text-blue-600 font-semibold" onclick="openMenu('home')">&#8249; Kembali ke Menu</button></div>`}
 
 /* ---------- RENDER ---------- */
-function render(){const y=scrollY;if(!U){$('#app').innerHTML=loginView();trDom($('#app'));return}
+function render(){const y=scrollY;document.body.classList.toggle('wn',!!U&&scr=='app');if(!U){$('#app').innerHTML=loginView();trDom($('#app'));return}
 if(scr!='app'){const n0=$('nav');if(n0)n0.remove();$('#app').innerHTML=scr=='qg'?qgView():homeView();trDom($('#app'));return}
 const v={input:inputView,data:dataView,grafik:grafikView,master:masterView,setting:settingView}[tab]();
-$('#app').innerHTML=backBar()+v;let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
-n.innerHTML=TABS.map(([k,l])=>`<button class="${tab==k?'on':''}" onclick="go('${k}')">${l}${k=='master'&&pend()?' &#9679;':''}</button>`).join('');
+$('#app').innerHTML=backBar()+'<div class="vw vw-'+tab+'">'+v+'</div>';let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
+n.innerHTML=TABS.map(([k,l])=>`<button data-k="${k}" class="${tab==k?'on':''}" onclick="go('${k}')">${l}${k=='master'&&pend()?' &#9679;':''}</button>`).join('');
 trDom($('#app'));trDom(n);
 if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>draw($('#cl'+k),false,g.mat,{sub:g.all}));else matList().forEach((m,k)=>draw($('#cv'+k),false,m))}scrollTo(0,y)}
 function go(t){tab=t;scrollTo(0,0);render()}
@@ -541,7 +603,7 @@ function awMasterCheck(){
 }
 save=function(now){_awSave(now);awMasterCheck()};
 load=function(id){_awLoad(id);awLast=null;setTimeout(awMasterPull,0);setTimeout(()=>awPullAll(true),800)};
-(function init(){document.documentElement.dataset.theme=L.woms_theme||'light';
+(function init(){document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();let rzT;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(U&&scr=='app'&&tab=='grafik')render()},250)});
 if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
 const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}};
