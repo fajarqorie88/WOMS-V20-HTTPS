@@ -408,6 +408,36 @@ let q=.72,d=c.toDataURL('image/jpeg',q);while(d.length>IMG_MAX&&q>.52){q-=.06;d=
 function compress(file,cb){const u=URL.createObjectURL(file);imgPack(u,d=>{URL.revokeObjectURL(u);if(d)cb(d);else toast('Foto gagal diproses')})}
 function pick(k,cap,file){if(!file)return;compress(file,d=>{if(k=='prof')D.prof.photo=d;else F.photo=d;save();render()})}
 
+/* ---------- KAPASITAS SERVER ---------- */
+let SC={t:0,busy:false,err:'',files:0,fb:0,docs:0,db:0};
+const scCap=()=>(parseFloat(L.woms_srvcap)||2)*1073741824;
+const fmtB=b=>b>=1073741824?(b/1073741824).toFixed(2)+' GB':b>=1048576?(b/1048576).toFixed(1)+' MB':(b/1024).toFixed(1)+' KB';
+async function scLoad(force){
+  if(SC.busy||(!force&&Date.now()-SC.t<300000))return;
+  const pre=awCheck();if(pre){SC.err=pre;SC.t=Date.now();return}
+  SC.busy=true;SC.err='';render();
+  try{
+    let fb=0,fn=0,last=null;
+    for(;;){const q=[Appwrite.Query.limit(100)];if(last)q.push(Appwrite.Query.cursorAfter(last));
+      const r=await awST.listFiles(AW_BK,q);r.files.forEach(f=>{fb+=f.sizeOriginal||0;fn++});
+      if(r.files.length<100)break;last=r.files[r.files.length-1].$id}
+    let db=0,dn=0;last=null;
+    for(;;){const q=[Appwrite.Query.limit(100)];if(last)q.push(Appwrite.Query.cursorAfter(last));
+      const r=await awDB.listDocuments(AW_DB,AW_TB,q);r.documents.forEach(d=>{db+=JSON.stringify(d).length;dn++});
+      if(r.documents.length<100)break;last=r.documents[r.documents.length-1].$id}
+    Object.assign(SC,{files:fn,fb,docs:dn,db});SC.t=Date.now();
+    if((fb+db)/scCap()>=0.8)toast('Peringatan: kapasitas server sudah '+Math.round((fb+db)/scCap()*100)+'%')
+  }catch(e){SC.err=(e&&e.message)||String(e);SC.t=Date.now()}
+  SC.busy=false;if(tab=='setting')render()}
+function scEdit(){const v=prompt('Total kapasitas server (GB)',String(scCap()/1073741824));if(v===null)return;const n=parseFloat(String(v).replace(',','.'));if(!(n>0))return toast('Angka tidak valid');L.woms_srvcap=String(n);render()}
+function scCard(){
+  const used=SC.fb+SC.db,cap=scCap(),pc=Math.min(100,used/cap*100),warn=pc>=80,col=pc>=90?'#dc2626':warn?'#f59e0b':'#16a34a';
+  return `<div class="c text-sm"><div class="flex justify-between items-center"><b>Kapasitas Server</b><button class="b" onclick="scLoad(true)" ${SC.busy?'disabled':''}>${SC.busy?'Memuat...':'&#8635; Refresh'}</button></div>
+${SC.err?`<p class="text-xs my-2" style="color:#dc2626">Gagal membaca kapasitas: ${esc(SC.err)}</p>`:SC.t?`<p class="my-2"><b>${fmtB(used)}</b> terpakai dari <b>${fmtB(cap)}</b> (${pc.toFixed(1)}%)</p>
+<div style="height:12px;border-radius:6px;background:rgba(128,128,128,.25);overflow:hidden"><div style="height:100%;width:${pc}%;background:${col}"></div></div>
+${warn?`<div class="mt-2 p-2" style="border-radius:8px;background:${pc>=90?'#fee2e2':'#fef3c7'};color:${pc>=90?'#991b1b':'#92400e'}"><b>&#9888; Peringatan:</b> kapasitas server sudah ${pc.toFixed(0)}%. Hapus data/foto lama atau tambah kapasitas server.</div>`:''}
+<p class="text-xs opacity-60 mt-2">Foto: ${fmtB(SC.fb)} (${SC.files} file) - Data: ${fmtB(SC.db)} (${SC.docs} dokumen, perkiraan)</p>`:`<p class="text-xs opacity-60 my-2">Memuat...</p>`}
+<p class="text-xs opacity-60 mt-1">Total kapasitas ${fmtB(cap)} <button class="underline" onclick="scEdit()">ubah</button></p></div>`}
 /* ---------- LOGIN ---------- */
 const PWE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',PWX='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-6.5 0-10-7-10-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.1 9.1 0 0 1 12 4c6.5 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12A3 3 0 1 1 9.88 9.88"/><path d="M1 1l22 22"/></svg>';
 function pwTog(b){const i=b.parentNode.querySelector('input'),sh=i.type=='password';i.type=sh?'text':'password';b.innerHTML=sh?PWE:PWX;b.setAttribute('aria-label',sh?'Hide password':'Show password')}
@@ -791,6 +821,7 @@ ${isDev()?`<div class="c text-sm"><b>Data &amp; Storage</b><p>${D.insp.length} d
 <div class="flex flex-wrap gap-2 my-2"><button class="b" onclick="xl()">Export Excel</button><button class="b" onclick="bk()">Backup JSON</button><label class="b b2">Restore JSON<input type="file" accept=".json" hidden onchange="rs(this.files[0])"></label><button class="b bd" onclick="wipe()">Hapus Semua</button></div>
 <p>Update server terakhir: ${D.sync.last||'belum pernah'}</p><div class="flex gap-2 mt-2"><button class="b" style="background:#16a34a" onclick="awUpdateServer()">&#11014; Update Data Server</button></div>
 <p class="text-xs opacity-60 mt-1">Mengirim data setting (lokasi, checker, material, shift, deskripsi), master equipment, dan data pengecekan ke server Appwrite, lalu mengambil data baru dari server. Perangkat lain menerima pembaruan saat aplikasi dibuka kembali.</p></div>`:''}
+${isDev()?(setTimeout(scLoad,0),scCard()):''}
 <div class="c text-sm text-center">WMS v3.0 - Welding Monitoring System<p class="text-xs opacity-60 mt-1">Developed by Fajar Q.</p></div>`}
 function curView(){return L.woms_view||(innerWidth>=1024?'pc':'hp')}
 function setView(v){L.woms_view=v;document.documentElement.dataset.view=v;render()}
@@ -885,7 +916,7 @@ async function awUpdateServer(){
   const pre=awCheck();
   if(pre){alert(pre);return}
   if(!D||!U)return;
-  awSyncing=true;toast("Mengirim setting ke server...");
+  awSyncing=true;toast("Mengirim setting ke server...");SC.t=0;
   try{
     clearTimeout(awT);D.masterT=Date.now();_awSave(true);
     let mok=await awMasterPush();
