@@ -138,7 +138,7 @@ async function awPullAll(silent){
     return -1;
   }
 }
-/* Tombol "Update ke Server": kirim semua data lokal, lalu ambil data baru dari server */
+/* Tombol "Upload Data": kirim semua data lokal, lalu ambil data baru dari server */
 async function awSyncAll(){
   if(awSyncing){toast("Update sedang berjalan...");return}
   const pre=awCheck();
@@ -410,6 +410,17 @@ html:not([data-view=pc]) nav button svg{width:23px;height:23px}
 html:not([data-view=pc]) nav button.on{background:#0b4ea2;color:#fff;font-weight:700}
 html[data-view=pc] nav button svg{display:none}
 html[data-view=pc] nav button span{display:inline}
+
+.up-wrap{display:flex;justify-content:center;padding:18px 0 10px}
+.up-btn{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-width:200px;height:52px;padding:0 30px;border:0;border-radius:999px;background:#3AB54A;color:#3AB54A;font-weight:700;font-size:18px;cursor:pointer;box-shadow:0 10px 26px rgba(58,181,74,.42);transition:transform .15s,box-shadow .15s,filter .15s;-webkit-tap-highlight-color:transparent}
+.up-btn .up-tx{color:#fff}
+.up-btn:hover{filter:brightness(1.05);box-shadow:0 12px 30px rgba(58,181,74,.5)}
+.up-btn:active{transform:scale(.96)}
+.up-btn .up-ar{transform-box:fill-box;transform-origin:center}
+.up-btn.busy{pointer-events:none;filter:saturate(.85) brightness(.97)}
+.up-btn.busy .up-ar{animation:upArrow .9s ease-in-out infinite}
+.up-btn.busy .up-tx{opacity:.9}
+@keyframes upArrow{0%{transform:translateY(5px);opacity:0}40%{opacity:1}100%{transform:translateY(-6px);opacity:0}}
 </style></head>
 <body><div id="t"></div><div id="app" class="max-w-xl mx-auto px-3"></div>
 <script>
@@ -879,11 +890,13 @@ function calView(){
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||stV(i)==q.st)&&(!q.ap||apSt(i)==q.ap)&&dtOk(i,q))}
 function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
-return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;background:#16a34a" onclick="awSyncAll()">&#11014; Update ke Server</button>${UNDO&&U&&UNDO.by==U.id?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;background:#f59e0b;color:#111" title="Kembalikan data yang terakhir dihapus" onclick="undoDel()">&#8630; Undo</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada data yang dihapus" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c" id="cb_fltd"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltd')"><b>Filters${fltN(Q,['s','main','type','mat','loc','st','ap'])?' <span class="bg or">'+fltN(Q,['s','main','type','mat','loc','st','ap'])+'</span>':''}</b>${bxIcon(BXO.fltd)}</button><div class="cbb" style="display:${BXO.fltd?'block':'none'}"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
+return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button>${UNDO&&U&&UNDO.by==U.id?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#f59e0b;color:#111" title="Kembalikan data yang terakhir dihapus" onclick="undoDel()">&#8630; Undo</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada data yang dihapus" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c" id="cb_fltd"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltd')"><b>Filters${fltN(Q,['s','main','type','mat','loc','st','ap'])?' <span class="bg or">'+fltN(Q,['s','main','type','mat','loc','st','ap'])+'</span>':''}</b>${bxIcon(BXO.fltd)}</button><div class="cbb" style="display:${BXO.fltd?'block':'none'}"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
 ${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('ap',Q.ap,'Semua Approval',[['p','Pending approval'],['a','Approved']])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div></div></div>
 ${calView()}
 ${Q.show?`<p class="text-xs opacity-60">${a.length} data</p>
-${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}`}
+${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}
+<div class="up-wrap"><button type="button" id="upBtn" class="up-btn" onclick="upData()"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path fill="#fff" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" fill="currentColor" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><span class="up-tx">Upload Data</span></button></div>`}
+async function upData(){const b=document.getElementById('upBtn');if(b&&b.classList.contains('busy'))return;if(b)b.classList.add('busy');try{await awSyncAll()}finally{const x=document.getElementById('upBtn');if(x)x.classList.remove('busy')}}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.onclick=e=>{if(e.target.closest('button[onclick^="editInsp"]'))return;d.remove()};
 const sv=stV(i);
@@ -1188,7 +1201,7 @@ async function awSaveSync(r){
     else alert(m+(mok?"":" (master gagal dikirim)")+(added<0?" (ambil data dari server gagal)":""));
   }catch(e){
     console.error("Simpan & update server gagal:",e);spSet(100,true,true);
-    alert("Data tersimpan di perangkat, tetapi gagal dikirim ke server: "+((e&&e.message)||e)+". Coba lagi lewat tombol Update ke Server di tab Data.");
+    alert("Data tersimpan di perangkat, tetapi gagal dikirim ke server: "+((e&&e.message)||e)+". Coba lagi lewat tombol Upload Data di tab Data.");
   }finally{awSyncing=false}
 }
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&U&&D&&!pend())awMasterPull()});
