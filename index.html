@@ -231,6 +231,7 @@ nav button{flex:1;padding:10px 0;color:#94a3b8;font-size:11px}nav button.on{colo
 .pw{position:relative}.pw .i{padding-right:44px}.pw-e{position:absolute;right:4px;top:3px;bottom:11px;width:40px;border:0;background:transparent;color:#cbd5e1;display:flex;align-items:center;justify-content:center}
 .pw-e svg{width:20px;height:20px}
 .wms-anim{display:block;width:min(260px,72vw);height:auto;aspect-ratio:1/1;margin:-8px auto -6px;mix-blend-mode:screen;pointer-events:none;-webkit-mask-image:radial-gradient(circle at 50% 50%,#000 62%,transparent 71%);mask-image:radial-gradient(circle at 50% 50%,#000 62%,transparent 71%)}
+.spw{height:4px;border-radius:2px;background:rgba(128,128,128,.2);overflow:hidden;margin-top:8px}.spw div{height:100%;width:0;border-radius:2px;transition:width .45s ease,background .2s}
 .ig{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52vh;text-align:center}
 .inow{position:relative;display:flex;align-items:center;gap:0;width:min(320px,86%);height:68px;padding:0 22px 0 8px;border:0;border-radius:40px;color:#fff;cursor:pointer;background:linear-gradient(180deg,#3b8fd6,#2a6fb0);box-shadow:0 6px 16px rgba(37,99,235,.35),inset 0 1px 0 rgba(255,255,255,.35);animation:inPulse 2.4s ease-in-out infinite;transition:transform .15s,width .35s,border-radius .35s;-webkit-tap-highlight-color:transparent}
 .inow .ic{flex:0 0 52px;height:52px;border-radius:50%;background:#fff;color:#2a6fb0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
@@ -509,6 +510,10 @@ function wcNew(){const el=$('#wc_new'),v=(el.value||'').trim();if(!v)return toas
   if(wcAll().some(x=>String(x[1]).toLowerCase()==v.toLowerCase()))return toast('Parameter sudah ada');
   const k='x'+Date.now().toString(36);(D.M.custom=D.M.custom||[]).push([k,v]);D.M[k]=[];save();render();toast('Parameter "'+v+'" ditambahkan')}
 function wcDel(k){const c=(D.M.custom||[]).find(x=>x[0]==k);if(!c||!confirm(tr('Hapus parameter "'+c[1]+'" beserta isinya?')))return;D.M.custom=D.M.custom.filter(x=>x[0]!=k);delete D.M[k];save();render()}
+/* progress bar simpan & update server */
+const SP={p:0,show:false,err:false,t:0};
+function spSet(p,err,hide){SP.p=p;SP.err=!!err;SP.show=true;clearTimeout(SP.t);const b=document.getElementById('spb'),w=document.getElementById('spw');if(w)w.style.visibility='visible';if(b){b.style.width=p+'%';b.style.background=err?'#ef4444':'#22c55e'}
+  if(hide)SP.t=setTimeout(()=>{SP.show=false;SP.p=0;SP.err=false;const w=document.getElementById('spw'),b=document.getElementById('spb');if(w)w.style.visibility='hidden';if(b)b.style.width='0%'},err?2500:1500)}
 /* ---------- INPUT GATE + HISTORY ---------- */
 const PENC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>';
 function inGate(){return`<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING MONITORING SYSTEM</h1>
@@ -670,9 +675,9 @@ ${sh?`<button class="gb" style="background:#0f766e;color:#fff;display:flex;align
 <p class="text-center text-xs mt-4" style="color:#94a3b8">Developed by Fajar Q.</p></div></div>`}
 
 /* ---------- INPUT ---------- */
-function inputView(){const h=inHist();if(!IG)return inGate()+h;return inputView0()+h}
+function inputView(){if(!IG)return inGate();return inputView0()+inHist()}
 function inputView0(){F.dt=F.dt||nowLocal();const last=D.insp[0];
-const lc=last?`<div class="c"><b>Data Terakhir</b><div class="text-sm mt-1">${esc(last.main)} - ${esc(last.sub)} ${st(last)}</div><div class="text-xs opacity-70">${last.kA} kA (std ${last.min}-${last.max}) - ${new Date(last.dt).toLocaleString(LC())}</div></div>`:'';
+const lc='';
 const hd='<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING MONITORING SYSTEM</h1>';
 if(F.step!=2)return hd+`<div class="c"><b>Langkah 1 - Info Pengecekan</b><div class="text-xs opacity-60 mb-2">Diisi sekali, berlaku untuk semua data yang diinput berikutnya.</div>
 ${fld('Checker 1',`<select class="i" onchange="F.c1=this.value">${opts(D.M.checkers,F.c1,'- pilih -')}</select>`)}
@@ -692,7 +697,7 @@ ${fld('Lokasi (default dari Master, pilihan dari Setting)',`<select class="i" on
 ${fld('Keterangan',`<textarea class="i" rows="2" oninput="F.ket=this.value">${esc(F.ket||'')}</textarea>`)}
 <label>Foto</label><div class="flex gap-2 my-1"><label class="b flex-1 text-center">Buka Kamera<input type="file" accept="image/*" capture="environment" hidden onchange="pick('f',0,this.files[0])"></label><label class="b b2 flex-1 text-center">Pilih Galeri<input type="file" accept="image/*" hidden onchange="pick('f',0,this.files[0])"></label></div>
 ${F.photo?`<img src="${F.photo}" style="max-height:300px" class="rounded-lg my-2"><button class="b bd" onclick="F.photo='';render()">Hapus Foto</button>`:''}
-<button id="bsv" class="b w-full mt-3" onclick="saveInsp()">Simpan Data dan Update Server</button><p class="text-xs opacity-60 text-center mt-2">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
+<button id="bsv" class="b w-full mt-3" onclick="saveInsp()">Save</button><div id="spw" class="spw" style="${SP.show?'':'visibility:hidden'}"><div id="spb" style="width:${SP.p}%;background:${SP.err?'#ef4444':'#22c55e'}"></div></div><p class="text-xs opacity-60 text-center mt-2">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
 function kpv(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);if(F.kC==null||F.kC!==F.kA||!mat||isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<div class="text-xs mt-1"><span class="bg ${ok?'ok':'no'}">${ok?'OK':'NG'}</span> ${k} kA (std ${mat.min}-${mat.max}) - tekan Simpan Data</div>`}
 function kpvUp(){const e=$('#kpv');if(e)e.innerHTML=kpv()}
 function kEnter(e){if(e.key!='Enter')return;e.preventDefault();const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat);F.kA=e.target.value;if(!mat)return toast('Pilih Main, Sub & Material dulu');if(isNaN(parseFloat(F.kA)))return toast('Isi nilai Arus (kA)');F.kC=F.kA;kpvUp();e.target.blur();setTimeout(()=>{const b=$('#bsv');if(b)b.scrollIntoView({block:'center',behavior:'smooth'})},200)}
@@ -1032,22 +1037,24 @@ async function awUpdateServer(){
 }
 async function awSaveSync(r){
   const pre=awCheck();
-  if(pre){toast("Tersimpan di perangkat. Server: "+pre);return}
-  if(awSyncing){try{await awUpsert(r)}catch(e){toast("Kirim ke server gagal: "+((e&&e.message)||e))}return}
-  awSyncing=true;toast("Mengirim ke server...");
+  if(pre){toast("Tersimpan di perangkat. Server: "+pre);spSet(100,true,true);return}
+  if(awSyncing){spSet(30,false);try{await awUpsert(r);spSet(100,false,true)}catch(e){spSet(100,true,true);toast("Kirim ke server gagal: "+((e&&e.message)||e))}return}
+  awSyncing=true;toast("Mengirim ke server...");spSet(8,false);
   try{
-    await awUpsert(r);
+    await awUpsert(r);spSet(40,false);
     let mok=true;
     if(D&&awLast!==null&&awSnap()!==awLast){clearTimeout(awT);D.masterT=Date.now();_awSave(true);mok=await awMasterPush()}
-    await awMasterPull();
-    const added=await awPullAll(true);
+    spSet(60,false);
+    await awMasterPull();spSet(78,false);
+    const added=await awPullAll(true);spSet(94,false);
     if(D){D.sync.last=new Date().toLocaleString(LC());_awSave(true)}
+    spSet(100,!(mok&&added>=0),true);
     let m="Data terkirim ke server";
     if(added>0)m+=", "+added+" data baru dari perangkat lain";
     if(mok&&added>=0)awSuccess("Tersimpan & terupdate",m);
     else alert(m+(mok?"":" (master gagal dikirim)")+(added<0?" (ambil data dari server gagal)":""));
   }catch(e){
-    console.error("Simpan & update server gagal:",e);
+    console.error("Simpan & update server gagal:",e);spSet(100,true,true);
     alert("Data tersimpan di perangkat, tetapi gagal dikirim ke server: "+((e&&e.message)||e)+". Coba lagi lewat tombol Update ke Server di tab Data.");
   }finally{awSyncing=false}
 }
