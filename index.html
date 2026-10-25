@@ -1403,11 +1403,11 @@ const LVL=[['member','Member'],['gl','Group Leader'],['foreman','Foreman'],['spv
 const lvlOf=t=>{t=String(t||'').toLowerCase();return /supervis|spv/.test(t)?'spv':/foreman/.test(t)?'foreman':/group|leader|\bgl\b/.test(t)?'gl':/member|operator/.test(t)?'member':''};
 const lvlName=k=>(LVL.find(x=>x[0]==k)||['',''])[1];
 const myLvl=()=>lvlOf(D&&D.prof&&D.prof.role);
-const canApprove=()=>!!U&&['foreman','spv'].includes(myLvl());
+const canApprove=()=>!!U&&(isDev()||['foreman','spv'].includes(myLvl()));
 const apSt=i=>i.ap=='a'?'a':'p';
 const apOkR=i=>apSt(i)=='a';
 const isMine=i=>!!i.userId&&!!U&&String(i.userId).toLowerCase()==String(U.id).toLowerCase();
-const canAp1=i=>canApprove()&&apSt(i)=='p'&&!isMine(i);
+const canAp1=i=>canApprove()&&apSt(i)=='p'&&(isDev()||!isMine(i));
 const apTxt=i=>apSt(i)=='a'?'Approved oleh '+(i.apName||i.apBy||'-')+(i.apRole?' ('+i.apRole+')':'')+(i.apAt?' - '+new Date(i.apAt).toLocaleString(LC()):''):'Pending approval';
 const apRow=i=>{
   if(apSt(i)=='a')return`<div class="text-xs mt-1" style="color:#16a34a"><b>&#10003; Approved</b> oleh ${esc(i.apName||i.apBy||'-')}${i.apRole?' ('+esc(i.apRole)+')':''}${i.apAt?' - '+new Date(i.apAt).toLocaleDateString(LC()):''}</div>`;
@@ -1415,10 +1415,10 @@ const apRow=i=>{
 const apBtn=i=>canAp1(i)?`<button class="b mt-3" style="width:100%;background:#16a34a" onclick="apDo('${i.id}')">&#10003; Approve Data</button>`:(i.ap=='a'&&(isDev()||String(i.apBy||'').toLowerCase()==myEm())?`<button class="b b2 mt-3" style="width:100%" onclick="apUndo('${i.id}')">Batalkan Approval</button>`:'');
 const apBan=a=>{const m=new Map();a.forEach(i=>{if(i.ap=='a'){const k=(i.apName||i.apBy||'-')+'|'+(i.apRole||'');m.set(k,(m.get(k)||0)+1)}});const pend=D.insp.filter(i=>apSt(i)=='p').length;
   return`<div class="c text-sm" style="border-left:4px solid ${m.size?'#16a34a':'#eab308'}">${m.size?`<b style="color:#16a34a">&#10003; Grafik sudah di-approve</b><div class="text-xs mt-1">${[...m].map(([k,n])=>{const[nm,rl]=k.split('|');return esc(nm)+(rl?' ('+esc(rl)+')':'')+' - '+n+' data'}).join('<br>')}</div>`:`<b style="color:#a16207">Belum ada data yang di-approve</b>`}${pend?`<div class="text-xs mt-1" style="color:#a16207">${pend} data Pending approval belum masuk grafik</div>`:''}</div>`};
-function apStamp(i){i.ap='a';i.apBy=myEm();i.apName=(D.prof&&D.prof.name)||U.name||myEm();i.apRole=lvlName(myLvl());i.apAt=Date.now();i.ea=Date.now()}
+function apStamp(i){i.ap='a';i.apBy=myEm();i.apName=(D.prof&&D.prof.name)||U.name||myEm();i.apRole=myLvl()?lvlName(myLvl()):'Developer';i.apAt=Date.now();i.ea=Date.now()}
 async function apPush(list){save(true);list.forEach(cloudPut);render();const pre=awCheck();if(pre)return toast('Tersimpan di perangkat. Server: '+pre);try{for(const i of list)await awUpsert(i)}catch(e){toast('Kirim ke server gagal: '+((e&&e.message)||e))}}
-function apDo(id){const i=D.insp.find(x=>x.id==id);if(!i||apSt(i)=='a')return;if(!canApprove())return toast('Hanya Foreman / Supervisor yang bisa approve');if(isMine(i))return toast('Tidak bisa approve data sendiri');apStamp(i);apPush([i]);toast('Data di-approve - masuk ke grafik')}
-function apDay(){if(!canApprove())return;const all=filt(Q),l=all.filter(canAp1),own=all.filter(i=>apSt(i)=='p'&&isMine(i)).length;if(!l.length)return toast(own?'Data pending di tanggal ini milik Anda sendiri, tidak bisa di-approve':'Tidak ada data Pending approval pada tanggal ini');if(!confirm('Approve '+l.length+' data tanggal '+Q.cal+'?'))return;l.forEach(apStamp);apPush(l);toast(l.length+' data Approved - masuk ke grafik'+(own?' ('+own+' data milik sendiri dilewati)':''))}
+function apDo(id){const i=D.insp.find(x=>x.id==id);if(!i||apSt(i)=='a')return;if(!canApprove())return toast('Hanya Foreman / Supervisor / Developer yang bisa approve');if(isMine(i)&&!isDev())return toast('Tidak bisa approve data sendiri');apStamp(i);apPush([i]);toast('Data di-approve - masuk ke grafik')}
+function apDay(){if(!canApprove())return;const all=filt(Q),l=all.filter(canAp1),own=isDev()?0:all.filter(i=>apSt(i)=='p'&&isMine(i)).length;if(!l.length)return toast(own?'Data pending di tanggal ini milik Anda sendiri, tidak bisa di-approve':'Tidak ada data Pending approval pada tanggal ini');if(!confirm('Approve '+l.length+' data tanggal '+Q.cal+'?'))return;l.forEach(apStamp);apPush(l);toast(l.length+' data Approved - masuk ke grafik'+(own?' ('+own+' data milik sendiri dilewati)':''))}
 function apUndo(id){const i=D.insp.find(x=>x.id==id);if(!i||i.ap!='a')return;if(!(isDev()||String(i.apBy||'').toLowerCase()==myEm()))return;if(!confirm('Batalkan approval data ini? Data akan keluar dari grafik.'))return;i.ap='p';i.apBy=i.apName=i.apRole='';i.apAt=0;i.ea=Date.now();apPush([i])}
 function setRole(v){D.prof.role=v;save(true);lvlPush();render()}
 async function lvlPush(){try{if(!U||cloudOff())return;const e=myEm(),ui=await rid('u',e),u=(await rdGet(ui))||{e,n:U.name||e,r:'user',c:Date.now(),l:Date.now()},j=myLvl();if((u.j||'')!=j){u.j=j;await rdSet(ui,u)}}catch(x){console.error('lvl',x)}}
