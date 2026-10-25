@@ -145,20 +145,24 @@ async function awSyncAll(){
   if(pre){alert(pre);return}
   awSyncing=true;toast("Memulai update ke server...");
   try{
+    if(typeof awProg=="function")awProg(3);
     await awPullAll(true);
+    if(typeof awProg=="function")awProg(10);
     let ok=0,fail=0,err="";
     const list=(D.insp||[]).slice();
     for(let k=0;k<list.length;k+=3){
       await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
       toast("Mengirim "+Math.min(k+3,list.length)+"/"+list.length+"...");
+      if(typeof awProg=="function")awProg(10+80*Math.min(k+3,list.length)/list.length);
     }
+    if(typeof awProg=="function")awProg(92);
     const added=await awPullAll(true);
     let m=ok+" data terkirim";
     if(added>0)m+=", "+added+" data baru dari server";
     if(fail)m+=", gagal "+fail+": "+err;
     if(added<0&&!fail)m+=" (ambil data dari server gagal)";
     if(!list.length&&added===0){toast("Belum ada data di perangkat ini, server juga kosong")}
-    else if(!fail&&added>=0)awSuccess("Update berhasil",m);
+    else if(!fail&&added>=0){if(typeof awProg=="function")awProg(100);awSuccess("Update berhasil",m)}
     else alert(m);
   }catch(e){
     console.error("Update gagal:",e);alert("Update gagal: "+((e&&e.message)||e));
@@ -412,15 +416,15 @@ html[data-view=pc] nav button svg{display:none}
 html[data-view=pc] nav button span{display:inline}
 
 .up-wrap{display:flex;justify-content:center;padding:18px 0 10px}
-.up-btn{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-width:200px;height:52px;padding:0 30px;border:0;border-radius:999px;background:#3AB54A;color:#3AB54A;font-weight:700;font-size:18px;cursor:pointer;box-shadow:0 10px 26px rgba(58,181,74,.42);transition:transform .15s,box-shadow .15s,filter .15s;-webkit-tap-highlight-color:transparent}
-.up-btn .up-tx{color:#fff}
-.up-btn:hover{filter:brightness(1.05);box-shadow:0 12px 30px rgba(58,181,74,.5)}
-.up-btn:active{transform:scale(.96)}
-.up-btn .up-ar{transform-box:fill-box;transform-origin:center}
-.up-btn.busy{pointer-events:none;filter:saturate(.85) brightness(.97)}
-.up-btn.busy .up-ar{animation:upArrow .9s ease-in-out infinite}
-.up-btn.busy .up-tx{opacity:.9}
-@keyframes upArrow{0%{transform:translateY(5px);opacity:0}40%{opacity:1}100%{transform:translateY(-6px);opacity:0}}
+.up-btn{position:relative;overflow:hidden;width:232px;height:52px;padding:0;border:2px solid #3AB54A;border-radius:999px;background:#fff;cursor:pointer;--p:100%;box-shadow:0 10px 26px rgba(58,181,74,.42);transition:transform .15s,box-shadow .15s;-webkit-tap-highlight-color:transparent}
+.up-btn:active{transform:scale(.97)}
+.up-btn.busy{pointer-events:none}
+.up-l{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;font-size:18px;white-space:nowrap}
+.up-l1{background:#fff;color:#3AB54A}
+.up-l1 .up-cl{fill:#3AB54A}.up-l1 .up-ar{fill:#fff}
+.up-l2{background:#3AB54A;color:#fff;clip-path:inset(0 calc(100% - var(--p)) 0 0);transition:clip-path .35s ease}
+.up-l2 .up-cl{fill:#fff}.up-l2 .up-ar{fill:#3AB54A}
+
 </style></head>
 <body><div id="t"></div><div id="app" class="max-w-xl mx-auto px-3"></div>
 <script>
@@ -895,8 +899,13 @@ ${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,
 ${calView()}
 ${Q.show?`<p class="text-xs opacity-60">${a.length} data</p>
 ${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}
-<div class="up-wrap"><button type="button" id="upBtn" class="up-btn" onclick="upData()"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path fill="#fff" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" fill="currentColor" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><span class="up-tx">Upload Data</span></button></div>`}
-async function upData(){const b=document.getElementById('upBtn');if(b&&b.classList.contains('busy'))return;if(b)b.classList.add('busy');try{await awSyncAll()}finally{const x=document.getElementById('upBtn');if(x)x.classList.remove('busy')}}
+${upBtnHtml()}`}
+let UPB=0,UPP=100;
+const upLbl=()=>!UPB?'Upload Data':UPP>=100?'Selesai':'Uploading '+Math.round(UPP)+'%';
+const upLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><span class="up-tx">${upLbl()}</span></span>`;
+const upBtnHtml=()=>`<div class="up-wrap"><button type="button" id="upBtn" class="up-btn${UPB?' busy':''}" style="--p:${UPP}%" onclick="upData()">${upLayer('up-l1')}${upLayer('up-l2')}</button></div>`;
+function awProg(pc){UPP=Math.max(0,Math.min(100,pc));const b=document.getElementById('upBtn');if(!b)return;b.style.setProperty('--p',UPP+'%');b.classList.toggle('busy',!!UPB);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=upLbl())}
+async function upData(){if(UPB)return;UPB=1;awProg(0);let done=0;try{await awSyncAll();done=UPP>=100}finally{if(done){setTimeout(()=>{UPB=0;awProg(100)},1300)}else{UPB=0;awProg(100)}}}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.onclick=e=>{if(e.target.closest('button[onclick^="editInsp"]'))return;d.remove()};
 const sv=stV(i);
