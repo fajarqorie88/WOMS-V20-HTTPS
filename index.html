@@ -574,7 +574,7 @@ const PWE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
 function pwTog(b){const i=b.parentNode.querySelector('input'),sh=i.type=='password';i.type=sh?'text':'password';b.innerHTML=sh?PWE:PWX;b.setAttribute('aria-label',sh?'Hide password':'Show password')}
 let LV='menu';
 function bioHelp(){toast(LG=='en'?'Fingerprint is not enabled yet. Sign in with email first, then enable it.':'Sidik jari belum diaktifkan. Masuk dengan email dulu, lalu aktifkan sidik jari.')}
-function loginView(){if(lockInfo())return lockView();
+function loginView(){if(RC)return resetView();if(lockInfo())return lockView();
 const T=(a,b)=>LG=='en'?b:a,reg=LM=='reg',em=L.woms_lastmail||'',bl=bioOK?bioList():[];let body;
 if(LV=='menu'){body=`<p class="text-center text-sm mb-4" style="color:#cbd5e1">${T('Masuk untuk mengakses data pengecekan Anda','Sign in to access your inspection data')}</p>
 <button class="gb mb-3" style="background:#2563EB;color:#fff" onclick="LM='login';LV='form';render()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>${T('Masuk dengan Email','Sign in with Email')}</button>
@@ -583,13 +583,71 @@ ${bioOK?`<button class="gb mb-3" style="background:#475569;color:#fff;display:fl
 <button class="gb" onclick="LM='reg';LV='form';render()">${T('Daftar','Sign up')}</button>`}
 else{body=`<p class="text-center font-bold mb-3" style="color:#fff">${reg?T('Daftar Akun','Create Account'):T('Masuk dengan Email','Sign in with Email')}</p>
 <input id="ge" class="i" placeholder="email@contoh.com" type="email" autocomplete="email" inputmode="email" value="${reg?'':esc(em)}" ${reg||!em?'autofocus':''}>${reg?`<input id="gn" class="i" placeholder="${T('Nama lengkap','Full name')}">`:''}<div class="pw"><input id="gp" class="i" type="password" placeholder="Password" autocomplete="${reg?'new-password':'current-password'}" ${!reg&&em?'autofocus':''} ${reg?'':`onkeydown="if(event.key=='Enter')loginG()"`}><button type="button" class="pw-e" tabindex="-1" aria-label="Show password" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="pwTog(this)">${PWX}</button></div>${reg?`<div class="pw"><input id="gp2" class="i" type="password" placeholder="${T('Konfirmasi password (min. 8 karakter)','Confirm password (min. 8 characters)')}"><button type="button" class="pw-e" tabindex="-1" aria-label="Show password" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="pwTog(this)">${PWX}</button></div><label style="color:#cbd5e1">${T('Foto profil (opsional)','Profile photo (optional)')}</label><input type="file" accept="image/*" class="i" onchange="gfoto(this.files[0])">`:''}
-<button class="gb" style="background:#2563EB;color:#fff" onclick="loginG()">${reg?T('Daftar','Sign up'):T('Masuk','Sign in')}</button>${SERVER&&SRV.resetUrl&&!reg?`<p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="fbReset($('#ge').value.trim())">${T('Lupa password?','Forgot password?')}</button></p>`:''}
+<button class="gb" style="background:#2563EB;color:#fff" onclick="loginG()">${reg?T('Daftar','Sign up'):T('Masuk','Sign in')}</button>${!SERVER&&!reg?`<p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="awForgot()">${T('Lupa password?','Forgot password?')}</button></p>`:''}${SERVER&&SRV.resetUrl&&!reg?`<p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="fbReset($('#ge').value.trim())">${T('Lupa password?','Forgot password?')}</button></p>`:''}
 <p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="LV='menu';render()">&#8592; ${T('Kembali','Back')}</button></p>`}
 return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" style="color:#93c5fd"><button class="underline" style="font-weight:${LG=='id'?700:400}" onclick="setLang('id')">ID</button> | <button class="underline" style="font-weight:${LG=='en'?700:400}" onclick="setLang('en')">EN</button></div>
 <div class="text-center mb-4">${wmsAnim()}</div>
 <div class="glass">${body}</div>
 <p class="text-center text-xs mt-4" style="color:#64748b">Data tersimpan terpisah per akun - v3.0</p>
 <p class="text-center text-xs mt-1" style="color:#94a3b8">Developed by Fajar Q.</p></div></div>`}
+/* ---------- LUPA PASSWORD: link reset via email (Appwrite Auth) ---------- */
+const AW_HOME='https://fajarqorie88.github.io/WOMS-V20-HTTPS/';
+let RC=null,awFB=false,awRB=false;
+(function(){try{const q=new URLSearchParams(location.search),u=q.get('userId'),k=q.get('secret');if(u&&k)RC={u,s:k,em:String(q.get('em')||'').trim().toLowerCase()}}catch(e){}})();
+const awAcc=()=>new Appwrite.Account(client);
+/* Akun bayangan di Appwrite Auth hanya untuk mengirim email reset; passwordnya acak dan tidak dipakai login */
+async function awShadow(e){
+  const k='woms_awu_'+e;if(L[k])return;
+  let n=e.split('@')[0];try{const u=await rdGet(await rid('u',e));if(u&&u.n)n=u.n}catch(x){}
+  const rnd=[...crypto.getRandomValues(new Uint8Array(24))].map(b=>b.toString(36).padStart(2,'0')).join('')+'Aa1!';
+  try{await awAcc().create(Appwrite.ID.unique(),e,rnd,n)}catch(x){if(!(x&&x.code==409))throw x}
+  L[k]='1'}
+async function awForgot(e0){
+  const e=String(e0||($('#ge')&&$('#ge').value)||'').trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(e))return toast('Isi email Anda dulu, lalu klik Lupa password?');
+  const pre=awCheck();if(pre)return toast(pre);
+  if(!navigator.onLine)return toast('Tidak ada koneksi internet');
+  if(awFB)return;awFB=true;toast('Mengirim link reset...');
+  try{
+    const known=!!accs()[e]||!!(await rdGet(await rid('v',e)));
+    if(known)await awShadow(e);
+    try{await awAcc().createRecovery(e,AW_HOME+'?em='+encodeURIComponent(e))}catch(x){if(!(x&&x.code==404))throw x}
+    alert('Jika email '+e+' terdaftar, link reset password sudah dikirim. Cek Inbox dan folder Spam. Link berlaku 1 jam.')
+  }catch(x){console.error('forgot',x);toast(x&&x.code==429?'Terlalu banyak permintaan, coba lagi nanti':'Gagal mengirim link: '+((x&&x.message)||x))}
+  finally{awFB=false}}
+function resetView(){const T=(a,b)=>LG=='en'?b:a;
+  const pw=(id,ph)=>`<div class="pw"><input id="${id}" class="i" type="password" placeholder="${ph}" autocomplete="new-password"><button type="button" class="pw-e" tabindex="-1" aria-label="Show password" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="pwTog(this)">${PWX}</button></div>`;
+  return`<div class="lg"><div class="in"><div class="text-right text-xs mb-3" style="color:#93c5fd"><button class="underline" style="font-weight:${LG=='id'?700:400}" onclick="setLang('id')">ID</button> | <button class="underline" style="font-weight:${LG=='en'?700:400}" onclick="setLang('en')">EN</button></div>
+<div class="text-center mb-4">${wmsAnim()}</div>
+<div class="glass"><p class="text-center font-bold mb-3" style="color:#fff">${T('Buat Password Baru','Create New Password')}</p>
+<input id="re" class="i" type="email" placeholder="email@contoh.com" autocomplete="email" value="${esc(RC.em)}" ${RC.em?'readonly':''}>
+${pw('rp',T('Password baru (min. 8 karakter)','New password (min. 8 characters)'))}${pw('rp2',T('Konfirmasi password baru','Confirm new password'))}
+<button class="gb" style="background:#2563EB;color:#fff" onclick="awDoReset()">${T('Simpan Password Baru','Save New Password')}</button>
+<p class="text-center text-sm mt-3"><button class="underline" style="color:#93c5fd" onclick="awResetEnd()">${T('Batal','Cancel')}</button></p></div></div></div>`}
+function awResetEnd(){RC=null;try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}LV='menu';LM='login';render()}
+async function awDoReset(){
+  if(!RC||awRB)return;
+  const e=($('#re').value||'').trim().toLowerCase(),p=$('#rp').value;
+  if(!/^\S+@\S+\.\S+$/.test(e))return toast('Email tidak valid');
+  if(p.length<8)return toast('Password minimal 8 karakter');
+  if(p!=$('#rp2').value)return toast('Konfirmasi password tidak sama');
+  const pre=awCheck();if(pre)return toast(pre);
+  awRB=true;const ac0=awAcc();let ok=false;
+  try{
+    try{await ac0.updateRecovery(RC.u,RC.s,p)}catch(x){console.error('rec',x);return toast('Link reset tidak valid atau sudah kedaluwarsa. Minta link baru lewat Lupa password?')}
+    /* pastikan email yang diketik memang pemilik link: login Appwrite dengan email + password baru harus berhasil */
+    try{await (ac0.createEmailPasswordSession||ac0.createEmailSession).call(ac0,e,p)}
+    catch(x){console.error('bind',x);return toast('Email tidak cocok dengan link reset ini')}
+    try{await ac0.deleteSession('current')}catch(x){}
+    try{await rdSet(await rid('v',e),await mkVer(e,p))}catch(x){console.error('ver',x)}
+    const ac=accs();let n=ac[e]&&ac[e].name;
+    if(!n){try{const u=await rdGet(await rid('u',e));n=u&&u.n}catch(x){}}
+    ac[e]={name:n||e.split('@')[0],hash:await sha(e+p)};L.woms_acc=JSON.stringify(ac);
+    L.woms_lastmail=e;ok=true
+  }finally{awRB=false}
+  if(ok){RC=null;try{history.replaceState(null,'',location.pathname+location.hash)}catch(x){}LV='form';LM='login';render();toast('Password berhasil diubah. Silakan masuk.')}}
+/* Login memakai verifier di cloud bila hash lokal belum ada / sudah usang (mis. password baru dari perangkat lain) */
+async function cloudAuth(e,p){if(cloudOff())return null;try{const v=await rdGet(await rid('v',e));if(!v||!(await chkVer(v,e,p)))return null;const u=await rdGet(await rid('u',e));if(u&&u.x)return null;return{name:(u&&u.n)||e.split('@')[0]}}catch(x){return null}}
 let gph='';function gfoto(f){if(f)compress(f,d=>gph=d)}
 function start(u){IG=false;IH.open=false;LV='menu';LM='login';if(u.email)L.woms_lastmail=u.email;L.removeItem('woms_lock');lastAct=Date.now();L.woms_act=String(lastAct);U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;save(true);scr='home';tab='input';scrollTo(0,0);render()}
 
@@ -619,7 +677,7 @@ norm();D.insp.sort((x,y)=>y.created-x.created);cacheD();flush();if(tab=='data'||
 function fbErr(x){return x&&x.name=='TypeError'?'Tidak ada koneksi ke server':(x&&x.message)||'Gagal'}
 function enter(u){start({id:String(u.id),name:u.name||u.email,email:u.email,provider:'server'});flush();pull()}
 async function fbAuth(e,p){try{let j;if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(p.length<8)return toast('Password minimal 8 karakter');if(p!=$('#gp2').value)return toast('Konfirmasi password tidak sama');_nn=n;j=await api('register',{email:e,password:p,name:n});LM='login'}else j=await api('login',{email:e,password:p});TOK=j.token;L.woms_token=TOK;enter(j.user)}catch(x){if(_bio&&x&&x.code&&x.code<500)bioOff(_bio);toast(fbErr(x))}}
-async function fbPass(){const o=$('#po').value,n=$('#pn').value;if(!o)return toast('Isi password lama');if(n.length<8)return toast('Password baru minimal 8 karakter');if(n!=$('#pn2').value)return toast('Konfirmasi tidak sama');try{await api('changepw',{old:o,new:n});toast('Password berhasil diubah');render()}catch(x){toast(fbErr(x))}}
+async function fbPass(){const n=$('#pn').value;if(n.length<8)return toast('Password baru minimal 8 karakter');if(n!=$('#pn2').value)return toast('Konfirmasi tidak sama');try{await api('changepw',{new:n});toast('Password berhasil diubah');render()}catch(x){toast(fbErr(x))}}
 async function fbInit(){let u=null;if(TOK&&!L.woms_lock){try{u=(await api('me')).user}catch(e){if(e.code==401){TOK='';L.removeItem('woms_token')}else{try{u=JSON.parse(L.woms_user||'null');if(u)u={id:u.id,name:u.name,email:u.email}}catch(x){}}}}
 if(u)enter(u);else{U=D=null;render()}
 addEventListener('online',()=>{flush();pull()});setInterval(()=>{flush();pull()},60000)}
@@ -627,9 +685,9 @@ async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncod
 async function loginG(){const e=$('#ge').value.trim().toLowerCase(),p=$('#gp').value;await loginG0();if(U&&bioOK&&!_bio&&p&&String(U.email||U.id).toLowerCase()==e&&!bioOn(e)&&!L['woms_bn_'+e])bioAsk(e,p)}
 async function loginG0(){const e=$('#ge').value.trim().toLowerCase(),p=$('#gp').value;if(!/^\S+@\S+\.\S+$/.test(e))return toast('Email tidak valid');if(!p)return toast('Isi password');if(SERVER)return fbAuth(e,p);const ac=accs();
 if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(ac[e])return toast('Email sudah terdaftar, silakan masuk');if(p.length<6)return toast('Password minimal 6 karakter');if(p!=$('#gp2').value)return toast('Konfirmasi password tidak sama');{const cc=await cloudClaim(e,n,p);if(!cc.ok)return toast(cc.msg)}_lp=p;ac[e]={name:n,hash:await sha(e+p)};L.woms_acc=JSON.stringify(ac);LM='login';start({id:e,name:n,email:e,provider:'email',photo:gph})}
-else{const a=ac[e];if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');if(a.hash!=await sha(e+p)){if(_bio)bioOff(_bio);return toast('Password salah')}_lp=p;start({id:e,name:a.name,email:e,provider:'email'})}}
+else{let a=ac[e];if(!a||a.hash!=await sha(e+p)){const cu=await cloudAuth(e,p);if(!cu){if(!a)return toast('Akun belum terdaftar. Klik Daftar untuk membuat password');if(_bio)bioOff(_bio);return toast('Password salah')}a=ac[e]={name:(a&&a.name)||cu.name,hash:await sha(e+p)};L.woms_acc=JSON.stringify(ac)}_lp=p;start({id:e,name:a.name,email:e,provider:'email'})}}
 function pwSend(){PW={code:String(Math.floor(1e5+Math.random()*9e5)),exp:Date.now()+6e5};const d=document.createElement('div');d.className='fixed inset-0 z-50 flex items-center justify-center p-4';d.style.background='rgba(0,0,0,.6)';d.innerHTML=`<div class="c max-w-xs text-sm"><b>Email (simulasi)</b><p class="opacity-70 my-1">Kepada: ${esc(U.id)}</p><p>Kode verifikasi ganti password Anda:</p><p class="text-3xl font-black tracking-widest text-blue-600 my-2">${PW.code}</p><p class="text-xs opacity-60">Berlaku 10 menit. Pengiriman email sungguhan butuh server.</p><button class="b w-full mt-3" onclick="this.closest('.fixed').remove()">OK</button></div>`;trDom(d);document.body.appendChild(d);render()}
-async function pwChange(){const c=$('#pc').value.trim(),a=$('#pn').value;if(!PW||Date.now()>PW.exp)return toast('Kode kedaluwarsa, kirim ulang');if(c!=PW.code)return toast('Kode salah');if(a.length<6)return toast('Password minimal 6 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);PW=null;cloudPw(U.id,a);toast('Password berhasil diubah');render()}
+async function pwChange(){const a=$('#pn').value;if(a.length<6)return toast('Password minimal 6 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);cloudPw(U.id,a);toast('Password berhasil diubah');render()}
 function logout(){LV='menu';L.removeItem('woms_lock');save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');U=D=null;render()}
 
 /* ---------- LOGIN SIDIK JARI (WebAuthn + AES-GCM, kunci non-extractable di IndexedDB) ---------- */
@@ -944,7 +1002,7 @@ return`<div class="flex justify-between items-center py-3"><h2 class="font-bold"
 ${P('name','Nama')}${P('nip','NIP')}${P('dept','Dept')}${P('role','Role')}${P('hp','HP','tel')}${P('email','Email','email')}
 <div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px"><b>Akun</b><div class="text-sm">${esc(U.name)} (${U.provider=='google'?'email':U.provider})<br>Data milik: ${esc(U.id)}<br>Hak akses: <b>${roleLabel()}</b></div><button class="b bd mt-2" onclick="logout()">Logout</button></div>
 ${isDev()&&bioOK?`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px"><b>Biometrik Login</b><p class="text-xs opacity-70 my-2">Masuk tanpa mengetik password di perangkat ini.</p>${bioOn(bioKey())?`<button class="b bd" onclick="bioOff(bioKey());render()">Nonaktifkan</button>`:`<button class="b" onclick="bioAsk(bioKey())">Aktifkan</button>`}</div>`:''}
-${SERVER?`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px"><b>Ganti Password</b><p class="text-xs opacity-70 my-2">Masukkan password lama dan password baru (min. 8 karakter).</p><input id="po" class="i" type="password" placeholder="Password lama"><input id="pn" class="i" type="password" placeholder="Password baru"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru"><div class="flex gap-2"><button class="b" onclick="fbPass()">Ubah Password</button>${SRV.resetUrl?`<button class="b b2" onclick="fbReset(U.email)">Kirim link via email</button>`:''}</div></div>`:accs()[U.id]?`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px"><b>Ganti Password</b>${PW?`<p class="text-xs opacity-70 my-2">Masukkan kode yang dikirim ke ${esc(U.id)}</p><input id="pc" class="i" placeholder="Kode 6 digit" inputmode="numeric"><input id="pn" class="i" type="password" placeholder="Password baru (min. 6)"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru"><div class="flex gap-2"><button class="b" onclick="pwChange()">Ubah Password</button><button class="b b2" onclick="pwSend()">Kirim ulang</button></div>`:`<p class="text-xs opacity-70 my-2">Konfirmasi lewat kode yang dikirim ke email Anda.</p><button class="b" onclick="pwSend()">Kirim Kode ke Email</button>`}</div>`:''}</div>
+${SERVER?`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px"><b>Ganti Password</b><p class="text-xs opacity-70 my-2">Masukkan password baru dan konfirmasinya (min. 8 karakter).</p><input id="pn" class="i" type="password" placeholder="Password baru" autocomplete="new-password"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru" autocomplete="new-password"><div class="flex gap-2"><button class="b" onclick="fbPass()">Ubah Password</button>${SRV.resetUrl?`<button class="b b2" onclick="fbReset(U.email)">Kirim link via email</button>`:''}</div></div>`:accs()[U.id]?`<div style="border-top:1px solid var(--bd);margin-top:14px;padding-top:12px"><b>Ganti Password</b><p class="text-xs opacity-70 my-2">Masukkan password baru dan konfirmasinya (min. 6 karakter).</p><input id="pn" class="i" type="password" placeholder="Password baru (min. 6)" autocomplete="new-password"><input id="pn2" class="i" type="password" placeholder="Konfirmasi password baru" autocomplete="new-password"><button class="b" onclick="pwChange()">Ubah Password</button></div>`:''}</div>
 ${isDev()?acCard():''}
 ${isDev()?wcCard():''}
 ${isDev()?`<div class="c text-sm"><b>Data &amp; Storage</b><p>${D.insp.length} data pengecekan - ${(sz/1024).toFixed(1)} KB</p><p class="text-xs opacity-60">Data tersimpan otomatis di perangkat ini dan tidak hilang saat refresh.</p>
@@ -1332,7 +1390,7 @@ async function shareApp(){const url='https://tinyurl.com/wms-adm',msg='WMS - Wel
   try{await navigator.clipboard.writeText(msg);toast('Link aplikasi disalin')}catch(e){prompt('Salin link aplikasi:',msg)}}
 (function init(){initLock();document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
 let rzT,lastW=innerWidth;const onRot=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(innerWidth==lastW)return;lastW=innerWidth;if(!L.woms_view){const v=curView();if(document.documentElement.dataset.view!=v)document.documentElement.dataset.view=v}if(U)render()},250)};addEventListener('resize',onRot);addEventListener('orientationchange',onRot);
-if(!SERVER)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id)}}catch(e){}
+if(!SERVER&&!RC)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id)}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
 const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}else if(CB!==myEm())cloudBoot()};
 if(SERVER)fbInit();
