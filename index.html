@@ -55,7 +55,7 @@ async function awPhotoUp(r){
   if(!r.photo||r.photoId||!awST)return;
   if(r.photo.startsWith("data:")&&r.photo.length>IMG_MAX){const d=await new Promise(ok=>imgPack(r.photo,ok));if(d&&d.length<r.photo.length)r.photo=d}
   const b=await (await fetch(r.photo)).blob(),fid="f"+String(r.id);
-  try{await awST.createFile(AW_BK,fid,new File([b],fid+".jpg",{type:"image/jpeg"}))}
+  try{await awRetry(()=>awST.createFile(AW_BK,fid,new File([b],fid+".jpg",{type:"image/jpeg"})))}
   catch(e){if(!(e&&e.code==409))throw e}
   r.photoId=fid;
   try{if(typeof _awSave==="function"&&D)_awSave(true)}catch(e){}
@@ -82,16 +82,23 @@ async function awPhotosGet(list){
   }
   return got;
 }
-async function awUpsert(r,retry){
+const awWait=ms=>new Promise(z=>setTimeout(z,ms));
+/* Kalau kena rate limit (429), tunggu lalu coba lagi: 1.5s, 3s, 6s, 12s, 24s */
+async function awRetry(fn){for(let n=0;;n++){try{return await fn()}catch(e){if(!(e&&e.code==429)||n>=5)throw e;await awWait(1500*Math.pow(2,n))}}}
+/* Tanda "sudah sinkron": hash isi data (tanpa foto) disimpan per akun, supaya hanya data baru/berubah yang dikirim */
+const awSigKey=()=>"wms_sig_"+((typeof U!=="undefined"&&U&&U.id)||"x");
+function awSigMap(){try{return JSON.parse(localStorage.getItem(awSigKey())||"{}")}catch(e){return{}}}
+function awSig(r){const t=awRec(r).json;let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h+"."+t.length}
+function awSigSet(r){try{const m=awSigMap();m[String(r.id)]=awSig(r);localStorage.setItem(awSigKey(),JSON.stringify(m))}catch(e){}}
+function awNeed(r){if(r.photo&&!r.photoId)return true;return awSigMap()[String(r.id)]!==awSig(r)}
+async function awUpsert(r){
   if(r.photo&&!r.photoId){try{await awPhotoUp(r)}catch(e){console.error("Foto gagal diunggah:",e);if(typeof toast==="function")toast("Foto gagal diunggah: "+((e&&e.message)||e))}}
   const id=String(r.id),data=awRec(r);
-  try{
+  await awRetry(async()=>{
     try{await awDB.updateDocument(AW_DB,AW_TB,id,data)}
     catch(e){if(e&&e.code==404)await awDB.createDocument(AW_DB,AW_TB,id,data);else throw e}
-  }catch(e){
-    if(e&&e.code==429&&!retry){await new Promise(z=>setTimeout(z,1500));return awUpsert(r,true)}
-    throw e;
-  }
+  });
+  awSigSet(r);
 }
 async function awPut(r){
   try{await awUpsert(r);console.log("Appwrite: data terkirim")}
@@ -144,26 +151,32 @@ async function awSyncAll(){
   const pre=awCheck();
   if(pre){alert(pre);return}
   awSyncing=true;toast("Memulai update ke server...");
+  const P=p=>{if(typeof awProg=="function")awProg(p)};
   try{
-    if(typeof awProg=="function")awProg(3);
+    P(3);
     await awPullAll(true);
-    if(typeof awProg=="function")awProg(10);
-    let ok=0,fail=0,err="";
-    const list=(D.insp||[]).slice();
-    for(let k=0;k<list.length;k+=3){
-      await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
-      toast("Mengirim "+Math.min(k+3,list.length)+"/"+list.length+"...");
-      if(typeof awProg=="function")awProg(10+80*Math.min(k+3,list.length)/list.length);
+    P(10);
+    const all=(D.insp||[]).slice(),list=all.filter(awNeed);
+    let ok=0,fail=0,err="",stop=false;
+    for(let k=0;k<list.length&&!stop;k++){
+      try{await awUpsert(list[k]);ok++}
+      catch(e){fail++;err=(e&&e.message)||String(e);if(e&&e.code==429)stop=true;console.error("Appwrite gagal:",e)}
+      toast("Mengirim "+(k+1)+"/"+list.length+"...");
+      P(10+80*(k+1)/list.length);
+      if(k<list.length-1)await awWait(250);
     }
-    if(typeof awProg=="function")awProg(92);
-    const added=await awPullAll(true);
+    const left=list.length-ok-fail,skip=all.length-list.length;
+    P(92);
+    const added=stop?0:await awPullAll(true);
     let m=ok+" data terkirim";
+    if(skip>0)m+=", "+skip+" data sudah sinkron";
     if(added>0)m+=", "+added+" data baru dari server";
     if(fail)m+=", gagal "+fail+": "+err;
+    if(left>0)m+=", "+left+" data belum dikirim";
     if(added<0&&!fail)m+=" (ambil data dari server gagal)";
-    if(!list.length&&added===0){toast("Belum ada data di perangkat ini, server juga kosong")}
-    else if(!fail&&added>=0){if(typeof awProg=="function")awProg(100);awSuccess("Update berhasil",m)}
-    else alert(m);
+    if(!all.length&&added===0){toast("Belum ada data di perangkat ini, server juga kosong")}
+    else if(!fail&&!left&&added>=0){P(100);awSuccess("Update berhasil",m)}
+    else alert(m+(stop?"\n\nBatas request server tercapai. Tunggu sekitar 1 menit lalu klik Upload Data lagi. Hanya data yang belum terkirim yang akan dikirim.":""));
   }catch(e){
     console.error("Update gagal:",e);alert("Update gagal: "+((e&&e.message)||e));
   }finally{awSyncing=false}
@@ -1168,15 +1181,17 @@ async function awUpdateServer(){
     if(!mok){await new Promise(z=>setTimeout(z,1600));mok=await awMasterPush()}
     spSet(30,false);
     await awPullAll(true);spSet(40,false);
-    let ok=0,fail=0,err="";
-    const list=(D.insp||[]).slice();
-    for(let k=0;k<list.length;k+=3){
-      await Promise.all(list.slice(k,k+3).map(r=>awUpsert(r).then(()=>{ok++},e=>{fail++;err=(e&&e.message)||String(e);console.error("Appwrite gagal:",e)})));
-      toast("Mengirim data "+Math.min(k+3,list.length)+"/"+list.length+"...");
-      spSet(40+Math.round(Math.min(k+3,list.length)/list.length*40),false);
+    let ok=0,fail=0,err="",stop=false;
+    const all=(D.insp||[]).slice(),list=all.filter(awNeed);
+    for(let k=0;k<list.length&&!stop;k++){
+      try{await awUpsert(list[k]);ok++}
+      catch(e){fail++;err=(e&&e.message)||String(e);if(e&&e.code==429)stop=true;console.error("Appwrite gagal:",e)}
+      toast("Mengirim data "+(k+1)+"/"+list.length+"...");
+      spSet(40+Math.round((k+1)/list.length*40),false);
+      if(k<list.length-1)await awWait(250);
     }
     spSet(85,false);
-    const added=await awPullAll(true);
+    const added=stop?0:await awPullAll(true);
     let m="Setting & master "+(mok?"terkirim":"GAGAL dikirim")+", "+ok+" data pengecekan terkirim";
     if(added>0)m+=", "+added+" data baru dari server";
     if(fail)m+=", gagal "+fail+": "+err;
@@ -1184,7 +1199,7 @@ async function awUpdateServer(){
     const good=mok&&!fail&&added>=0;
     spSet(100,!good,true);
     if(good){D.sync.last=new Date().toLocaleString(LC());_awSave(true);awSuccess("Update berhasil",m)}
-    else alert(m);
+    else alert(m+(stop?"\n\nBatas request server tercapai. Tunggu sekitar 1 menit lalu coba lagi. Hanya data yang belum terkirim yang akan dikirim.":""));
     render();
   }catch(e){
     console.error("Update gagal:",e);spSet(100,true,true);alert("Update gagal: "+((e&&e.message)||e));
