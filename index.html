@@ -1586,7 +1586,7 @@ function gpAllL(){GP.lc=GP.lc.length==lcList().length?[]:[...lcList()];gpR()}
 function dateTxt(){return G.cal?new Date(...G.cal.split('-').map((x,k)=>k==1?x-1:+x)).toLocaleDateString(LC(),{day:'numeric',month:'long',year:'numeric'}):'Semua'}
 /* ---------- BAGIKAN APLIKASI ---------- */
 const appUrl=()=>/^https?:$/.test(location.protocol)?location.origin+location.pathname.replace(/index\.html$/,''):'';
-async function shareApp(){const url='https://tinyurl.com/wms-adm',msg='WMS - Welding Monitoring System\n'+url;
+async function shareApp(){const url='https://tinyurl.com/wps-adm-app',msg='WMS - Welding Monitoring System\n'+url;
   if(navigator.share){try{await navigator.share({text:msg});return}catch(e){if(e&&e.name=='AbortError')return}}
   try{await navigator.clipboard.writeText(msg);toast('Link aplikasi disalin')}catch(e){prompt('Salin link aplikasi:',msg)}}
 (function init(){initLock();document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
