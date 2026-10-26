@@ -321,6 +321,7 @@ html[data-view=pc] .vw>.c:has(>select.i),html[data-view=pc] .vw>.c.grid-cols-4,h
 html[data-view=pc] .vw-input{max-width:1040px;margin:0 auto}
 html[data-view=pc] .vw-input>.c{grid-column:1/-1}
 html[data-view=pc] .vw-master{padding-bottom:96px}
+html[data-view=pc] .vw-grafik>button.b.w-full{margin:-13px 0 0!important}html[data-view=pc] .vw-grafik>button.b.w-full:has(+.c){margin-bottom:-13px!important}
 html[data-view=pc] .vw-grafik>.flex:first-child{order:-4}
 html[data-view=pc] .vw-grafik>.c:has(>select.i){order:-3}
 html[data-view=pc] .vw-grafik>.c.grid-cols-4{order:-2}
@@ -426,6 +427,7 @@ html[data-view=pc] .sw-in{padding:18px}
 .sw-c.hint .sw-del{animation:swHB 1.7s ease .6s 1}
 /* ===== KALENDER (tab Data) ===== */
 .cal-h{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px}
+.cal-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.cal-tg{padding:5px 10px;font-size:13px;white-space:nowrap}
 .cal-n{width:38px;height:38px;border-radius:10px;font-size:24px;line-height:1;background:var(--bd);color:var(--tx);flex:none}
 .cal-t{flex:1;display:flex;justify-content:center;gap:4px}
 .cal-t button{padding:6px 10px;border-radius:10px;background:transparent;color:var(--tx);font-weight:700;font-size:16px}
@@ -1026,6 +1028,7 @@ function calPk(k){CF().pk=CF().pk==k?null:k;render()}
 function calMon(m){CF().cm=m;CF().pk=null;render()}
 function calYear(y){CF().cy=y;CF().pk=null;render()}
 function calSel(ds){if(Date.now()-calSw<350)return;CF().cal=ds;render()}
+function calHide(){CF().dh=!CF().dh;render()}
 function calTog(){CF().show=!CF().show;render()}
 function calFix(){if(CF().pk!='y')return;const c=$('#cal-y'),e=c&&c.querySelector('.on');if(c&&e)c.scrollTop=e.offsetTop-c.clientHeight/2+e.offsetHeight/2}
 (function(){let s=null;
@@ -1044,7 +1047,7 @@ function calView(){
   for(let d=1;d<=dim;d++){const ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');cells+=`<button type="button" class="cal-d${ds==td?' td':''}${ds==CF().cal?' sl':''}${cnt[ds]?' hd':''}${P[ds]?' pd':A[ds]?' ap':''}" onclick="calSel('${ds}')">${d}</button>`}
   body=`<div class="cal-w">${WD.map(w=>`<span>${w}</span>`).join('')}</div><div class="cal-g">${cells}</div>`}
  const p=CF().cal.split('-').map(Number),lb=new Date(p[0],p[1]-1,p[2]).toLocaleDateString(LC(),{day:'numeric',month:'long',year:'numeric'});
- return`<div class="c cal"><div class="cal-h"><button type="button" class="cal-n" onclick="calMove(-1)">&#8249;</button><div class="cal-t"><button type="button" onclick="calPk('m')">${MN[m]}</button><button type="button" onclick="calPk('y')">${y}</button></div><button type="button" class="cal-n" onclick="calMove(1)">&#8250;</button></div>${body}<div class="text-xs opacity-70 text-center mt-2">${lb} - ${cnt[CF().cal]||0} data</div><div class="text-xs text-center mt-1 opacity-80"><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#fde047;border:1px solid #eab308;vertical-align:-1px"></span> Pending approval &nbsp;&nbsp;<b style="color:#16a34a">&#10003;</b> Approved</div>${tab=='data'&&canApprove()?(n=>`<button type="button" class="b mt-2" style="width:100%;background:${n?'#16a34a':'#94a3b8'}" onclick="apDay()">&#10003; Approve${n?' ('+n+' data)':''}</button>`)(filt(CF()).filter(canAp1).length):''}${tab!='data'?'':`<button type="button" class="b w-full mt-2" onclick="calTog()">${CF().show?'&#9650; Hide Data':'&#9660; Show Data'}</button>`}</div>`}
+ return`<div class="c cal"><div class="cal-top"><b>${en?'Calendar':'Kalender'}</b><button type="button" class="b cal-tg" onclick="calHide()">${CF().dh?'&#9660; Show Date':'&#9650; Hide Date'}</button></div>${CF().dh?'':`<div class="cal-h"><button type="button" class="cal-n" onclick="calMove(-1)">&#8249;</button><div class="cal-t"><button type="button" onclick="calPk('m')">${MN[m]}</button><button type="button" onclick="calPk('y')">${y}</button></div><button type="button" class="cal-n" onclick="calMove(1)">&#8250;</button></div>${body}`}<div class="text-xs opacity-70 text-center mt-2">${lb} - ${cnt[CF().cal]||0} data</div>${CF().dh?'':`<div class="text-xs text-center mt-1 opacity-80"><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#fde047;border:1px solid #eab308;vertical-align:-1px"></span> Pending approval &nbsp;&nbsp;<b style="color:#16a34a">&#10003;</b> Approved</div>`}${tab=='data'&&canApprove()?(n=>`<button type="button" class="b mt-2" style="width:100%;background:${n?'#16a34a':'#94a3b8'}" onclick="apDay()">&#10003; Approve${n?' ('+n+' data)':''}</button>`)(filt(CF()).filter(canAp1).length):''}${tab!='data'?'':`<button type="button" class="b w-full mt-2" onclick="calTog()">${CF().show?'&#9650; Hide Data':'&#9660; Show Data'}</button>`}</div>`}
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||stV(i)==q.st)&&(!q.ap||apSt(i)==q.ap)&&dtOk(i,q))}
 function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
