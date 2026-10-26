@@ -1023,7 +1023,7 @@ function cats(a){const m=new Map();a.forEach(i=>{const k=i.mid+'|'+i.sid;if(!m.h
 const gzKeyL=g=>'l|'+((g&&g.loc)||'')+'|'+((g&&g.mat)||'');
 const gzOf=k=>(G.z&&G.z[k])||1;
 const gzIc=pl=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M7.8 10.5h5.4${pl?'M10.5 7.8v5.4':''}"/></svg>`;
-const gzBtn=(kind,k)=>`<div class="gz"><button type="button" data-g="${kind},${k}" onclick="gz('${kind}',${k},1)" oncontextmenu="gzMenu('${kind}',${k});return false" title="Zoom in" aria-label="Zoom in">${gzIc(1)}</button><button type="button" data-g="${kind},${k}" onclick="gz('${kind}',${k},-1)" oncontextmenu="gzMenu('${kind}',${k});return false" title="Zoom out" aria-label="Zoom out">${gzIc(0)}</button></div>`;
+const gzBtn=(kind,k)=>`<div class="gz"><button type="button" data-g="${kind},${k}" onclick="gz('${kind}',${k},-1)" oncontextmenu="gzMenu('${kind}',${k});return false" title="Zoom out" aria-label="Zoom out">${gzIc(0)}</button><button type="button" data-g="${kind},${k}" onclick="gz('${kind}',${k},1)" oncontextmenu="gzMenu('${kind}',${k});return false" title="Zoom in" aria-label="Zoom in">${gzIc(1)}</button></div>`;
 const gzKey=(kind,k)=>kind=='cl'?gzKeyL(locGroups(gData())[k]):'m|'+(matList()[k]||'');
 let gzT=0,gzLP=false,gzLPT=0;
 /* HP / layar sentuh: tekan lama ikon lup = buka menu Fit to screen (setara klik kanan di PC) */
