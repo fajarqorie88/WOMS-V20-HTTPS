@@ -348,6 +348,11 @@ html[data-view=pc] .i{background:var(--ib);border:1px solid var(--bd);border-rad
 .ck .jb.ap{background:rgba(34,197,94,.25);color:#15803d}
 /* Font Michroma (Google Fonts, lisensi OFL) untuk callout pie chart; cadangan: font sistem */
 .pie-ct{font-family:'Michroma',system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:400;letter-spacing:.01em}
+/* tombol mata: tampil/sembunyikan callout pie chart */
+.pe-eye{width:30px;height:30px;border-radius:999px;background:var(--bd);color:var(--tx);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;-webkit-tap-highlight-color:transparent;transition:background .2s,transform .15s}
+.pe-eye:hover{background:#2563EB;color:#fff}.pe-eye:active{transform:scale(.92)}
+.pe-eye svg{width:18px;height:18px}
+#pie-w.nc .pcall{display:none}
 /* Pie chart: slice interaktif, denyut luar, panel data */
 .ps{cursor:pointer;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s,filter .3s}
 .ps:hover{filter:brightness(1.1)}
@@ -648,7 +653,7 @@ function pieSvg(ok,ng){
     /* titik tarik di tengah irisan (otomatis mengikuti irisan) -> garis diagonal (OK ke atas, NG ke bawah) -> garis datar ke label */
     co.forEach(c=>{const up=c.lb=='OK',ang=c.mid,sd=Math.cos(ang)<0?-1:1,[x0,y0]=pt(ang,132),ty=up?Math.max(16,y0-34):Math.min(300,y0+34),
       dx=Math.max(12,Math.min(Math.abs(ty-y0),(C+sd*160-x0)*sd)),bx=x0+sd*dx,ex=C+sd*166,tx=C+sd*172,an=sd<0?'end':'start',col=c.soft;
-      calls+=`<g style="pointer-events:none"><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(bx)},${f(ty)} ${ex},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><text class="pie-ct" x="${tx}" y="${f(ty+2)}" text-anchor="${an}" font-size="20" fill="${col}">${c.pc}%</text><text class="pie-ct" x="${tx}" y="${f(ty+19)}" text-anchor="${an}" font-size="9" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
+      calls+=`<g class="pcall" style="pointer-events:none"><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(bx)},${f(ty)} ${ex},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><text class="pie-ct" x="${tx}" y="${f(ty+2)}" text-anchor="${an}" font-size="20" fill="${col}">${c.pc}%</text><text class="pie-ct" x="${tx}" y="${f(ty+19)}" text-anchor="${an}" font-size="9" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
@@ -673,6 +678,8 @@ function pieUp(){const w=document.getElementById('pie-w');if(!w)return render();
   document.querySelectorAll('.pl').forEach(e=>e.classList.toggle('on',s=='ALL'||e.dataset.k==s));
   const l=document.getElementById('pie-list');if(l)l.innerHTML=pieList();
   if(s=='NG'||s=='ALL')setTimeout(()=>pieFetch(PS.ngA),0)}
+const PEYE=h=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>${h?'<path d="M3 3l18 18"/>':''}</svg>`;
+function pieEye(b){PS.hc=!PS.hc;const w=document.getElementById('pie-w');if(w)w.classList.toggle('nc',!!PS.hc);b.innerHTML=PEYE(PS.hc);b.title=PS.hc?'Show callout':'Hide callout';b.setAttribute('aria-label',b.title)}
 function pieCard(a){
   const okA=a.filter(i=>stV(i)=='OK'),ngA=a.filter(i=>stV(i)!='OK'),ds=G.cal||ymd(new Date());
   const dtx=(x=>String(x.getDate()).padStart(2,'0')+'-'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][x.getMonth()]+'-'+String(x.getFullYear()).slice(2))(new Date(ds+'T00:00:00'));
@@ -680,8 +687,8 @@ function pieCard(a){
   const byT=(x,y)=>new Date(y.dt)-new Date(x.dt);
   PS.okA=okA.slice().sort(byT);PS.ngA=ngA.slice().sort(byT);
   if(PS.sel=='NG'||PS.sel=='ALL')setTimeout(()=>pieFetch(PS.ngA),0);
-  return`<div class="c"><div class="flex justify-between items-center"><b>Overall Condition</b><b class="opacity-70">${dtx}</b></div>
-<div id="pie-w" class="${PS.sel&&PS.sel!='ALL'?'has-sel':''}" style="margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>
+  return`<div class="c"><div class="flex justify-between items-center"><span style="display:inline-flex;align-items:center;gap:8px"><b>Overall Condition</b><button type="button" class="pe-eye" onclick="pieEye(this)" title="${PS.hc?'Show callout':'Hide callout'}" aria-label="${PS.hc?'Show callout':'Hide callout'}">${PEYE(PS.hc)}</button></span><b class="opacity-70">${dtx}</b></div>
+<div id="pie-w" class="${(PS.sel&&PS.sel!='ALL'?'has-sel':'')+(PS.hc?' nc':'')}" style="margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>
 <div class="flex justify-center gap-4 flex-wrap text-sm mt-1">${lg('#22c55e','OK',okA.length)}${lg('#f87171','NG',ngA.length)}</div>
 <div id="pie-list">${pieList()}</div></div>`}
 /* ---------- WMS CONTROL (kumpulan parameter) ---------- */
