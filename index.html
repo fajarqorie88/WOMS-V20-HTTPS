@@ -402,6 +402,10 @@ html[data-view=pc] .vw-data>#cb_fltd,html[data-view=pc] .vw-data>.c.cal{grid-col
 .gz button{width:34px;height:34px;border-radius:10px;background:var(--bd);color:var(--tx);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .gz button:hover{background:#2563EB;color:#fff}
 .gz button:active{transform:scale(.94)}
+.gz button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.gzm{position:absolute;top:52px;right:10px;z-index:3;background:var(--bg,#fff);color:var(--tx);border:1px solid var(--bd);border-radius:12px;padding:6px 8px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(0,0,0,.25);font-size:12px}
+.gzm .gzp{font-weight:700;min-width:38px;text-align:center}
+.gzm button{background:#2563EB;color:#fff;padding:6px 10px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
 /* ===== SWITCH GRID / LIST (PC) ===== */
 .vm-sw{display:none}
 html[data-view=pc] .vm-sw{display:flex;justify-content:flex-end;gap:0;grid-column:1/-1;width:100%}
@@ -1006,10 +1010,20 @@ function cats(a){const m=new Map();a.forEach(i=>{const k=i.mid+'|'+i.sid;if(!m.h
 const gzKeyL=g=>'l|'+((g&&g.loc)||'')+'|'+((g&&g.mat)||'');
 const gzOf=k=>(G.z&&G.z[k])||1;
 const gzIc=pl=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M7.8 10.5h5.4${pl?'M10.5 7.8v5.4':''}"/></svg>`;
-const gzBtn=(kind,k)=>`<div class="gz"><button type="button" onclick="gz('${kind}',${k},1)" title="Zoom in" aria-label="Zoom in">${gzIc(1)}</button><button type="button" onclick="gz('${kind}',${k},-1)" title="Zoom out" aria-label="Zoom out">${gzIc(0)}</button></div>`;
+const gzBtn=(kind,k)=>`<div class="gz"><button type="button" data-g="${kind},${k}" onclick="gz('${kind}',${k},1)" oncontextmenu="gzMenu('${kind}',${k});return false" title="Zoom in" aria-label="Zoom in">${gzIc(1)}</button><button type="button" data-g="${kind},${k}" onclick="gz('${kind}',${k},-1)" oncontextmenu="gzMenu('${kind}',${k});return false" title="Zoom out" aria-label="Zoom out">${gzIc(0)}</button></div>`;
+const gzKey=(kind,k)=>kind=='cl'?gzKeyL(locGroups(gData())[k]):'m|'+(matList()[k]||'');
+let gzT=0,gzLP=false,gzLPT=0;
+/* HP / layar sentuh: tekan lama ikon lup = buka menu Fit to screen (setara klik kanan di PC) */
+document.addEventListener('pointerdown',e=>{gzLP=false;clearTimeout(gzLPT);const b=e.target.closest&&e.target.closest('.gz button');if(!b||e.pointerType=='mouse'||!b.dataset.g)return;const a=b.dataset.g.split(',');gzLPT=setTimeout(()=>{gzLP=true;gzMenu(a[0],+a[1])},450)});
+['pointerup','pointercancel'].forEach(t=>document.addEventListener(t,()=>clearTimeout(gzLPT)));
+document.addEventListener('pointerdown',e=>{if(!(e.target.closest&&e.target.closest('.gzm,.gz')))document.querySelectorAll('.gzm').forEach(x=>x.remove())});
+function gzMenu(kind,k){document.querySelectorAll('.gzm').forEach(x=>x.remove());const c=$('#'+kind+k),card=c&&c.closest('.gc');if(!card)return;const m=document.createElement('div');m.className='gzm';
+ m.innerHTML=`<span class="gzp">${Math.round(gzOf(gzKey(kind,k))*100)}%</span><button type="button" onclick="gzFit('${kind}',${k})">&#10530; Fit to screen</button>`;card.appendChild(m);clearTimeout(gzT);gzT=setTimeout(()=>m.remove(),6000)}
 function gzDraw(kind,k){if(kind=='cl'){const g=locGroups(gData())[k];if(g)draw($('#cl'+k),false,g.mat,{sub:g.all,z:gzOf(gzKeyL(g))})}else{const m=matList()[k];if(m)draw($('#cv'+k),false,m,{z:gzOf('m|'+m)})}}
-function gz(kind,k,d){const key=kind=='cl'?gzKeyL(locGroups(gData())[k]):'m|'+(matList()[k]||'');G.z=G.z||{};const cur=gzOf(key),nz=Math.min(3,Math.max(.5,Math.round((cur+d*.25)*100)/100));if(nz==cur)return;G.z[key]=nz;
- const c=$('#'+kind+k),w=c&&c.parentElement,r=w?(w.scrollLeft+w.clientWidth/2)/(c.width||1):0;gzDraw(kind,k);const c2=$('#'+kind+k);if(w&&c2)w.scrollLeft=r*c2.width-w.clientWidth/2}
+function gzApply(kind,k,nz){const key=gzKey(kind,k);G.z=G.z||{};G.z[key]=nz;const c=$('#'+kind+k),w=c&&c.parentElement,r=w?(w.scrollLeft+w.clientWidth/2)/(c.width||1):0;gzDraw(kind,k);const c2=$('#'+kind+k);if(w&&c2)w.scrollLeft=Math.max(0,r*c2.width-w.clientWidth/2)}
+function gz(kind,k,d){if(gzLP){gzLP=false;return}const cur=gzOf(gzKey(kind,k)),nz=Math.min(3,Math.max(.1,Math.round((Math.round(cur*10)/10+d*.1)*100)/100));if(nz!=cur)gzApply(kind,k,nz);if(document.querySelector('.gzm'))gzMenu(kind,k)}
+/* Fit to screen: seluruh grafik muat di lebar kotak (dan tinggi layar), proporsi tetap */
+function gzFit(kind,k){const key=gzKey(kind,k),cur=gzOf(key),c=$('#'+kind+k),w=c&&c.parentElement;if(!c||!w)return;const W0=c.width/cur,H0=c.height/cur,zW=(w.clientWidth-2)/W0,zH=(innerHeight-140)/H0,z=Math.max(.1,Math.min(3,Math.floor(Math.min(zW,zH)*100)/100));gzApply(kind,k,z);w.scrollLeft=0;gzMenu(kind,k)}
 function draw(c,lt,mat,o){if(!c)return;o=o||{};const sc0=o.sc||1,z=o.z||1,pr=!!o.W,ct=o.sub||cats(gData().filter(i=>i.mat==mat)),n=ct.length,p0=44*sc0,pcW=(!o.W&&document.documentElement.dataset.view=='pc'&&c.parentElement)?c.parentElement.clientWidth-2:0,W0=o.W||Math.max(400,n*60+p0+20,pcW),H0=o.H||(document.documentElement.dataset.view=='pc'&&!o.W?420:360),sc=sc0*z,p=44*sc,W=Math.round(W0*z),H=Math.round(H0*z);c.width=W;c.height=H;c.style.width=W+'px';c.style.maxWidth='none';
 const x=c.getContext('2d'),dk=!lt&&document.documentElement.dataset.theme=='dark',fg=dk?'#f1f5f9':'#0f172a';x.clearRect(0,0,W,H);if(lt){x.fillStyle='#fff';x.fillRect(0,0,W,H)}x.fillStyle=fg;x.font=12*sc+'px sans-serif';
 {const ft=x.fillText.bind(x);x.fillText=(t,...a)=>ft(tr(String(t)),...a)}
