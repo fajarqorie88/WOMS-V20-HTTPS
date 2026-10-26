@@ -338,14 +338,29 @@ html[data-view=pc] .i{background:var(--ib);border:1px solid var(--bd);border-rad
 .ck{border-collapse:collapse;width:100%;font-size:12px}
 .ck th,.ck td{border:1px solid var(--bd);padding:6px 8px;text-align:center;vertical-align:middle;white-space:nowrap}
 .ck td.rm{white-space:normal;min-width:140px;max-width:260px;word-break:break-word}
-.ck thead th{background:#2563EB;color:#fff;font-weight:700;cursor:pointer}
-.ck thead tr+tr th{background:#3b82f6}
-.ck thead th.pe{background:#facc15;color:#422006}
-.ck thead th.ap{background:#22c55e;color:#fff}
-.ck td.pe.on{background:rgba(250,204,21,.5)}
-.ck td.ap.on{background:rgba(34,197,94,.4)}
-.ck td.okc{color:#16a34a;font-weight:700}
-.ck td.ngc{color:#dc2626;font-weight:700}
+.ck thead th{background:#2563EB;color:#fff!important;font-weight:700;cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.ck .jb{display:inline-block;min-width:64px;padding:3px 10px;border-radius:999px;font-weight:700;font-size:11.5px;letter-spacing:.03em}
+.ck .jb.ok{background:rgba(34,197,94,.18);color:#16a34a}
+.ck .jb.ng{background:rgba(239,68,68,.18);color:#dc2626}
+.ck .jb.pe{background:rgba(250,204,21,.3);color:#a16207}
+.ck .jb.ap{background:rgba(34,197,94,.25);color:#15803d}
+/* Pie chart: slice interaktif, denyut luar, panel data */
+.ps{cursor:pointer;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s,filter .3s}
+.ps:hover{filter:brightness(1.1)}
+.ps.sel{transform:translate(var(--tx),var(--ty))}
+#pie-w.has-sel .ps:not(.sel){opacity:.4}
+.rc{cursor:pointer}
+.pp{fill:none;stroke:#22d3ee;stroke-width:2;pointer-events:none;transform-box:fill-box;transform-origin:center;animation:ppu 2.6s ease-out infinite}
+.pp.b{animation-delay:1.3s}
+.pb{animation:pbr 2.6s ease-in-out infinite}.pb.b{animation-delay:.9s}
+@keyframes ppu{0%{transform:scale(.97);opacity:.75}100%{transform:scale(1.2);opacity:0}}
+@keyframes pbr{0%,100%{stroke-opacity:.15}50%{stroke-opacity:.6}}
+.pl{cursor:pointer;padding:4px 12px;border-radius:999px;transition:background .25s,transform .25s;-webkit-tap-highlight-color:transparent}
+.pl.on{background:rgba(128,128,128,.2);transform:scale(1.07)}
+.pie-pan{animation:pieIn .4s ease both}
+.pie-sec+.pie-sec{margin-top:12px}
+@keyframes pieIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pp,.pb,.pie-pan{animation:none}.ps{transition:none}}
 html[data-view=pc] .i:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(56,189,248,.25)}
 /* Halaman login mode PC: kotak input transparan seperti mode HP */
 html[data-view=pc] .lg .i{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}
@@ -551,12 +566,15 @@ document.addEventListener('input',e=>{const t=e.target;if(t&&(t.tagName=='TEXTAR
 function toast(m){hapMsg(m);const t=$('#t');t.textContent=tr(m);t.style.display='block';clearTimeout(t._x);t._x=setTimeout(()=>t.style.display='none',2200)}
 const EQ0=['KDC30-1056N','PX3-3020053W','KDC30-646N','KDC40-4517N','PC1-3025XXXW','PC1-3020213W','PX3-3020054W','PC1-3020211W','KDX30-3355N-M6','KDC30-624-KAI2','KDC30-624-13N','KDC30-624-7N','PCZ-2508XXXW','PC1-3035XXXW','KDC30-5075-3N','KDC30-5087N','KDC10-4508-4N','KDC30-5099N'];
 function def(){return{mains:Array.from({length:23},(_,i)=>({id:'m'+(i+1),code:'Trafo '+(i+1),loc:'Line 1',subs:[{id:'s'+(i+1),name:'Gun A',type:'C-Type',mats:[{id:'a'+i,mt:'SCGA',min:8,max:12},{id:'b'+i,mt:'SPCC',min:7,max:11}]}]})),
-M:{equips:EQ0.slice(),checkers:['Checker 1'],locs:['Line 1','Line 2'],descs:['Welding Spot'],mats:['SCGA','SPCC'],shifts:['Shift 1','Shift 2','Shift 3']},
+M:{equips:EQ0.slice(),types:['C-Type','X-Type'],checkers:['Checker 1'],locs:['Line 1','Line 2'],descs:['Welding Spot'],mats:['SCGA','SPCC'],shifts:['Shift 1','Shift 2','Shift 3']},
 insp:[],prof:{name:'',nip:'',dept:'',role:'Checker',hp:'',email:'',photo:''},sync:{last:null,auto:true}}}
 function load(id){let r=L['woms_data_'+id]||L['woms_data'];try{D=r?JSON.parse(r):def()}catch(e){D=def()}D.prof=D.prof||def().prof;D.sync=D.sync||{last:null,auto:true};D.M=D.M||def().M;norm()}
 function save(now){clearTimeout(saveT);const f=()=>{if(U){L['woms_data_'+U.id]=JSON.stringify(D)}};now?f():saveT=setTimeout(f,300);if(SERVER&&U)metaPush()}
 addEventListener('beforeunload',()=>save(true));
 const mainBy=id=>D.mains.find(m=>m.id==id),subBy=(m,id)=>m&&m.subs.find(s=>s.id==id);
+const tyList=()=>{D.M=D.M||{};if(!Array.isArray(D.M.types)){const l=['C-Type','X-Type'];(D.mains||[]).forEach(m=>(m.subs||[]).forEach(x=>{if(x.type&&!l.includes(x.type))l.push(x.type)}));D.M.types=l}return D.M.types};
+const tyOpts=n=>{const l=tyList();return n&&!l.includes(n)?[n].concat(l):l};
+const tyAll=()=>{const l=tyList().slice();(D.insp||[]).forEach(i=>{if(i.subType&&!l.includes(i.subType))l.push(i.subType)});return l};
 const eqOpts=n=>{const l=(D.M&&D.M.equips)||[];return n&&!l.includes(n)?[n].concat(l):l};
 const opts=(a,v,ph)=>(ph?`<option value="">${ph}</option>`:'')+a.map(x=>{const[val,lab]=Array.isArray(x)?x:[x,x];return`<option value="${esc(val)}"${val==v?' selected':''}>${esc(lab)}</option>`}).join('');
 const fld=(l,h)=>`<label>${l}</label>${h}`;
@@ -601,47 +619,71 @@ ${warn?`<div class="mt-2 p-2" style="border-radius:8px;background:${pc>=90?'#fee
 <p class="text-xs opacity-60 mt-2">Foto: ${fmtB(SC.fb)} (${SC.files} file) - Data: ${fmtB(SC.db)} (${SC.docs} dokumen, perkiraan)</p>`:`<p class="text-xs opacity-60 my-2">Memuat...</p>`}
 <p class="text-xs opacity-60 mt-1">Total kapasitas ${fmtB(cap)} <button class="underline" onclick="scEdit()">ubah</button></p></div>`}
 /* ---------- PIE CHART OK / NG (tab Grafik) ---------- */
-let PS={open:false,fetching:false};
-function pieTog(){PS.open=!PS.open;render()}
+let PS={sel:null,fetching:false,okA:[],ngA:[]};
 function pieBig(id){const r=D.insp.find(x=>String(x.id)==String(id));if(!r||!r.photo)return;const d=document.createElement('div');d.className='fixed';d.style.cssText='inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:12px';d.onclick=()=>d.remove();d.innerHTML='<img src="'+r.photo+'" style="max-width:100%;max-height:100%;border-radius:12px">';document.body.appendChild(d)}
 async function pieFetch(list){if(PS.fetching)return;PS.fetching=true;let n=0;for(const r of list){if(r.photo||!r.photoId||!awST)continue;try{if(await awPhotoGet(r))n++}catch(e){}}PS.fetching=false;if(n&&tab=='grafik')render()}
 function pieSvg(ok,ng){
   const t=ok+ng,C=160,R=104,pt=(a,r)=>[C+r*Math.cos(a),C+r*Math.sin(a)],f=n=>n.toFixed(2);
   const arc=(a0,a1,r0,r1)=>{const [x0,y0]=pt(a0,r1),[x1,y1]=pt(a1,r1),[x2,y2]=pt(a1,r0),[x3,y3]=pt(a0,r0),L=a1-a0>Math.PI?1:0;return`M${f(x0)} ${f(y0)}A${r1} ${r1} 0 ${L} 1 ${f(x1)} ${f(y1)}${r0?`L${f(x2)} ${f(y2)}A${r0} ${r0} 0 ${L} 0 ${f(x3)} ${f(y3)}Z`:`L${C} ${C}Z`}`};
-  const defs=`<defs><linearGradient id="pgo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bbf7d0"/><stop offset=".5" stop-color="#4ade80"/><stop offset="1" stop-color="#15803d"/></linearGradient><linearGradient id="pgn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fee2e2"/><stop offset=".5" stop-color="#fca5a5"/><stop offset="1" stop-color="#ef4444"/></linearGradient><filter id="pgs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".3"/></filter></defs>`;
-  const rings=`<circle cx="${C}" cy="${C}" r="150" fill="none" stroke="currentColor" stroke-opacity=".12"/><circle cx="${C}" cy="${C}" r="138" fill="none" stroke="currentColor" stroke-opacity=".18"/>`;
+  const defs=`<defs><linearGradient id="pgo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bbf7d0"/><stop offset=".5" stop-color="#4ade80"/><stop offset="1" stop-color="#15803d"/></linearGradient><linearGradient id="pgn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fee2e2"/><stop offset=".5" stop-color="#fca5a5"/><stop offset="1" stop-color="#ef4444"/></linearGradient><filter id="pgs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".3"/></filter><filter id="rcg" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="rcb" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e7490"/><stop offset=".6" stop-color="#0b1220"/><stop offset="1" stop-color="#020617"/></radialGradient></defs>`;
+  /* cincin luar: dua cincin statis berdenyut halus + dua gelombang denyut yang memancar keluar */
+  const rings=`<circle class="pb" cx="${C}" cy="${C}" r="150" fill="none" stroke="#22d3ee" stroke-opacity=".3"/><circle class="pb b" cx="${C}" cy="${C}" r="138" fill="none" stroke="#22d3ee" stroke-opacity=".4"/><circle class="pp" cx="${C}" cy="${C}" r="132"/><circle class="pp b" cx="${C}" cy="${C}" r="132"/>`;
   let body='',a=-Math.PI/2;const co=[];
   const sl=[[ok,'url(#pgo)','#22c55e','OK'],[ng,'url(#pgn)','#f87171','NG']].filter(x=>x[0]>0);
   if(!t)body=`<circle cx="${C}" cy="${C}" r="${R}" fill="rgba(128,128,128,.2)"/><text x="${C}" y="${C+(-40)}" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">Belum ada data</text>`;
   else sl.forEach(([n,fill,soft,lb])=>{const a1=a+n/t*Math.PI*2,full=sl.length==1,mid=(a+a1)/2,pc=Math.round(n/t*100),[lx,ly]=pt(mid,R*.62);
-    co.push({mid:full?-Math.PI/4:mid,pc,n,soft,lb});body+=(full?`<circle cx="${C}" cy="${C}" r="${R}" fill="${fill}" filter="url(#pgs)"/>`:`<path d="${arc(a,a1,0,R)}" fill="${fill}" stroke="#fff" stroke-width="1.5" filter="url(#pgs)"/>`)
+    co.push({mid:full?-Math.PI/4:mid,pc,n,soft,lb});
+    const on=PS.sel=='ALL'||PS.sel==lb,tx=full?0:Math.cos(mid)*12,ty=full?0:Math.sin(mid)*12;
+    body+=`<g class="ps${on?' sel':''}" data-k="${lb}" style="--tx:${f(tx)}px;--ty:${f(ty)}px" onclick="pieSel('${lb}')">`
+      +(full?`<circle cx="${C}" cy="${C}" r="${R}" fill="${fill}" filter="url(#pgs)"/>`:`<path d="${arc(a,a1,0,R)}" fill="${fill}" stroke="#fff" stroke-width="1.5" filter="url(#pgs)"/>`)
       +(full?`<circle cx="${C}" cy="${C}" r="125" fill="none" stroke="${soft}" stroke-opacity=".35" stroke-width="9"/>`:`<path d="${arc(a+.02,a1-.02,120,130)}" fill="${soft}" fill-opacity=".35"/>`)
-      +(pc>=4?`<text x="${f(lx)}" y="${f(ly)}" text-anchor="middle" dominant-baseline="middle" font-size="${pc>=15?28:16}" font-weight="800" fill="#fff" style="paint-order:stroke;stroke:rgba(0,0,0,.25);stroke-width:2px">${pc}%</text>`:'');a=a1});
+      +(pc>=4?`<text x="${f(lx)}" y="${f(ly)}" text-anchor="middle" dominant-baseline="middle" font-size="${pc>=15?28:16}" font-weight="800" fill="#fff" style="paint-order:stroke;stroke:rgba(0,0,0,.25);stroke-width:2px;pointer-events:none">${pc}%</text>`:'')+`</g>`;a=a1});
   let calls='';
   if(t){const side=co.map(c=>Math.cos(c.mid)<0?-1:1);
     co.forEach((c,k)=>{c.sd=side[k];const [x,y]=pt(c.mid,152);c.x=x;c.y=y;c.ty=Math.min(285,Math.max(40,y))});
     [-1,1].forEach(sd=>{const g=co.filter(c=>c.sd==sd).sort((x,y)=>x.ty-y.ty);if(g.length>1&&g[1].ty-g[0].ty<64){const m=(g[0].ty+g[1].ty)/2;g[0].ty=Math.max(40,m-32);g[1].ty=g[0].ty+64}});
     co.forEach(c=>{const [x0,y0]=pt(c.mid,132),ex=C+c.sd*166-c.sd*6,tx=C+c.sd*172,an=c.sd<0?'end':'start',col=c.soft;
-      calls+=`<g><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(c.x)},${f(c.ty)} ${ex},${f(c.ty)}" fill="none" stroke="${col}" stroke-width="1.5"/><text x="${tx}" y="${f(c.ty+2)}" text-anchor="${an}" font-size="30" font-weight="800" fill="${col}">${c.pc}%</text><text x="${tx}" y="${f(c.ty+20)}" text-anchor="${an}" font-size="13" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
-  const ctr=`<circle cx="${C}" cy="${C}" r="34" fill="#fff" filter="url(#pgs)"/><g fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M141 177V145M141 177H180"/><path d="M146 168l9-9 8 5 10-14"/><path d="M170 150h5v5"/></g>`;
-  return`<svg viewBox="28 6 464 308" style="width:100%;max-width:520px;display:block;margin:0 auto;color:inherit;overflow:visible">${defs}<g transform="translate(100,0)">${rings}${body}${calls}${ctr}</g></svg>`}
+      calls+=`<g style="pointer-events:none"><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(c.x)},${f(c.ty)} ${ex},${f(c.ty)}" fill="none" stroke="${col}" stroke-width="1.5"/><text x="${tx}" y="${f(c.ty+2)}" text-anchor="${an}" font-size="30" font-weight="800" fill="${col}">${c.pc}%</text><text x="${tx}" y="${f(c.ty+20)}" text-anchor="${an}" font-size="13" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
+  /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
+  const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
+  const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
+  const ctr=`<g class="rc" onclick="pieSel('ALL')"><circle cx="${C}" cy="${C}" r="38" fill="url(#rcb)" stroke="#94a3b8" stroke-width="3" filter="url(#pgs)"/><circle cx="${C}" cy="${C}" r="35" fill="none" stroke="#22d3ee" stroke-opacity=".55" stroke-width="1"/>`
+   +`<g>${seg}<animateTransform attributeName="transform" type="rotate" from="0 ${C} ${C}" to="360 ${C} ${C}" dur="9s" repeatCount="indefinite"/></g>`
+   +`<circle cx="${C}" cy="${C}" r="17" fill="none" stroke="#67e8f9" stroke-width="2.5" filter="url(#rcg)"><animate attributeName="stroke-opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></circle>`
+   +`<g><polygon points="${tri}" fill="rgba(103,232,249,.25)" stroke="#cffafe" stroke-width="1.2" stroke-linejoin="round"/><animateTransform attributeName="transform" type="rotate" from="360 ${C} ${C}" to="0 ${C} ${C}" dur="5s" repeatCount="indefinite"/></g>`
+   +`<circle cx="${C}" cy="${C}" r="6" fill="#ecfeff" filter="url(#rcg)"><animate attributeName="r" values="5;7.5;5" dur="1.6s" repeatCount="indefinite"/></circle></g>`;
+  return`<svg viewBox="28 6 464 308" style="width:100%;max-width:520px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}${body}${calls}${ctr}</g></svg>`}
+/* item data pada panel; NG menampilkan foto bila ada */
+function pieItem(i,ng){const s=stdOf(i),c=ng?'#dc2626':'#16a34a',bg=ng?'rgba(248,113,113,.12)':'rgba(34,197,94,.1)',bd=ng?'rgba(248,113,113,.35)':'rgba(34,197,94,.35)';
+  const ph=!ng?'':i.photo?`<img src="${i.photo}" onclick="event.stopPropagation();pieBig('${esc(String(i.id))}')" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer">`:i.photoId?`<div style="width:72px;height:72px;border-radius:10px;flex-shrink:0;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center" class="opacity-70">Memuat foto...</div>`:'';
+  return`<div class="flex gap-3 items-center my-2 p-2" style="border-radius:12px;background:${bg};border:1px solid ${bd}"><div class="text-xs" style="min-width:0;flex:1"><b class="text-sm">${esc(i.main)}${i.sub?' - '+esc(i.sub):''}</b><br>${esc(i.loc||'-')} &middot; ${esc(i.mat||'-')}<br><span style="color:${c};font-weight:700">${i.kA} kA</span> <span class="opacity-70">(standar ${s.min}-${s.max})</span><br><span class="opacity-60">${new Date(i.dt).toLocaleTimeString(LC(),{hour:'2-digit',minute:'2-digit'})}${i.c1?' &middot; '+esc([i.c1,i.c2].filter(Boolean).join(' / ')):''}</span>${i.ket?`<br><span class="opacity-70">${esc(i.ket)}</span>`:''}</div>${ph}</div>`}
+function pieList(){const k=PS.sel;if(!k)return'';
+  const sec=(ng,arr)=>`<div class="pie-sec"><b class="text-sm" style="color:${ng?'#dc2626':'#16a34a'}">${ng?'&#9888; Data NG / Equipment bermasalah':'&#10003; Data OK'} (${arr.length})</b>${arr.length?`<div style="max-height:380px;overflow-y:auto">${arr.map(i=>pieItem(i,ng)).join('')}</div>`:`<div class="text-sm text-center opacity-70 my-2">${ng?'Tidak ada equipment bermasalah pada tanggal ini':'Belum ada data OK pada tanggal ini'}</div>`}</div>`;
+  return`<div class="pie-pan mt-3" style="border-top:1px solid var(--bd);padding-top:10px">${k=='ALL'?sec(0,PS.okA)+sec(1,PS.ngA):k=='NG'?sec(1,PS.ngA):sec(0,PS.okA)}</div>`}
+/* klik slice / legend / reaktor: update di tempat supaya animasi transisi berjalan */
+function pieSel(k){PS.sel=PS.sel==k?null:k;pieUp()}
+function pieUp(){const w=document.getElementById('pie-w');if(!w)return render();const s=PS.sel;
+  w.classList.toggle('has-sel',!!s&&s!='ALL');
+  w.querySelectorAll('.ps').forEach(g=>g.classList.toggle('sel',s=='ALL'||g.dataset.k==s));
+  document.querySelectorAll('.pl').forEach(e=>e.classList.toggle('on',s=='ALL'||e.dataset.k==s));
+  const l=document.getElementById('pie-list');if(l)l.innerHTML=pieList();
+  if(s=='NG'||s=='ALL')setTimeout(()=>pieFetch(PS.ngA),0)}
 function pieCard(a){
   const okA=a.filter(i=>stV(i)=='OK'),ngA=a.filter(i=>stV(i)!='OK'),ds=G.cal||ymd(new Date());
   const dtx=(x=>String(x.getDate()).padStart(2,'0')+'-'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][x.getMonth()]+'-'+String(x.getFullYear()).slice(2))(new Date(ds+'T00:00:00'));
-  const lg=(c,l,n)=>`<span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:${c}"></span><b>${l}</b> ${n} data</span>`;
-  const bad=ngA.slice().sort((x,y)=>new Date(y.dt)-new Date(x.dt));
-  if(PS.open)setTimeout(()=>pieFetch(bad),0);
-  const list=PS.open?(bad.length?`<div class="mt-3" style="border-top:1px solid var(--bd);padding-top:10px"><b class="text-sm" style="color:#dc2626">&#9888; Equipment bermasalah (${bad.length})</b>${bad.map(i=>{const s=stdOf(i),ph=i.photo?`<img src="${i.photo}" onclick="event.stopPropagation();pieBig('${esc(String(i.id))}')" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer">`:i.photoId?`<div style="width:72px;height:72px;border-radius:10px;flex-shrink:0;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center" class="opacity-70">Memuat foto...</div>`:'';
-    return`<div class="flex gap-3 items-center my-2 p-2" style="border-radius:12px;background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.35)"><div class="text-xs" style="min-width:0;flex:1"><b class="text-sm">${esc(i.main)}${i.sub?' - '+esc(i.sub):''}</b><br>${esc(i.loc||'-')} &middot; ${esc(i.mat||'-')}<br><span style="color:#dc2626;font-weight:700">${i.kA} kA</span> <span class="opacity-70">(standar ${s.min}-${s.max})</span><br><span class="opacity-60">${new Date(i.dt).toLocaleTimeString(LC(),{hour:'2-digit',minute:'2-digit'})}${i.c1?' &middot; '+esc([i.c1,i.c2].filter(Boolean).join(' / ')):''}</span>${i.ket?`<br><span class="opacity-70">${esc(i.ket)}</span>`:''}</div>${ph}</div>`}).join('')}</div>`:`<div class="mt-3 text-sm text-center" style="color:#16a34a">&#10003; Tidak ada equipment bermasalah pada tanggal ini</div>`):'';
+  const lg=(c,l,n)=>`<span class="pl${PS.sel=='ALL'||PS.sel==l?' on':''}" data-k="${l}" onclick="pieSel('${l}')" style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:${c}"></span><b>${l}</b> ${n} data</span>`;
+  const byT=(x,y)=>new Date(y.dt)-new Date(x.dt);
+  PS.okA=okA.slice().sort(byT);PS.ngA=ngA.slice().sort(byT);
+  if(PS.sel=='NG'||PS.sel=='ALL')setTimeout(()=>pieFetch(PS.ngA),0);
   return`<div class="c"><div class="flex justify-between items-center"><b>Overall Condition</b><b class="opacity-70">${dtx}</b></div>
-<div onclick="pieTog()" style="cursor:pointer;margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>
+<div id="pie-w" class="${PS.sel&&PS.sel!='ALL'?'has-sel':''}" style="margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>
 <div class="flex justify-center gap-4 flex-wrap text-sm mt-1">${lg('#22c55e','OK',okA.length)}${lg('#f87171','NG',ngA.length)}</div>
-${list}</div>`}
+<div id="pie-list">${pieList()}</div></div>`}
 /* ---------- WMS CONTROL (kumpulan parameter) ---------- */
 let WC={open:false};
 const wcAll=()=>LISTS.concat((D.M.custom||[]).map(x=>[x[0],x[1],1]));
-function wcBox(k,l,cu){if(!D.M[k])D.M[k]=[];
-  return`<div style="border:1px solid var(--bd);border-radius:12px;padding:10px;margin-top:10px"><div class="flex justify-between items-center"><b>Kelola ${esc(l)}</b>${cu?`<button class="text-xs underline" style="color:#dc2626" onclick="wcDel('${k}')">Hapus parameter</button>`:''}</div><div class="my-2">${D.M[k].map((x,i)=>`<span class="bg">${esc(x)} ${k!='mats'?`<button onclick="renM('${k}',${i})">&#9998;</button> `:''}<button onclick="delM('${k}',${i})">&#10005;</button></span>`).join('')}</div><div class="flex gap-2"><input id="n_${k}" class="i" style="margin:0" placeholder="Tambah ${esc(l)}"><button class="b" onclick="addM('${k}')">+</button></div></div>`}
+function wcBox(k,l,cu){if(k=='types')tyList();else if(!D.M[k])D.M[k]=[];
+  return`<div style="border:1px solid var(--bd);border-radius:12px;padding:10px;margin-top:10px"><div class="flex justify-between items-center"><b>${k=='types'?'Manage Equipment Type':'Kelola '+esc(l)}</b>${cu?`<button class="text-xs underline" style="color:#dc2626" onclick="wcDel('${k}')">Hapus parameter</button>`:''}</div><div class="my-2">${D.M[k].map((x,i)=>`<span class="bg">${esc(x)} ${k!='mats'?`<button onclick="renM('${k}',${i})">&#9998;</button> `:''}<button onclick="delM('${k}',${i})">&#10005;</button></span>`).join('')}</div><div class="flex gap-2"><input id="n_${k}" class="i" style="margin:0" placeholder="Tambah ${esc(l)}"><button class="b" onclick="addM('${k}')">+</button></div></div>`}
 function wcCard(){
   return`<div class="c"><b>WMS Control</b>
 <button type="button" class="b w-full mt-2" onclick="WC.open=!WC.open;render()">${WC.open?'&#9650;':'&#9660;'} Open or Close Parameter</button>
@@ -772,7 +814,7 @@ const qk=()=>'woms_q_'+U.id;
 const qget=()=>{try{return JSON.parse(L[qk()]||'[]')}catch(e){return[]}};
 const qset=a=>{L[qk()]=JSON.stringify(a)};
 function qadd(op){if(!SERVER||!U)return;op.n=Date.now()+Math.random();qset(qget().filter(o=>op.t=='meta'?o.t!='meta':o.id!=op.id).concat([op]));flush()}
-function norm(){D.insp.forEach(i=>{if(i.status=='PASS')i.status='OK';else if(i.status=='FAIL')i.status='NG';const k=parseFloat(i.kA),a=parseFloat(i.min),b=parseFloat(i.max);if(!isNaN(k)&&!isNaN(a)&&!isNaN(b))i.status=k>=a&&k<=b?'OK':'NG'});if(D.M&&!D.M.jobs)D.M.jobs=[];if(D.M&&!D.M.equips)D.M.equips=EQ0.slice()}
+function norm(){D.insp.forEach(i=>{if(i.status=='PASS')i.status='OK';else if(i.status=='FAIL')i.status='NG';const k=parseFloat(i.kA),a=parseFloat(i.min),b=parseFloat(i.max);if(!isNaN(k)&&!isNaN(a)&&!isNaN(b))i.status=k>=a&&k<=b?'OK':'NG'});if(D.M&&!D.M.jobs)D.M.jobs=[];if(D.M&&!D.M.equips)D.M.equips=EQ0.slice();if(D.M)tyList()}
 function cacheD(){if(U)L['woms_data_'+U.id]=JSON.stringify(D)}
 function metaPush(){clearTimeout(mT);mT=setTimeout(()=>{if(CS||D.metaUpd){D.metaUpd=Date.now();cacheD();qadd({t:'meta'})}},800)}
 function cloudPut(r){qadd({t:'put',id:r.id})}
@@ -974,7 +1016,7 @@ function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i
 function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button>${undoHas()?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#f59e0b;color:#111" title="Batalkan aksi terakhir (hapus / approve), maksimal 3 kali" onclick="undoDel()">&#8630; Undo${undoCnt()>1?' ('+undoCnt()+')':''}</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada aksi yang bisa di-undo" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c" id="cb_fltd"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltd')"><b>Filters${fltN(Q,['s','main','type','mat','loc','st','ap'])?' <span class="bg or">'+fltN(Q,['s','main','type','mat','loc','st','ap'])+'</span>':''}</b>${bxIcon(BXO.fltd)}</button><div class="cbb" style="display:${BXO.fltd?'block':'none'}"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
-${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',['C-Type','X-Type'])}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('ap',Q.ap,'Semua Approval',[['p','Pending approval'],['a','Approved']])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div></div>
+${S('main',Q.main,'Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',tyAll())}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('ap',Q.ap,'Semua Approval',[['p','Pending approval'],['a','Approved']])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div></div>
 ${calView()}${vmSw()}
 ${Q.show?`<p class="text-xs opacity-60">${a.length} data</p>
 ${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}
@@ -993,19 +1035,17 @@ d.innerHTML=`<div class="c max-w-xl mx-auto text-sm" style="position:relative"><
 /* ---------- GRAFIK ---------- */
 function grafikView(){calInit();const a=gData(),v=a.map(i=>i.kA),n=v.length,LG=G.view=='loc'?locGroups(a):[];
 const S=(k,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="G.${k}=this.value;render()">${opts(o,G[k],ph)}</select>`;
-return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Grafik</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px;position:relative"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="gpOpen('dl')">&#11015; Unduh PDF ${GP.open&&GP.mode=='dl'?'&#9652;':'&#9662;'}</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="gpOpen('share')">Bagikan ke... ${GP.open&&GP.mode=='share'?'&#9652;':'&#9662;'}</button>${GP.open?`<div class="c" id="gpbox" style="position:absolute;left:0;top:100%;margin-top:6px;z-index:20;width:285px;max-height:75vh;overflow-y:auto;box-shadow:0 6px 20px #0004"><div class="flex justify-between items-center mb-1"><b class="text-sm">${GP.mode=='dl'?'Pilih grafik untuk diunduh':'Pilih grafik untuk dibagikan'}</b><button class="text-blue-600 text-xs" onclick="gpAll()">${GP.sel.length==matList().length?'Hapus semua':'Pilih semua'}</button></div>${matList().map((m,k)=>`<label class="flex items-center gap-2 py-1 text-sm" style="margin:0"><input type="checkbox" ${GP.sel.includes(m)?'checked':''} onchange="gpT(${k})"> Material ${esc(m)}</label>`).join('')}${gpSec('Equipment',eqList(),GP.eq,'gpTe',eqNm,'gpAllE','gpe')}${gpSec('Lokasi',lcList(),GP.lc,'gpTl',lcNm,'gpAllL','gpl')}<div class="flex gap-1 mt-2"><button class="b flex-1" style="padding:8px;font-size:13px" onclick="gpGo()">${GP.mode=='dl'?'Unduh':'Bagikan ke...'} (${GP.sel.length})</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="GP.open=0;render()">Batal</button></div></div>`:''}</div></div><div class="c"><div class="flex gap-1 mb-2"><button class="b ${G.view=='loc'?'b2':''}" style="flex:1;padding:8px;font-size:13px" onclick="G.view='mat';render()">Per Material</button><button class="b ${G.view=='loc'?'':'b2'}" style="flex:1;padding:8px;font-size:13px" onclick="G.view='loc';render()">Per Lokasi</button></div><div id="cb_fltg" style="margin-top:2px"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltg')"><b>Filters${fltN(G,['s','main','type','mat','loc','st'])?' <span class="bg or">'+fltN(G,['s','main','type','mat','loc','st'])+'</span>':''}</b>${bxIcon(BXO.fltg)}</button><div class="cbb" style="display:${BXO.fltg?'block':'none'}"><input class=\"i\" placeholder=\"Cari...\" value=\"${esc(G.s||'')}\" onchange=\"G.s=this.value;render()\">${S('main','Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type','Semua Type',['C-Type','X-Type'])}${S('mat','Semua Material',D.M.mats)}${S('loc','Semua Lokasi',D.M.locs)}${S('st','Semua Status',['OK','NG'])}
+return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Grafik</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px;position:relative"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="gpOpen('dl')">&#11015; Unduh PDF ${GP.open&&GP.mode=='dl'?'&#9652;':'&#9662;'}</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="gpOpen('share')">Bagikan ke... ${GP.open&&GP.mode=='share'?'&#9652;':'&#9662;'}</button>${GP.open?`<div class="c" id="gpbox" style="position:absolute;left:0;top:100%;margin-top:6px;z-index:20;width:285px;max-height:75vh;overflow-y:auto;box-shadow:0 6px 20px #0004"><div class="flex justify-between items-center mb-1"><b class="text-sm">${GP.mode=='dl'?'Pilih grafik untuk diunduh':'Pilih grafik untuk dibagikan'}</b><button class="text-blue-600 text-xs" onclick="gpAll()">${GP.sel.length==matList().length?'Hapus semua':'Pilih semua'}</button></div>${matList().map((m,k)=>`<label class="flex items-center gap-2 py-1 text-sm" style="margin:0"><input type="checkbox" ${GP.sel.includes(m)?'checked':''} onchange="gpT(${k})"> Material ${esc(m)}</label>`).join('')}${gpSec('Equipment',eqList(),GP.eq,'gpTe',eqNm,'gpAllE','gpe')}${gpSec('Lokasi',lcList(),GP.lc,'gpTl',lcNm,'gpAllL','gpl')}<div class="flex gap-1 mt-2"><button class="b flex-1" style="padding:8px;font-size:13px" onclick="gpGo()">${GP.mode=='dl'?'Unduh':'Bagikan ke...'} (${GP.sel.length})</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="GP.open=0;render()">Batal</button></div></div>`:''}</div></div><div class="c"><div class="flex gap-1 mb-2"><button class="b ${G.view=='loc'?'b2':''}" style="flex:1;padding:8px;font-size:13px" onclick="G.view='mat';render()">Per Material</button><button class="b ${G.view=='loc'?'':'b2'}" style="flex:1;padding:8px;font-size:13px" onclick="G.view='loc';render()">Per Lokasi</button></div><div id="cb_fltg" style="margin-top:2px"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltg')"><b>Filters${fltN(G,['s','main','type','mat','loc','st'])?' <span class="bg or">'+fltN(G,['s','main','type','mat','loc','st'])+'</span>':''}</b>${bxIcon(BXO.fltg)}</button><div class="cbb" style="display:${BXO.fltg?'block':'none'}"><input class=\"i\" placeholder=\"Cari...\" value=\"${esc(G.s||'')}\" onchange=\"G.s=this.value;render()\">${S('main','Semua Main',D.mains.map(m=>[m.id,m.code]))}${S('type','Semua Type',tyAll())}${S('mat','Semua Material',D.M.mats)}${S('loc','Semua Lokasi',D.M.locs)}${S('st','Semua Status',['OK','NG'])}
 </div></div></div>${apBan(a)}${calView()}${pieCard(a)}${vmSw()}${`${G.view=='loc'?(LG.length?LG.map((g,k)=>`${k==0||LG[k-1].loc!=g.loc?`<h3 class="font-bold pt-2">Lokasi: ${esc(g.loc||'-')}</h3>`:''}<div class="c gc">${gzBtn('cl',k)}<b>Material ${esc(g.mat)}</b> <span class="text-xs opacity-60">per equipment - ${esc(g.loc||'-')}</span><div style="overflow-x:auto"><canvas id="cl${k}" height="360"></canvas></div></div>`).join(''):'<div class="c text-sm opacity-60">Belum ada data untuk lokasi ini</div>'):matList().map((m,k)=>`<div class="c gc">${gzBtn('cv',k)}<b>Material ${esc(m)}</b> <span class="text-xs opacity-60">per equipment</span><div style="overflow-x:auto"><canvas id="cv${k}" height="360"></canvas></div></div>`).join('')}
 <div class="c grid grid-cols-4 text-center text-sm"><div><b>${n?(v.reduce((x,y)=>x+y,0)/n).toFixed(2):'-'}</b><br><span class="text-xs opacity-60">Avg</span></div><div><b>${n?Math.min(...v):'-'}</b><br><span class="text-xs opacity-60">Min</span></div><div><b>${n?Math.max(...v):'-'}</b><br><span class="text-xs opacity-60">Max</span></div><div><b>${n?Math.round(a.filter(ok).length/n*100)+'%':'-'}</b><br><span class="text-xs opacity-60">% OK</span></div></div>
 <button type="button" class="b w-full" onclick="G.tbl=!G.tbl;render()">${G.tbl?'&#9650; Hide Data':'&#9660; Show Data'}</button>${G.tbl?chkTbl(a):''}`}`}
 const tLang=(a,b)=>LG=='en'?b:a;
-/* Tabel Data Check (tab Grafik): No, Sub, Material, Judge (OK/NG), Status (Pending/Approved), Remarks */
+/* Tabel Data Check (tab Grafik): No, Sub, Material, Judge (OK/NG), Approval (Pending/Approved), Remarks */
 function chkTbl(a){
-  const so=(k,t,rs)=>`<th${rs?` rowspan="${rs}"`:''} onclick="ss={k:'${k}',d:ss.k=='${k}'?-ss.d:1};render()">${t}</th>`,
-    sg=(k,t,cs,cl)=>`<th colspan="${cs}"${cl?` class="${cl}"`:''} onclick="ss={k:'${k}',d:ss.k=='${k}'?-ss.d:1};render()">${t}</th>`,
-    sb=(k,t,cl)=>`<th${cl?` class="${cl}"`:''} onclick="ss={k:'${k}',d:ss.k=='${k}'?-ss.d:1};render()">${t}</th>`;
+  const th=(k,t)=>`<th onclick="ss={k:'${k}',d:ss.k=='${k}'?-ss.d:1};render()">${t}</th>`;
   const rows=[...a].sort((x,y)=>(x[ss.k]>y[ss.k]?1:-1)*ss.d).map((i,n)=>{const g=ok(i),p=apSt(i)=='p';
-    return`<tr><td>${n+1}</td><td>${new Date(i.dt).toLocaleDateString(LC())}</td><td>${esc(i.main)}</td><td>${esc(i.sub)}${i.subType?' '+esc(i.subType):''}</td><td>${esc(i.mat)}</td><td>${i.kA}</td><td class="okc">${g?'&#10003;':''}</td><td class="ngc">${g?'':'&#10003;'}</td><td class="pe${p?' on':''}">${p?'&#10003;':''}</td><td class="ap${p?'':' on'}">${p?'':'&#10003;'}</td><td class="rm">${esc(i.ket)||'-'}</td></tr>`}).join('');
-  return`<div class="c overflow-x-auto"><table class="ck"><thead><tr><th rowspan="2">No</th>${so('dt','Waktu',2)}${so('main','Main',2)}${so('sub','Sub',2)}${so('mat','Material',2)}${so('kA','kA',2)}${sg('status','Judge',2)}${sg('ap','Status',2)}${so('ket',tLang('Keterangan','Remarks'),2)}</tr><tr>${sb('status','OK')}${sb('status','NG')}${sb('ap','Pending approval','pe')}${sb('ap','Approved','ap')}</tr></thead><tbody>${rows}</tbody></table></div>`}
+    return`<tr><td>${n+1}</td><td>${new Date(i.dt).toLocaleDateString(LC())}</td><td>${esc(i.main)}</td><td>${esc(i.sub)}${i.subType?' '+esc(i.subType):''}</td><td>${esc(i.mat)}</td><td>${i.kA}</td><td><span class="jb ${g?'ok':'ng'}">${g?'OK':'NG'}</span></td><td><span class="jb ${p?'pe':'ap'}">${p?'Pending':'Approved'}</span></td><td class="rm">${esc(i.ket)||'-'}</td></tr>`}).join('');
+  return`<div class="c overflow-x-auto"><table class="ck"><thead><tr><th>No</th>${th('dt','Waktu')}${th('main','Main')}${th('sub','Sub')}${th('mat','Material')}${th('kA','kA')}${th('status','Judge')}${th('ap','Approval')}${th('ket',tLang('Keterangan','Remarks'))}</tr></thead><tbody>${rows}</tbody></table></div>`}
 function stamp(){const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'_'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())}
 function mkDoc(){if(!window.jspdf){toast('Library PDF belum termuat');return null}const d=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),ot=d.text.bind(d);d.text=(t,...a)=>ot(Array.isArray(t)?t.map(tr):tr(String(t)),...a);return d}
 async function outPdf(doc,name,dl){const C=window.Capacitor&&window.Capacitor.Plugins;try{
@@ -1099,7 +1139,7 @@ const pend=()=>draft&&JSON.stringify(draft)!=JSON.stringify(D.mains);
 function masterView(){draft=draft||JSON.parse(JSON.stringify(D.mains));
 return`<div class="flex justify-between items-center py-3"><h2 class="font-bold">Master Equipment</h2><button class="b" onclick="mm('addMain')">+ Main</button></div>
 ${draft.map((m,a)=>`<div class="c"><div class="flex justify-between items-center"><input class="i" style="margin:0;width:38%;font-weight:700" value="${esc(m.code)}" onchange="mm('mc',${a},this.value)"><span class="bg or">&#9998; <select style="background:none;font-size:11px" onchange="mm('loc',${a},this.value)">${opts(D.M.locs,m.loc,'- pilih lokasi -')}</select></span><button class="text-red-600 text-sm" onclick="mm('delMain',${a})">Hapus</button></div>
-${m.subs.map((s,b)=>`<div class="mt-2 p-2 rounded-lg" style="background:var(--bg)"><div class="flex gap-1"><select class="i" style="margin:0" onchange="mm('sn',${a},${b},this.value)">${opts(eqOpts(s.name),s.name,'- pilih equipment -')}</select><select class="i" style="margin:0;width:110px" onchange="mm('st',${a},${b},this.value)">${opts(['C-Type','X-Type'],s.type)}</select><button class="text-red-600" onclick="mm('delSub',${a},${b})">&#10005;</button></div>
+${m.subs.map((s,b)=>`<div class="mt-2 p-2 rounded-lg" style="background:var(--bg)"><div class="flex gap-1"><select class="i" style="margin:0" onchange="mm('sn',${a},${b},this.value)">${opts(eqOpts(s.name),s.name,'- pilih equipment -')}</select><select class="i" style="margin:0;width:110px" onchange="mm('st',${a},${b},this.value)">${opts(tyOpts(s.type),s.type,'- pilih type -')}</select><button class="text-red-600" onclick="mm('delSub',${a},${b})">&#10005;</button></div>
 ${s.mats.map((x,k)=>`<div class="mt-2 p-2 rounded-lg" style="border:1px solid var(--bd)"><div class="flex gap-1"><select class="i" style="margin:0" onchange="mm('mt',${a},${b},${k},this.value)">${opts(D.M.mats,x.mt)}</select><button class="text-red-600 px-1" onclick="mm('delMat',${a},${b},${k})">&#10005;</button></div>
 <div class="flex gap-2 mt-1"><div class="flex-1"><label>Target (kA)</label><input type="number" step="0.1" class="i" style="margin:0;border-color:#2563EB" value="${tgOf(x)}" onchange="mm('tg',${a},${b},${k},this.value)"></div><div class="flex-1"><label>Allowance (%)</label><input type="number" step="0.1" min="0" inputmode="decimal" class="i" style="margin:0;border-color:#16a34a" value="${alOf(x)}" onchange="mm('al',${a},${b},${k},this.value)"></div></div><div class="flex gap-2 mt-1"><div class="flex-1"><label>Min</label><input type="number" step="0.1" class="i" style="margin:0" value="${x.min}" onchange="mm('min',${a},${b},${k},this.value)"></div><div class="flex-1"><label>Max</label><input type="number" step="0.1" class="i" style="margin:0" value="${x.max}" onchange="mm('max',${a},${b},${k},this.value)"></div></div><p class="text-xs opacity-60 mt-1">Target &plusmn; Allowance % = Min &amp; Max otomatis</p></div>`).join('')}
 <button class="text-blue-600 text-sm mt-1" onclick="mm('addMat',${a},${b})">+ Tambah Material</button></div>`).join('')}
@@ -1110,7 +1150,7 @@ if(op=='addMain'){const c=prompt('Kode Main Equipment (mis. Trafo 24)');if(!c)re
 else if(op=='delMain'){if(confirm('Hapus '+m.code+'?'))draft.splice(a,1)}
 else if(op=='loc')m.loc=b;
 else if(op=='mc')m.code=b.trim()||m.code;
-else if(op=='addSub')m.subs.push({id:'s'+uid8(),name:'',type:'C-Type',mats:[]});
+else if(op=='addSub')m.subs.push({id:'s'+uid8(),name:'',type:tyList()[0]||'',mats:[]});
 else if(op=='delSub')m.subs.splice(b,1);
 else if(op=='sn')m.subs[b].name=k;else if(op=='st')m.subs[b].type=k;
 else if(op=='addMat')m.subs[b].mats.push({id:'x'+uid8(),mt:D.M.mats[0]||'',tg:0,al:'',min:0,max:0});
@@ -1159,7 +1199,7 @@ let swClose=()=>{};
 })();
 
 /* ---------- SETTING ---------- */
-const LISTS=[['equips','Equipment'],['checkers','Checker'],['locs','Lokasi'],['descs','Deskripsi'],['mats','Material'],['shifts','Shift'],['jobs','Job']];
+const LISTS=[['equips','Equipment'],['types','Equipment Type'],['checkers','Checker'],['locs','Lokasi'],['descs','Deskripsi'],['mats','Material'],['shifts','Shift'],['jobs','Job']];
 function toggleMute(){if(L.woms_mute==='1')L.removeItem('woms_mute');else L.woms_mute='1';const m=L.woms_mute==='1';render();toast(m?'Suara notifikasi di-mute':'Suara notifikasi aktif');if(!m)awCling()}
 function settingView(){const p=D.prof,dk=document.documentElement.dataset.theme=='dark',sz=(L['woms_data_'+U.id]||'').length,mu=L.woms_mute==='1';
 const P=(k,l,t)=>fld(l,`<input class="i" ${t?'type='+t:''} value="${esc(p[k])}" onchange="D.prof.${k}=this.value;save()">`);
@@ -1186,8 +1226,8 @@ function curView(){return L.woms_view||(innerWidth>=1024?'pc':'hp')}
 function setView(v){L.woms_view=v;document.documentElement.dataset.view=v;render()}
 function theme(){const n=document.documentElement.dataset.theme=='dark'?'light':'dark';document.documentElement.dataset.theme=n;L.woms_theme=n;render()}
 function addM(k){const el=$('#n_'+k),v=el.value.trim();if(!v||D.M[k].includes(v))return;D.M[k].push(v);save();render()}
-function renM(k,i){const o=D.M[k][i],n=(prompt('Ubah nama',o)||'').trim();if(!n||n==o)return;if(D.M[k].includes(n))return toast('Nama sudah ada');D.M[k][i]=n;if(k=='locs'){D.mains.forEach(m=>{if(m.loc==o)m.loc=n});if(draft)draft.forEach(m=>{if(m.loc==o)m.loc=n})}if(k=='equips'){D.mains.concat(draft||[]).forEach(m=>m.subs.forEach(x=>{if(x.name==o)x.name=n}))}save();render()}
-function delM(k,i){const v=D.M[k][i];if(k=='locs'&&D.mains.concat(draft||[]).some(m=>m.loc==v)&&!confirm('Lokasi "'+v+'" dipakai Main Equipment. Hapus dan kosongkan lokasinya di Master?'))return;D.M[k].splice(i,1);if(k=='locs'){D.mains.forEach(m=>{if(m.loc==v)m.loc=''});if(draft)draft.forEach(m=>{if(m.loc==v)m.loc=''})}save();render()}
+function renM(k,i){const o=D.M[k][i],n=(prompt('Ubah nama',o)||'').trim();if(!n||n==o)return;if(D.M[k].includes(n))return toast('Nama sudah ada');D.M[k][i]=n;if(k=='locs'){D.mains.forEach(m=>{if(m.loc==o)m.loc=n});if(draft)draft.forEach(m=>{if(m.loc==o)m.loc=n})}if(k=='equips'){D.mains.concat(draft||[]).forEach(m=>m.subs.forEach(x=>{if(x.name==o)x.name=n}))}if(k=='types'){D.mains.concat(draft||[]).forEach(m=>m.subs.forEach(x=>{if(x.type==o)x.type=n}));D.insp.forEach(r=>{if(r.subType==o){r.subType=n;cloudPut(r)}})}save();render()}
+function delM(k,i){const v=D.M[k][i];if(k=='locs'&&D.mains.concat(draft||[]).some(m=>m.loc==v)&&!confirm('Lokasi "'+v+'" dipakai Main Equipment. Hapus dan kosongkan lokasinya di Master?'))return;if(k=='types'){const u=D.mains.concat(draft||[]).reduce((c,m)=>c+m.subs.filter(x=>x.type==v).length,0);if(u&&!confirm('Type "'+v+'" dipakai '+u+' Sub Equipment di Master. Hapus dan kosongkan type-nya?'))return;D.mains.concat(draft||[]).forEach(m=>m.subs.forEach(x=>{if(x.type==v)x.type=''}))}D.M[k].splice(i,1);if(k=='locs'){D.mains.forEach(m=>{if(m.loc==v)m.loc=''});if(draft)draft.forEach(m=>{if(m.loc==v)m.loc=''})}save();render()}
 function dl(name,txt,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
 function bk(){dl(`WMS_backup_${U.id}_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(D),'application/json')}
 function rs(f){if(!f)return;const r=new FileReader();r.onload=e=>{try{D=JSON.parse(e.target.result);load_fix();if(SERVER)D.insp.forEach(cloudPut);save(true);draft=null;toast('Restore berhasil');render()}catch(x){toast('File tidak valid')}};r.readAsText(f)}
