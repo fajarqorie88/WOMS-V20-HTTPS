@@ -321,7 +321,7 @@ html[data-view=pc] .vw>.c:has(>select.i),html[data-view=pc] .vw>.c.grid-cols-4,h
 html[data-view=pc] .vw-input{max-width:1040px;margin:0 auto}
 html[data-view=pc] .vw-input>.c{grid-column:1/-1}
 html[data-view=pc] .vw-master{padding-bottom:96px}
-html[data-view=pc] .vw-grafik>button.b.w-full{margin:-13px 0 0!important}html[data-view=pc] .vw-grafik>button.b.w-full:has(+.c){margin-bottom:-13px!important}
+html[data-view=pc] :is(.vw-grafik,.vw-data){gap:10px}html[data-view=pc] .vw-grafik>button.b.w-full{margin:0!important}
 html[data-view=pc] .vw-grafik>.flex:first-child{order:-4}
 html[data-view=pc] .vw-grafik>.c:has(>select.i){order:-3}
 html[data-view=pc] .vw-grafik>.c.grid-cols-4{order:-2}
@@ -477,10 +477,10 @@ html[data-view=pc] .vw-data.vm-list>.c{grid-column:1/-1}
 /* ===== SWITCH GRID / LIST (HP) ===== */
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw{display:flex;justify-content:flex-end;margin:8px 0 2px}
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw button{padding:7px 14px;font-size:12px}
-html:not([data-view=pc]) .vw-grafik.vm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+html:not([data-view=pc]) .vw-grafik.vm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
 html:not([data-view=pc]) .vw-grafik.vm-grid>*{grid-column:1/-1}
 html:not([data-view=pc]) .vw-grafik.vm-grid>.c.gc{grid-column:auto;margin:0;min-width:0}
-html:not([data-view=pc]) .vw-data.vm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:start}
+html:not([data-view=pc]) .vw-data.vm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
 html:not([data-view=pc]) .vw-data.vm-grid>*{grid-column:1/-1}
 html:not([data-view=pc]) .vw-data.vm-grid>.dc{grid-column:auto;margin:0;min-width:0}
 html:not([data-view=pc]) .vw-data.vm-grid .dc .sw-in,html:not([data-view=pc]) .vw-data.vm-grid .dc>div[onclick]{flex-direction:column;gap:6px;padding:10px;min-width:0}
@@ -1070,12 +1070,12 @@ d.innerHTML=`<div class="c max-w-xl mx-auto text-sm" style="position:relative"><
 
 /* ---------- GRAFIK ---------- */
 /* Tombol Show/Hide Chart (di bawah pie chart): menyembunyikan kartu grafik per material/lokasi */
-const chBtn=()=>`<button type="button" class="b w-full" style="margin:5px 0" onclick="G.hc=!G.hc;render()">${G.hc?'&#9660; Show Chart':'&#9650; Hide Chart'}</button>`;
+const chBtn=()=>`<button type="button" class="b w-full" style="margin:10px 0" onclick="G.hc=!G.hc;render()">${G.hc?'&#9660; Show Chart':'&#9650; Hide Chart'}</button>`;
 function grafikView(){calInit();const a=gData(),v=a.map(i=>i.kA),n=v.length,LG=G.view=='loc'?locGroups(a):[];
 const S=(k,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="G.${k}=this.value;render()">${opts(o,G[k],ph)}</select>`;
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Grafik</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px;position:relative"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="gpOpen('dl')">&#11015; Unduh PDF ${GP.open&&GP.mode=='dl'?'&#9652;':'&#9662;'}</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="gpOpen('share')">Bagikan ke... ${GP.open&&GP.mode=='share'?'&#9652;':'&#9662;'}</button>${GP.open?`<div class="c" id="gpbox" style="position:absolute;left:0;top:100%;margin-top:6px;z-index:20;width:285px;max-height:75vh;overflow-y:auto;box-shadow:0 6px 20px #0004"><div class="flex justify-between items-center mb-1"><b class="text-sm">${GP.mode=='dl'?'Pilih grafik untuk diunduh':'Pilih grafik untuk dibagikan'}</b><button class="text-blue-600 text-xs" onclick="gpAll()">${GP.sel.length==matList().length?'Hapus semua':'Pilih semua'}</button></div>${matList().map((m,k)=>`<label class="flex items-center gap-2 py-1 text-sm" style="margin:0"><input type="checkbox" ${GP.sel.includes(m)?'checked':''} onchange="gpT(${k})"> Material ${esc(m)}</label>`).join('')}${gpSec('Equipment',eqList(),GP.eq,'gpTe',eqNm,'gpAllE','gpe')}${gpSec('Lokasi',lcList(),GP.lc,'gpTl',lcNm,'gpAllL','gpl')}<div class="flex gap-1 mt-2"><button class="b flex-1" style="padding:8px;font-size:13px" onclick="gpGo()">${GP.mode=='dl'?'Unduh':'Bagikan ke...'} (${GP.sel.length})</button><button class="b b2" style="padding:8px 10px;font-size:13px" onclick="GP.open=0;render()">Batal</button></div></div>`:''}</div></div><div class="c"><div class="flex gap-1 mb-2"><button class="b ${G.view=='loc'?'b2':''}" style="flex:1;padding:8px;font-size:13px" onclick="G.view='mat';render()">Per Material</button><button class="b ${G.view=='loc'?'':'b2'}" style="flex:1;padding:8px;font-size:13px" onclick="G.view='loc';render()">Per Lokasi</button></div><div id="cb_fltg" style="margin-top:2px"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltg')"><b>Filters${fltN(G,['s','main','type','mat','loc','st'])?' <span class="bg or">'+fltN(G,['s','main','type','mat','loc','st'])+'</span>':''}</b>${bxIcon(BXO.fltg)}</button><div class="cbb" style="display:${BXO.fltg?'block':'none'}"><input class=\"i\" placeholder=\"Cari...\" value=\"${esc(G.s||'')}\" onchange=\"G.s=this.value;render()\">${S('main','Semua Equipment',D.mains.map(m=>[m.id,m.code]))}${S('type','Semua Type',tyAll())}${S('mat','Semua Material',D.M.mats)}${S('loc','Semua Lokasi',D.M.locs)}${S('st','Semua Status',['OK','NG'])}
 </div></div></div>${apBan(a)}${calView()}${pieCard(a)}${chBtn()}${G.hc?'':vmSw()}${`${G.hc?'':G.view=='loc'?(LG.length?LG.map((g,k)=>`${k==0||LG[k-1].loc!=g.loc?`<h3 class="font-bold pt-2">Lokasi: ${esc(g.loc||'-')}</h3>`:''}<div class="c gc">${gzBtn('cl',k)}<b>Material ${esc(g.mat)}</b> <span class="text-xs opacity-60">per equipment - ${esc(g.loc||'-')}</span><div style="overflow-x:auto"><canvas id="cl${k}" height="360"></canvas></div></div>`).join(''):'<div class="c text-sm opacity-60">Belum ada data untuk lokasi ini</div>'):matList().map((m,k)=>`<div class="c gc">${gzBtn('cv',k)}<b>Material ${esc(m)}</b> <span class="text-xs opacity-60">per equipment</span><div style="overflow-x:auto"><canvas id="cv${k}" height="360"></canvas></div></div>`).join('')}
-<button type="button" class="b w-full" style="margin:5px 0" onclick="G.tbl=!G.tbl;render()">${G.tbl?'&#9650; Hide Data':'&#9660; Show Data'}</button>${G.tbl?chkTbl(a):''}`}`}
+<button type="button" class="b w-full" style="margin:10px 0" onclick="G.tbl=!G.tbl;render()">${G.tbl?'&#9650; Hide Data':'&#9660; Show Data'}</button>${G.tbl?chkTbl(a):''}`}`}
 const tLang=(a,b)=>LG=='en'?b:a;
 /* Tabel Data Check (tab Grafik): No, Sub, Material, Judge (OK/NG), Approval (Pending/Approved), Remarks */
 let EQLP=0,EQT=0;
