@@ -550,7 +550,7 @@ const SRV=window.SRV_CFG||{};const SERVER=!!SRV.api;
 const L=localStorage,$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const uid8=()=>Math.random().toString(36).slice(2,9);
-let IG=false,IH={open:false},U=null,D=null,scr='home',tab='input',F={},Q={sort:'new'},G={days:'30'},draft=null,saveT,syncT,ss={k:'dt',d:-1};
+let NAVR=null,BOOT=Date.now(),IG=false,IH={open:false},U=null,D=null,scr='home',tab='input',F={},Q={sort:'new'},G={days:'30'},draft=null,saveT,syncT,ss={k:'dt',d:-1};
 const NI={"input": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z\"/></svg>", "data": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 6h13M8 12h13M8 18h13\"/><path d=\"M3 6h.01M3 12h.01M3 18h.01\"/></svg>", "grafik": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3v18h18\"/><path d=\"m7 15 4-5 3 3 5-7\"/><path d=\"M15 6h4v4\"/></svg>", "master": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><ellipse cx=\"12\" cy=\"5\" rx=\"8\" ry=\"3\"/><path d=\"M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5\"/><path d=\"M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6\"/></svg>", "setting": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z\"/></svg>"};
 const TABS=[['input','Input'],['data','Data'],['grafik','Grafik'],['master','Master'],['setting','Setting']];
 /* ---------- BAHASA / LANGUAGE ---------- */
@@ -839,7 +839,7 @@ async function awDoReset(){
 /* Login memakai verifier di cloud bila hash lokal belum ada / sudah usang (mis. password baru dari perangkat lain) */
 async function cloudAuth(e,p){if(cloudOff())return null;try{const v=await rdGet(await rid('v',e));if(!v||!(await chkVer(v,e,p)))return null;const u=await rdGet(await rid('u',e));if(u&&u.x)return null;return{name:(u&&u.n)||e.split('@')[0]}}catch(x){return null}}
 let gph='';function gfoto(f){if(f)compress(f,d=>gph=d)}
-function start(u){IG=false;IH.open=false;LV='menu';LM='login';if(u.email)L.woms_lastmail=u.email;L.removeItem('woms_lock');lastAct=Date.now();L.woms_act=String(lastAct);U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;{const lv=L['woms_lv_'+u.id];if(lv){D.prof.role=lvlName(lv);L.removeItem('woms_lv_'+u.id)}}save(true);scr='home';tab='input';scrollTo(0,0);render()}
+function start(u){IG=false;IH.open=false;LV='menu';LM='login';if(u.email)L.woms_lastmail=u.email;L.removeItem('woms_lock');lastAct=Date.now();L.woms_act=String(lastAct);U=u;L.woms_user=JSON.stringify(u);let r=JSON.parse(L.woms_recent||'[]').filter(x=>x.id!=u.id);r.unshift({id:u.id,name:u.name});L.woms_recent=JSON.stringify(r.slice(0,5));load(u.id);if(u.photo&&!D.prof.photo)D.prof.photo=u.photo;if(u.email&&!D.prof.email)D.prof.email=u.email;if(!D.prof.name)D.prof.name=u.name;{const lv=L['woms_lv_'+u.id];if(lv){D.prof.role=lvlName(lv);L.removeItem('woms_lv_'+u.id)}}save(true);scr='home';tab='input';if(NAVR&&Date.now()-BOOT<20000&&String(NAVR.u)==String(u.id)){scr=NAVR.s;tab=NAVR.t}NAVR=null;scrollTo(0,0);render()}
 
 let LM='login',PW=null;
 const accs=()=>JSON.parse(L.woms_acc||'{}');
@@ -887,7 +887,7 @@ function pwOpen(){PWO=true;const b=$('#pwbody');if(b)b.style.display='block';con
 function pwClose(){if(!PWO)return;PWO=false;const b=$('#pwbody');if(b)b.style.display='none';['#pn','#pn2'].forEach(k=>{const e=$(k);if(e)e.value=''});const a=$('#pwbox span');if(a)a.style.transform=''}
 document.addEventListener('click',e=>{if(PWO&&!(e.target.closest&&e.target.closest('#pwbox')))pwClose()});
 async function pwChange(){const a=$('#pn').value;if(a.length<8)return toast('Password minimal 8 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);cloudPw(U.id,a);PWO=false;toast('Password berhasil diubah');render()}
-function logout(){LV='menu';L.removeItem('woms_lock');save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');U=D=null;render()}
+function logout(){LV='menu';L.removeItem('woms_lock');save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');L.removeItem('woms_nav');U=D=null;render()}
 
 /* ---------- LOGIN SIDIK JARI (WebAuthn + AES-GCM, kunci non-extractable di IndexedDB) ---------- */
 let _bio=null,bioOK=false;const isMobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -1715,10 +1715,11 @@ const appUrl=()=>/^https?:$/.test(location.protocol)?location.origin+location.pa
 async function shareApp(){const url='https://tinyurl.com/wps-adm-app',msg='WMS - Welding Monitoring System\n'+url;
   if(navigator.share){try{await navigator.share({text:msg});return}catch(e){if(e&&e.name=='AbortError')return}}
   try{await navigator.clipboard.writeText(msg);toast('Link aplikasi disalin')}catch(e){prompt('Salin link aplikasi:',msg)}}
-(function init(){initLock();document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
+(function init(){initLock();try{const n=JSON.parse(L.woms_nav||'null');if(n&&L.woms_user&&!L.woms_lock&&['home','app','qg'].includes(n.s)&&['input','data','grafik','master','setting'].includes(n.t))NAVR=n}catch(e){}
+document.documentElement.dataset.theme=L.woms_theme||'light';document.documentElement.dataset.view=curView();try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}
 let rzT,lastW=innerWidth;const onRot=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(innerWidth==lastW)return;lastW=innerWidth;if(!L.woms_view){const v=curView();if(document.documentElement.dataset.view!=v)document.documentElement.dataset.view=v}if(U)render()},250)};addEventListener('resize',onRot);addEventListener('orientationchange',onRot);
-if(!SERVER&&!RC)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id)}}catch(e){}
+if(!SERVER&&!RC)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id);if(NAVR&&String(NAVR.u)==String(u.id)){scr=NAVR.s;tab=NAVR.t}NAVR=null}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
-const _r=render;render=function(){_r();if(!U){const n=$('nav');if(n)n.remove()}else if(CB!==myEm())cloudBoot()};
+const _r=render;render=function(){_r();if(U){try{L.woms_nav=JSON.stringify({s:scr,t:tab,u:U.id})}catch(e){}}if(!U){const n=$('nav');if(n)n.remove()}else if(CB!==myEm())cloudBoot()};
 if(SERVER)fbInit();
 </script></body></html>
