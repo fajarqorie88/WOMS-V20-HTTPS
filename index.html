@@ -650,10 +650,12 @@ function pieSvg(ok,ng){
       +`</g>`;a=a1});
   let calls='';
   if(t){
-    /* titik tarik di tengah irisan (otomatis mengikuti irisan) -> garis diagonal (OK ke atas, NG ke bawah) -> garis datar ke label */
-    co.forEach(c=>{const up=c.lb=='OK',ang=c.mid,sd=Math.cos(ang)<0?-1:1,[x0,y0]=pt(ang,132),ty=up?Math.max(16,y0-34):Math.min(300,y0+34),
-      dx=Math.max(12,Math.min(Math.abs(ty-y0),(C+sd*160-x0)*sd)),bx=x0+sd*dx,ex=C+sd*166,tx=C+sd*172,an=sd<0?'end':'start',col=c.soft;
-      calls+=`<g class="pcall" style="pointer-events:none"><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(bx)},${f(ty)} ${ex},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><text class="pie-ct" x="${tx}" y="${f(ty+2)}" text-anchor="${an}" font-size="20" fill="${col}">${c.pc}%</text><text class="pie-ct" x="${tx}" y="${f(ty+19)}" text-anchor="${an}" font-size="9" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
+    /* callout otomatis: titik di dalam irisan -> garis diagonal menjauhi pusat -> garis datar -> persen + keterangan (rata tengah) */
+    co.forEach(c=>{const th=c.mid,sd=Math.cos(th)<0?-1:1,sn=Math.sin(th),vs=Math.abs(sn)<.15?(sd>0?-1:1):(sn<0?-1:1),
+      ax=C+Math.cos(th)*R*.84,ay=C+Math.sin(th)*R*.84,ty=C+vs*136,dya=Math.abs(ty-ay),
+      dx=Math.max(14,Math.min(dya*1.5,128-Math.abs(ax-C))),bx=ax+sd*dx,ex=C+sd*Math.min(Math.abs(bx-C)+80,165),
+      col=c.lb=='OK'?'#22c55e':'#ef4444',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85,cx=ex+sd*(6+w/2);
+      calls+=`<g class="pcall" style="pointer-events:none"><polyline points="${f(ax)},${f(ay)} ${f(bx)},${f(ty)} ${f(ex)},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${f(ax)}" cy="${f(ay)}" r="3.6" fill="${col}" stroke="#fff" stroke-width="1.2"/><text class="pie-ct" x="${f(cx)}" y="${f(ty)}" text-anchor="middle" font-size="22" fill="${col}">${pct}</text><text class="pie-ct" x="${f(cx)}" y="${f(ty+16)}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
@@ -662,7 +664,7 @@ function pieSvg(ok,ng){
    +`<circle cx="${C}" cy="${C}" r="17" fill="none" stroke="#67e8f9" stroke-width="2.5" filter="url(#rcg)"><animate attributeName="stroke-opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></circle>`
    +`<g><polygon points="${tri}" fill="rgba(103,232,249,.25)" stroke="#cffafe" stroke-width="1.2" stroke-linejoin="round"/><animateTransform attributeName="transform" type="rotate" from="360 ${C} ${C}" to="0 ${C} ${C}" dur="5s" repeatCount="indefinite"/></g>`
    +`<circle cx="${C}" cy="${C}" r="6" fill="#ecfeff" filter="url(#rcg)"><animate attributeName="r" values="5;7.5;5" dur="1.6s" repeatCount="indefinite"/></circle></g>`;
-  return`<svg viewBox="28 6 464 308" style="width:100%;max-width:520px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}${body}${calls}${ctr}</g></svg>`}
+  return`<svg viewBox="-2 6 524 308" style="width:100%;max-width:580px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}${body}${calls}${ctr}</g></svg>`}
 /* item data pada panel; NG menampilkan foto bila ada */
 function pieItem(i,ng){const s=stdOf(i),c=ng?'#dc2626':'#16a34a',bg=ng?'rgba(248,113,113,.12)':'rgba(34,197,94,.1)',bd=ng?'rgba(248,113,113,.35)':'rgba(34,197,94,.35)';
   const ph=!ng?'':i.photo?`<img src="${i.photo}" onclick="event.stopPropagation();pieBig('${esc(String(i.id))}')" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer">`:i.photoId?`<div style="width:72px;height:72px;border-radius:10px;flex-shrink:0;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center" class="opacity-70">Memuat foto...</div>`:'';
