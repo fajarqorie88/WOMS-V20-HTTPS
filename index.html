@@ -3,6 +3,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WMS - Welding Monitoring System</title>
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&display=swap">
 <meta name="theme-color" content="#2563EB">
 <meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="WMS"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -344,9 +346,8 @@ html[data-view=pc] .i{background:var(--ib);border:1px solid var(--bd);border-rad
 .ck .jb.ng{background:rgba(239,68,68,.18);color:#dc2626}
 .ck .jb.pe{background:rgba(250,204,21,.3);color:#a16207}
 .ck .jb.ap{background:rgba(34,197,94,.25);color:#15803d}
-/* Font Conthrax untuk callout pie chart: pakai font terpasang di perangkat, atau file conthrax.ttf/.otf/.woff2 di folder yang sama dengan index.html */
-@font-face{font-family:'Conthrax';font-weight:100 900;font-style:normal;font-display:swap;src:local('Conthrax SemiBold'),local('Conthrax-SemiBold'),local('Conthrax Sb'),local('Conthrax'),url('conthrax.woff2') format('woff2'),url('conthrax.otf') format('opentype'),url('conthrax.ttf') format('truetype')}
-.pie-ct{font-family:'Conthrax',system-ui,-apple-system,'Segoe UI',sans-serif;letter-spacing:.02em}
+/* Font Michroma (Google Fonts, lisensi OFL) untuk callout pie chart; cadangan: font sistem */
+.pie-ct{font-family:'Michroma',system-ui,-apple-system,'Segoe UI',sans-serif;font-weight:400;letter-spacing:.01em}
 /* Pie chart: slice interaktif, denyut luar, panel data */
 .ps{cursor:pointer;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s,filter .3s}
 .ps:hover{filter:brightness(1.1)}
@@ -636,7 +637,7 @@ function pieSvg(ok,ng){
   const sl=[[ok,'url(#pgo)','#22c55e','OK'],[ng,'url(#pgn)','#f87171','NG']].filter(x=>x[0]>0);
   if(!t)body=`<circle cx="${C}" cy="${C}" r="${R}" fill="rgba(128,128,128,.2)"/><text x="${C}" y="${C+(-40)}" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">Belum ada data</text>`;
   else sl.forEach(([n,fill,soft,lb])=>{const a1=a+n/t*Math.PI*2,full=sl.length==1,mid=(a+a1)/2,pc=Math.round(n/t*100);
-    co.push({mid:full?-Math.PI/4:mid,pc,n,soft,lb});
+    co.push({mid:full?-Math.PI/4:mid,a0:a,a1,pc,n,soft,lb});
     const on=PS.sel=='ALL'||PS.sel==lb,tx=full?0:Math.cos(mid)*12,ty=full?0:Math.sin(mid)*12;
     body+=`<g class="ps${on?' sel':''}" data-k="${lb}" style="--tx:${f(tx)}px;--ty:${f(ty)}px" onclick="pieSel('${lb}')">`
       +(full?`<circle cx="${C}" cy="${C}" r="${R}" fill="${fill}" filter="url(#pgs)"/>`:`<path d="${arc(a,a1,0,R)}" fill="${fill}" stroke="#fff" stroke-width="1.5" filter="url(#pgs)"/>`)
@@ -644,10 +645,10 @@ function pieSvg(ok,ng){
       +`</g>`;a=a1});
   let calls='';
   if(t){
-    /* titik tarik di cincin luar -> garis diagonal (OK ke atas, NG ke bawah) -> garis datar ke label */
-    co.forEach(c=>{const sd=Math.cos(c.mid)<0?-1:1,[x0,y0]=pt(c.mid,132),up=c.lb=='OK',ty=up?Math.max(16,y0-34):Math.min(300,y0+34),
+    /* titik tarik di tengah irisan (otomatis mengikuti irisan) -> garis diagonal (OK ke atas, NG ke bawah) -> garis datar ke label */
+    co.forEach(c=>{const up=c.lb=='OK',ang=c.mid,sd=Math.cos(ang)<0?-1:1,[x0,y0]=pt(ang,132),ty=up?Math.max(16,y0-34):Math.min(300,y0+34),
       dx=Math.max(12,Math.min(Math.abs(ty-y0),(C+sd*160-x0)*sd)),bx=x0+sd*dx,ex=C+sd*166,tx=C+sd*172,an=sd<0?'end':'start',col=c.soft;
-      calls+=`<g style="pointer-events:none"><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(bx)},${f(ty)} ${ex},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><text class="pie-ct" x="${tx}" y="${f(ty+2)}" text-anchor="${an}" font-size="24" font-weight="800" fill="${col}">${c.pc}%</text><text class="pie-ct" x="${tx}" y="${f(ty+19)}" text-anchor="${an}" font-size="10.5" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
+      calls+=`<g style="pointer-events:none"><circle cx="${f(x0)}" cy="${f(y0)}" r="3" fill="${col}"/><polyline points="${f(x0)},${f(y0)} ${f(bx)},${f(ty)} ${ex},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><text class="pie-ct" x="${tx}" y="${f(ty+2)}" text-anchor="${an}" font-size="20" fill="${col}">${c.pc}%</text><text class="pie-ct" x="${tx}" y="${f(ty+19)}" text-anchor="${an}" font-size="9" fill="currentColor" opacity=".75">${c.lb} &#183; ${c.n} data</text></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
