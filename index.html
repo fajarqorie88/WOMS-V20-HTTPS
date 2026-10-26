@@ -110,20 +110,33 @@ async function awDel(id,pid){
   if(pid&&awST){try{await awST.deleteFile(AW_BK,String(pid))}catch(e){}}
   try{await awDB.deleteDocument(AW_DB,AW_TB,String(id))}catch(e){if(!(e&&e.code==404))console.error("Appwrite hapus gagal:",e)}
 }
+/* Waktu sinkron terakhir (dari jam server, $updatedAt) per akun, supaya tarik data cukup yang berubah saja */
+const awPullKey=()=>"wms_pull_"+((typeof U!=="undefined"&&U&&U.id)||"x");
+function awPullGet(){try{return localStorage.getItem(awPullKey())||null}catch(e){return null}}
+function awPullSet(v){try{localStorage.setItem(awPullKey(),v)}catch(e){}}
 /* Tarik data dari server yang belum ada di perangkat ini (foto tidak ikut) */
 async function awPullAll(silent){
   const u=U;
   try{
-    const docs=[];let last=null;
-    for(;;){
-      const q=[Appwrite.Query.limit(100)];if(last)q.push(Appwrite.Query.cursorAfter(last));
-      const r=await awDB.listDocuments(AW_DB,AW_TB,q);
-      docs.push(...r.documents);
-      if(r.documents.length<100)break;
-      last=r.documents[r.documents.length-1].$id;
-    }
+    /* Hanya ambil data yang berubah sejak sinkron terakhir ($updatedAt); pertama kali / data lokal kosong = ambil semua */
+    const since=(D.insp&&D.insp.length)?awPullGet():null;
+    const list1=async sn=>{const out=[];let last=null;
+      for(;;){
+        const q=[Appwrite.Query.limit(100)];if(sn)q.push(Appwrite.Query.greaterThanEqual("$updatedAt",sn));if(last)q.push(Appwrite.Query.cursorAfter(last));
+        const r=await awDB.listDocuments(AW_DB,AW_TB,q);
+        out.push(...r.documents);
+        if(r.documents.length<100)break;
+        last=r.documents[r.documents.length-1].$id;
+      }
+      return out};
+    let docs;
+    try{docs=await list1(since)}
+    catch(e){if(!since)throw e;console.warn("Tarik data bertahap gagal, ambil semua:",e);docs=await list1(null)}
     if(U!==u||!D)return -1;
+    let maxU=since||"";docs.forEach(d=>{if(d.$updatedAt&&d.$updatedAt>maxU)maxU=d.$updatedAt});
     const have=new Map(D.insp.map(x=>[String(x.id),x]));let added=0,upd=0;const pend=[];
+    /* foto yang belum terunduh di perangkat ini tetap dicoba lagi (seperti sebelumnya) */
+    D.insp.forEach(x=>{if(x.photoId&&!x.photo)pend.push(x)});
     for(const d of docs){
       if(!d.json)continue;
       let o;try{o=JSON.parse(d.json)}catch(e){continue}
@@ -133,13 +146,14 @@ async function awPullAll(silent){
       o.photo=o.photo||"";D.insp.push(o);have.set(String(o.id),o);added++;
       if(o.photoId&&!o.photo)pend.push(o);
     }
-    const got=pend.length?await awPhotosGet(pend):0;
+    const pU=[...new Set(pend)],got=pU.length?await awPhotosGet(pU):0;
     if(U!==u||!D)return -1;
     if(added||got||upd){
       D.insp.sort((x,y)=>(y.created||0)-(x.created||0));
       _awSave(true);render();
       {const ps=[];if(added)ps.push(added+" data baru");if(upd)ps.push(upd+" data diperbarui");if(got)ps.push(got+" foto");toast(ps.join(", ")+" diambil dari server")}
     }
+    if(maxU)awPullSet(maxU);
     return added;
   }catch(e){
     console.error("Appwrite ambil data gagal:",e);
@@ -156,7 +170,7 @@ async function awSyncAll(){
   const P=p=>{if(typeof awProg=="function")awProg(p)};
   try{
     P(3);
-    await awPullAll(true);
+    const pulled=await awPullAll(true);
     P(10);
     const all=(D.insp||[]).slice(),list=all.filter(awNeed);
     let ok=0,fail=0,err="",stop=false;
@@ -169,7 +183,7 @@ async function awSyncAll(){
     }
     const left=list.length-ok-fail,skip=all.length-list.length;
     P(92);
-    const added=stop?0:await awPullAll(true);
+    const added=pulled;
     let m=ok+" data terkirim";
     if(skip>0)m+=", "+skip+" data sudah sinkron";
     if(added>0)m+=", "+added+" data baru dari server";
@@ -389,6 +403,16 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 .pie-sec+.pie-sec{margin-top:12px}
 @keyframes pieIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.pp,.pb,.pie-pan{animation:none}.ps{transition:none}}
+/* Panah navigasi tanggal di kiri-kanan pie chart (tanpa background, berdetak) */
+.pnav{display:flex;align-items:center;gap:2px;max-width:760px;margin:0 auto}
+.pnav #pie-w{flex:1;min-width:0}
+.pnav-b{flex:0 0 auto;width:clamp(30px,8vw,54px);padding:0;margin:0;border:0;background:none;cursor:pointer;line-height:0;-webkit-tap-highlight-color:transparent;animation:pnBeat 1.3s ease-in-out infinite;filter:drop-shadow(0 0 5px rgba(34,211,238,.75))}
+.pnav-b svg{width:100%;height:auto;display:block;transition:filter .15s}
+.pnav-b.l svg{transform:scaleX(-1)}
+.pnav-b:active svg{filter:brightness(1.6)}
+.pnav-b:focus-visible{outline:2px solid #22d3ee;outline-offset:3px;border-radius:6px}
+@keyframes pnBeat{0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px rgba(34,211,238,.6))}14%{transform:scale(1.2);filter:drop-shadow(0 0 11px rgba(34,211,238,1))}28%{transform:scale(1)}42%{transform:scale(1.11);filter:drop-shadow(0 0 8px rgba(34,211,238,.9))}56%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.pnav-b{animation:none}}
 html[data-view=pc] .i:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(56,189,248,.25)}
 /* Halaman login mode PC: kotak input transparan seperti mode HP */
 html[data-view=pc] .lg .i{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}
@@ -542,6 +566,9 @@ html[data-view=pc] nav::-webkit-scrollbar-thumb{background:#38bdf8;border-radius
 .up-l1 .up-cl{fill:#3AB54A}.up-l1 .up-ar{fill:#fff}
 .up-l2{background:#3AB54A;color:#fff;clip-path:inset(0 calc(100% - var(--p)) 0 0);transition:clip-path .35s ease}
 .up-l2 .up-cl{fill:#fff}.up-l2 .up-ar{fill:#3AB54A}
+.ms-wrap{position:relative;padding:0 0 4px;pointer-events:none}
+.ms-wrap .up-btn{pointer-events:auto}
+.ms-pd{position:absolute;top:-8px;left:calc(50% + 62px);pointer-events:none;box-shadow:0 2px 6px #0004}
 
 </style></head>
 <body><div id="t"></div><div id="app" class="max-w-xl mx-auto px-3"></div>
@@ -702,6 +729,9 @@ function pieUp(){const w=document.getElementById('pie-w');if(!w)return render();
   if(s=='NG'||s=='ALL')setTimeout(()=>pieFetch(PS.ngA),0)}
 const PEYE=h=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>${h?'<path d="M3 3l18 18"/>':''}</svg>`;
 function pieEye(b){PS.hc=!PS.hc;const w=document.getElementById('pie-w');if(w)w.classList.toggle('nc',!!PS.hc);b.innerHTML=PEYE(PS.hc);b.title=PS.hc?'Show callout':'Hide callout';b.setAttribute('aria-label',b.title)}
+/* Panah futuristik kiri/kanan pie chart: kiri = tanggal sebelumnya, kanan = tanggal berikutnya (kalender, pie, grafik & tabel ikut) */
+function pnArrow(d){return`<button type="button" class="pnav-b ${d<0?'l':'r'}" onclick="pieStep(${d})" title="${d<0?(LG=='en'?'Previous date':'Tanggal sebelumnya'):(LG=='en'?'Next date':'Tanggal berikutnya')}" aria-label="${d<0?'Previous date':'Next date'}"><svg viewBox="0 0 100 130" aria-hidden="true"><g fill="none" stroke="#22d3ee" stroke-linejoin="miter" stroke-linecap="butt"><polyline points="10,8 88,65 10,122" stroke-width="8"/><polyline points="34,3 97,65 34,127" stroke-width="2.5" stroke-opacity=".75"/></g><polygon points="28,40 54,54 54,76 28,90" fill="#22d3ee" fill-opacity=".28" stroke="#22d3ee" stroke-width="1.5"/><g fill="#67e8f9"><rect x="56" y="55" width="4" height="20"/><rect x="62" y="55" width="4" height="20"/><rect x="68" y="55" width="4" height="20"/></g><g stroke="#22d3ee" stroke-width="2.5" fill="none"><polyline points="28,30 50,30 64,42"/><polyline points="28,100 50,100 64,88"/></g></svg></button>`}
+function pieStep(n){calInit();const p=(G.cal||ymd(new Date())).split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+n);G.cal=ymd(d);G.cy=d.getFullYear();G.cm=d.getMonth();G.pk=null;render()}
 function pieCard(a){
   const okA=a.filter(i=>stV(i)=='OK'),ngA=a.filter(i=>stV(i)!='OK'),ds=G.cal||ymd(new Date());
   const dtx=(x=>String(x.getDate()).padStart(2,'0')+'-'+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][x.getMonth()]+'-'+String(x.getFullYear()).slice(2))(new Date(ds+'T00:00:00'));
@@ -710,7 +740,7 @@ function pieCard(a){
   PS.okA=okA.slice().sort(byT);PS.ngA=ngA.slice().sort(byT);
   if(PS.sel=='NG'||PS.sel=='ALL')setTimeout(()=>pieFetch(PS.ngA),0);
   return`<div class="c"><div class="flex justify-between items-center"><span style="display:inline-flex;align-items:center;gap:8px"><b>Overall Condition</b><button type="button" class="pe-eye" onclick="pieEye(this)" title="${PS.hc?'Show callout':'Hide callout'}" aria-label="${PS.hc?'Show callout':'Hide callout'}">${PEYE(PS.hc)}</button></span><b class="opacity-70">${dtx}</b></div>
-<div id="pie-w" class="${(PS.sel&&PS.sel!='ALL'?'has-sel':'')+(PS.hc?' nc':'')}" style="margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>
+<div class="pnav">${pnArrow(-1)}<div id="pie-w" class="${(PS.sel&&PS.sel!='ALL'?'has-sel':'')+(PS.hc?' nc':'')}" style="margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>${pnArrow(1)}</div>
 <div class="flex justify-center gap-4 flex-wrap text-sm mt-1">${lg('#22c55e','OK',okA.length)}${lg('#f87171','NG',ngA.length)}</div>
 <div id="pie-list">${pieList()}</div></div>`}
 /* ---------- WMS CONTROL (kumpulan parameter) ---------- */
@@ -1063,6 +1093,19 @@ const upLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44"
 const upBtnHtml=()=>`<div class="up-wrap"><button type="button" id="upBtn" class="up-btn${UPB?' busy':''}" style="--p:${UPP}%" onclick="upData()">${upLayer('up-l1')}${upLayer('up-l2')}</button></div>`;
 function awProg(pc){UPP=Math.max(0,Math.min(100,pc));const b=document.getElementById('upBtn');if(!b)return;b.style.setProperty('--p',UPP+'%');b.classList.toggle('busy',!!UPB);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=upLbl())}
 async function upData(){if(UPB)return;UPB=1;awProg(0);let done=0;try{await awSyncAll();done=UPP>=100}finally{if(done){setTimeout(()=>{UPB=0;awProg(100)},1300)}else{UPB=0;awProg(100)}}}
+/* Tombol "Save & Update" di tab Master: tampilan & animasi sama dengan tombol Upload Data */
+let MSB=0,MSP=100,MST=null;
+const msLbl=()=>!MSB?'Save & Update':MSP>=100?'Selesai':'Saving '+Math.round(MSP)+'%';
+const msLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><span class="up-tx">${msLbl()}</span></span>`;
+const msBtnHtml=()=>`<div class="up-wrap ms-wrap"><button type="button" id="msBtn" class="up-btn${MSB?' busy':''}" style="--p:${MSP}%" onclick="msCommit()">${msLayer('up-l1')}${msLayer('up-l2')}</button>${!MSB&&pend()?'<span class="bg or ms-pd">pending</span>':''}</div>`;
+function msProg(pc){MSP=Math.max(0,Math.min(100,pc));const b=document.getElementById('msBtn');if(!b)return;b.style.setProperty('--p',MSP+'%');b.classList.toggle('busy',!!MSB);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=msLbl())}
+async function msCommit(){if(MSB)return;MSB=1;msProg(0);
+  clearInterval(MST);MST=setInterval(()=>{if(MSP<90)msProg(MSP+(90-MSP)*.12+.6)},180);
+  let ok=false;
+  try{msProg(8);ok=await commit()}
+  catch(e){console.error('Save & Update gagal:',e)}
+  clearInterval(MST);
+  if(ok){msProg(100);setTimeout(()=>{MSB=0;msProg(100)},1300)}else{MSB=0;msProg(100)}}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.onclick=e=>{if(e.target.closest('button[onclick^="editInsp"]'))return;d.remove()};
 const sv=stV(i);
@@ -1211,7 +1254,7 @@ ${s.mats.map((x,k)=>`<div class="mt-2 p-2 rounded-lg" style="border:1px solid va
 <div class="flex gap-2 mt-1"><div class="flex-1"><label>Target (kA)</label><input type="number" step="0.1" class="i" style="margin:0;border-color:#2563EB" value="${f1(tgOf(x))}" onchange="mm('tg',${a},${b},${k},this.value)"></div><div class="flex-1"><label>Allowance (%)</label><input type="number" step="0.1" min="0" inputmode="decimal" class="i" style="margin:0;border-color:#16a34a" value="${alOf(x)}" onchange="mm('al',${a},${b},${k},this.value)"></div></div><div class="flex gap-2 mt-1"><div class="flex-1"><label>Min</label><input type="number" step="0.1" class="i" style="margin:0" value="${f1(x.min)}" onchange="mm('min',${a},${b},${k},this.value)"></div><div class="flex-1"><label>Max</label><input type="number" step="0.1" class="i" style="margin:0" value="${f1(x.max)}" onchange="mm('max',${a},${b},${k},this.value)"></div></div><p class="text-xs opacity-60 mt-1">Target &plusmn; Allowance % = Min &amp; Max otomatis</p></div>`).join('')}
 <button class="text-blue-600 text-sm mt-1" onclick="mm('addMat',${a},${b})">+ Tambah Material</button></div>`).join('')}
 <button class="text-blue-600 text-sm mt-2" onclick="mm('addSub',${a})">+ Tambah Sub Equipment</button></div>`).join('')}
-<div class="fixbar" style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;padding:0 12px;z-index:15"><button class="b w-full" style="padding:13px;box-shadow:0 4px 14px #0004" onclick="commit()">UPDATE &amp; SIMPAN PERUBAHAN ${pend()?'<span class="bg or">pending</span>':''}</button></div><div style="height:60px"></div>`}
+<div class="fixbar" style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;padding:0 12px;z-index:15">${msBtnHtml()}</div><div style="height:76px"></div>`}
 function mm(op,a,b,k,v){const m=draft[a];
 if(op=='addMain'){const c=prompt('Kode Main Equipment (mis. Trafo 24)');if(!c)return;draft.push({id:'m'+uid8(),code:c,loc:D.M.locs[0]||'',subs:[]})}
 else if(op=='delMain'){if(confirm('Hapus '+m.code+'?'))draft.splice(a,1)}
@@ -1227,7 +1270,7 @@ else if(op=='tg'){const x=m.subs[b].mats[k],t=parseFloat(v)||0;x.tg=r2(t);if(x.a
 else if(op=='al'){const x=m.subs[b].mats[k],p=parseFloat(v);if(v===''||isNaN(p)){x.al=''}else{const q=Math.max(0,p),t=tgOf(x);x.al=r2(q);x.min=Math.max(0,r2(t*(1-q/100)));x.max=r2(t*(1+q/100))}}
 else if(op=='min'||op=='max'){const x=m.subs[b].mats[k];x[op]=parseFloat(v)||0;x.tg=r2((x.min+x.max)/2);x.al=x.tg>0?r2((x.max-x.min)/2/x.tg*100):''}
 render()}
-function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render();awMasterNow()}
+function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render();return awMasterNow()}
 function askYN(msg,fn){const en=LG=='en',d=document.createElement('div');d.className='fixed inset-0 z-50 flex items-center justify-center p-4';d.style.background='rgba(0,0,0,.6)';
  d.innerHTML=`<div class="c max-w-xs w-full text-sm"><b>${en?'Delete data?':'Hapus data?'}</b><p class="my-2 opacity-80">${msg}</p><div class="flex gap-2 mt-3"><button type="button" class="b b2 flex-1" id="qN">${en?'No':'Tidak'}</button><button type="button" class="b bd flex-1" id="qY">${en?'Yes':'Ya'}</button></div></div>`;
  const no=()=>{d.remove();swClose()};d.onclick=e=>{if(e.target===d)no()};document.body.appendChild(d);
@@ -1375,7 +1418,9 @@ async function awMasterPush(){
 }
 async function awMasterNow(){
   clearTimeout(awT);D.masterT=Date.now();_awSave(true);
-  if(await awMasterPush())toast('Master terkirim ke server (semua perangkat)');
+  const ok=await awMasterPush();
+  if(ok)toast('Master terkirim ke server (semua perangkat)');
+  return ok;
 }
 async function awUpdateServer(){
   if(awSyncing){toast("Update sedang berjalan...");return}
@@ -1388,7 +1433,7 @@ async function awUpdateServer(){
     let mok=await awMasterPush();
     if(!mok){await new Promise(z=>setTimeout(z,1600));mok=await awMasterPush()}
     spSet(30,false);
-    await awPullAll(true);spSet(40,false);
+    const pulled=await awPullAll(true);spSet(40,false);
     let ok=0,fail=0,err="",stop=false;
     const all=(D.insp||[]).slice(),list=all.filter(awNeed);
     for(let k=0;k<list.length&&!stop;k++){
@@ -1399,7 +1444,7 @@ async function awUpdateServer(){
       if(k<list.length-1)await awWait(250);
     }
     spSet(85,false);
-    const added=stop?0:await awPullAll(true);
+    const added=pulled;
     let m="Setting & master "+(mok?"terkirim":"GAGAL dikirim")+", "+ok+" data pengecekan terkirim";
     if(added>0)m+=", "+added+" data baru dari server";
     if(fail)m+=", gagal "+fail+": "+err;
