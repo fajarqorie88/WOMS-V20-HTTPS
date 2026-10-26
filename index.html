@@ -344,7 +344,7 @@ html[data-view=pc] .i{background:var(--ib);border:1px solid var(--bd);border-rad
 .ck thead th{white-space:normal;line-height:1.25;padding-top:14px;padding-bottom:14px;vertical-align:middle;background:#2563EB;color:#fff!important;font-weight:700;cursor:pointer;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .ck-h{display:flex;align-items:center;justify-content:flex-start;gap:10px;flex-wrap:wrap;font-size:14px;margin:2px 2px 8px}
 .ck-d{font:inherit;font-size:13px;font-weight:600;padding:5px 10px;border-radius:10px;border:1px solid var(--bd);background:var(--ib,transparent);color:var(--tx);cursor:pointer;min-width:132px}
-.ck-d:hover,.ck-d:focus{border-color:#2563EB;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
+.ck-dw{position:relative;display:inline-block;margin:0}.ck-dw .ck-d{display:block;text-align:center;pointer-events:none}.ck-di{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}html[data-theme=dark] .ck-di{color-scheme:dark}.ck-dw:hover .ck-d,.ck-dw:focus-within .ck-d,.ck-d:hover,.ck-d:focus{border-color:#2563EB;outline:none;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
 html[data-theme=dark] .ck-d{color-scheme:dark}
 .ck th.eqh{cursor:context-menu;-webkit-touch-callout:none;user-select:none}
 .eqm{position:fixed;z-index:9999;min-width:190px;padding:6px;border-radius:12px;background:var(--bg);color:var(--tx);border:1px solid var(--bd);box-shadow:0 12px 34px rgba(0,0,0,.35);animation:pieIn .18s ease both}
@@ -355,7 +355,7 @@ html[data-theme=dark] .ck-d{color-scheme:dark}
 html[data-view=hp] .ck{table-layout:fixed;width:100%;font-size:11px}
 html[data-view=hp] .ck th,html[data-view=hp] .ck td{white-space:normal;word-break:break-word;padding:5px 2px;overflow-wrap:anywhere}
 html[data-view=hp] .ck .hx,html[data-view=hp] .ck .sn{display:none}
-html[data-view=hp] .ck th:nth-child(1){width:8%}html[data-view=hp] .ck th:nth-child(2){width:22%}html[data-view=hp] .ck th:nth-child(3){width:26%}html[data-view=hp] .ck th:nth-child(4){width:15%}html[data-view=hp] .ck th:nth-child(5){width:14%}html[data-view=hp] .ck th:nth-child(6){width:15%}
+html[data-view=hp] .ck th:nth-child(1){width:7%}html[data-view=hp] .ck th:nth-child(2){width:20%}html[data-view=hp] .ck th:nth-child(3){width:17%}html[data-view=hp] .ck th:nth-child(4){width:28%}html[data-view=hp] .ck th:nth-child(5){width:14%}html[data-view=hp] .ck th:nth-child(6){width:14%}html[data-view=hp] .ck td.mt{white-space:nowrap;word-break:keep-all;overflow-wrap:normal;overflow:hidden;text-overflow:ellipsis}
 html[data-view=hp] .ck thead th{font-size:10px;padding-left:1px;padding-right:1px;letter-spacing:0}
 html[data-view=hp] .ck .jb{min-width:0;padding:2px 6px;font-size:10px}
 html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding-right:6px}
@@ -1084,9 +1084,9 @@ function chkTbl(a){
   const thE=`<th class="eqh" title="Klik kanan / tahan lama: Ascending / Descending" oncontextmenu="eqMenu(event)" ontouchstart="eqTS(event)" ontouchend="clearTimeout(EQT)" ontouchmove="clearTimeout(EQT)" onclick="if(EQLP){EQLP=0;return}ss={k:'main',d:ss.k=='main'?-ss.d:1};render()">Equipment${ar('main')}</th>`;
   const cmp=(x,y)=>{const A=ckVal(x,ss.k),B=ckVal(y,ss.k),r=(typeof A=='number'&&typeof B=='number')?A-B:String(A==null?'':A).localeCompare(String(B==null?'':B),undefined,{numeric:true,sensitivity:'base'});return r*ss.d||new Date(x.dt)-new Date(y.dt)};
   const rows=[...a].sort(cmp).map((i,n)=>{const g=ok(i),p=apSt(i)=='p';
-    return`<tr><td>${n+1}</td><td>${esc(i.main)}</td><td>${i.subType?`<span class="sn">${esc(i.sub)} </span>${esc(i.subType)}`:esc(i.sub)}</td><td>${esc(i.mat)}</td><td>${f1(i.kA)}</td><td><span class="jb ${g?'ok':'ng'}">${g?'OK':'NG'}</span></td><td class="hx"><span class="jb ${p?'pe':'ap'}">${p?'Pending':'Approved'}</span></td><td class="rm hx">${esc(i.ket)||'-'}</td></tr>`}).join('');
+    return`<tr><td>${n+1}</td><td>${esc(i.main)}</td><td>${i.subType?`<span class="sn">${esc(i.sub)} </span>${esc(i.subType)}`:esc(i.sub)}</td><td class="mt">${esc(i.mat)}</td><td>${f1(i.kA)}</td><td><span class="jb ${g?'ok':'ng'}">${g?'OK':'NG'}</span></td><td class="hx"><span class="jb ${p?'pe':'ap'}">${p?'Pending':'Approved'}</span></td><td class="rm hx">${esc(i.ket)||'-'}</td></tr>`}).join('');
   const ds=G.cal||ymd(new Date());
-  return`<div class="c overflow-x-auto"><div class="ck-h"><b>Data Check</b><input type="date" class="ck-d" value="${ds}" onclick="try{this.showPicker()}catch(e){}" onchange="ckDate(this.value)" title="Pilih tanggal"></div><table class="ck"><thead><tr><th>No</th>${thE}${th('sub','Sub Type')}${th('mat','Material')}${th('kA','Output<br><span style="text-transform:none">(kA)</span>')}${th('status','Judge')}${th('ap','Approval','hx')}${th('ket',tLang('Keterangan','Remarks'),'hx')}</tr></thead><tbody>${rows}</tbody></table></div>`}
+  return`<div class="c overflow-x-auto"><div class="ck-h"><b>Data Check</b><label class="ck-dw"><span class="ck-d">${ds.split('-').reverse().join('-')}</span><input type="date" class="ck-di" value="${ds}" onclick="try{this.showPicker()}catch(e){}" onchange="ckDate(this.value)" title="Pilih tanggal"></label></div><table class="ck"><thead><tr><th>No</th>${thE}${th('sub','Sub Type')}${th('mat','Material')}${th('kA','Output<br><span style="text-transform:none">(kA)</span>')}${th('status','Judge')}${th('ap','Approval','hx')}${th('ket',tLang('Keterangan','Remarks'),'hx')}</tr></thead><tbody>${rows}</tbody></table></div>`}
 /* klik kanan (atau tekan lama di HP) pada judul Equipment: urutkan Ascending / Descending lalu tampilkan data */
 /* pilih tanggal dari kotak Data Check: kalender, pie chart, line chart & tabel ikut berubah */
 function ckDate(v){if(!v)return;const d=new Date(v+'T00:00:00');if(isNaN(d))return;G.cal=v;G.cy=d.getFullYear();G.cm=d.getMonth();G.pk=null;render()}
