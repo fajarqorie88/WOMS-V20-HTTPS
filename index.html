@@ -1032,12 +1032,21 @@ document.addEventListener('pointerdown',e=>{gzLP=false;clearTimeout(gzLPT);const
 document.addEventListener('pointerdown',e=>{if(!(e.target.closest&&e.target.closest('.gzm,.gz')))document.querySelectorAll('.gzm').forEach(x=>x.remove())});
 function gzMenu(kind,k){document.querySelectorAll('.gzm').forEach(x=>x.remove());const c=$('#'+kind+k),card=c&&c.closest('.gc');if(!card)return;const m=document.createElement('div');m.className='gzm';
  m.innerHTML=`<span class="gzp">${Math.round(gzOf(gzKey(kind,k))*100)}%</span><button type="button" onclick="gzFit('${kind}',${k})">&#10530; Fit to screen</button>`;card.appendChild(m);clearTimeout(gzT);gzT=setTimeout(()=>m.remove(),6000)}
-function gzDraw(kind,k){if(kind=='cl'){const g=locGroups(gData())[k];if(g)draw($('#cl'+k),false,g.mat,{sub:g.all,z:gzOf(gzKeyL(g))})}else{const m=matList()[k];if(m)draw($('#cv'+k),false,m,{z:gzOf('m|'+m)})}}
+/* Fit to screen untuk grafik berdata sedikit: grafik diperbesar memenuhi lebar kotak & tinggi layar */
+function gzFt(key,n){const f=G.zf&&G.zf[key];if(!f)return null;if(f.n==n&&Math.abs(innerHeight-f.ih)<120)return f;delete G.zf[key];if(G.z)delete G.z[key];return null}
+function gzDraw(kind,k){const c=$('#'+kind+k);if(!c)return;
+  if(kind=='cl'){const g=locGroups(gData())[k];if(g){const key=gzKeyL(g),f=gzFt(key,g.all.length);draw(c,false,g.mat,{sub:g.all,z:gzOf(key),fit:f})}}
+  else{const m=matList()[k];if(m){const n=cats(gData().filter(i=>i.mat==m)).length,key='m|'+m,f=gzFt(key,n);draw(c,false,m,{z:gzOf(key),fit:f})}}}
 function gzApply(kind,k,nz){const key=gzKey(kind,k);G.z=G.z||{};G.z[key]=nz;const c=$('#'+kind+k),w=c&&c.parentElement,r=w?(w.scrollLeft+w.clientWidth/2)/(c.width||1):0;gzDraw(kind,k);const c2=$('#'+kind+k);if(w&&c2)w.scrollLeft=Math.max(0,r*c2.width-w.clientWidth/2)}
 function gz(kind,k,d){if(gzLP){gzLP=false;return}const cur=gzOf(gzKey(kind,k)),nz=Math.min(3,Math.max(.1,Math.round((Math.round(cur*10)/10+d*.1)*100)/100));if(nz!=cur)gzApply(kind,k,nz);if(document.querySelector('.gzm'))gzMenu(kind,k)}
 /* Fit to screen: seluruh grafik muat di lebar kotak (dan tinggi layar), proporsi tetap */
-function gzFit(kind,k){const key=gzKey(kind,k),cur=gzOf(key),c=$('#'+kind+k),w=c&&c.parentElement;if(!c||!w)return;const W0=c.width/cur,H0=c.height/cur,zW=(w.clientWidth-2)/W0,zH=(innerHeight-140)/H0,z=Math.max(.1,Math.min(3,Math.floor(Math.min(zW,zH)*100)/100));gzApply(kind,k,z);w.scrollLeft=0;gzMenu(kind,k)}
-function draw(c,lt,mat,o){if(!c)return;o=o||{};const sc0=o.sc||1,z=o.z||1,pr=!!o.W,ct=o.sub||cats(gData().filter(i=>i.mat==mat)),n=ct.length,p0=44*sc0,pcW=(!o.W&&document.documentElement.dataset.view=='pc'&&c.parentElement)?c.parentElement.clientWidth-2:0,W0=o.W||Math.max(400,n*60+p0+20,pcW),H0=o.H||(document.documentElement.dataset.view=='pc'&&!o.W?420:360),sc=sc0*z,p=44*sc,W=Math.round(W0*z),H=Math.round(H0*z);c.width=W;c.height=H;c.style.width=W+'px';c.style.maxWidth='none';
+function gzFit(kind,k){const key=gzKey(kind,k),c=$('#'+kind+k),w=c&&c.parentElement;if(!c||!w)return;
+  const ct=kind=='cl'?((locGroups(gData())[k]||{}).all||[]):cats(gData().filter(i=>i.mat==matList()[k])),n=ct.length,cw=w.clientWidth-2,pc=document.documentElement.dataset.view=='pc',Wn=Math.max(400,n*60+44+20),Hb=pc?420:360,th=Math.max(200,innerHeight-140);
+  G.zf=G.zf||{};
+  if(Wn<=cw){const z=Math.max(.1,Math.min(3,Math.floor(Math.min(cw/Wn,th/Hb)*100)/100));G.zf[key]={n,ih:innerHeight,H0:th/z};gzApply(kind,k,z)}
+  else{delete G.zf[key];gzApply(kind,k,1);const c2=$('#'+kind+k),W0=c2.width,H0=c2.height,zW=(w.clientWidth-2)/W0,zH=th/H0,z=Math.max(.1,Math.min(3,Math.floor(Math.min(zW,zH)*100)/100));gzApply(kind,k,z)}
+  w.scrollLeft=0;gzMenu(kind,k)}
+function draw(c,lt,mat,o){if(!c)return;o=o||{};const sc0=o.sc||1,z=o.z||1,pr=!!o.W,ct=o.sub||cats(gData().filter(i=>i.mat==mat)),n=ct.length,p0=44*sc0,pcW=(!o.W&&document.documentElement.dataset.view=='pc'&&c.parentElement)?c.parentElement.clientWidth-2:0,fw=(o.fit&&c.parentElement)?c.parentElement.clientWidth-2:0,W0=fw>0?fw/z:(o.W||Math.max(400,n*60+p0+20,pcW)),H0=o.fit?o.fit.H0:(o.H||(document.documentElement.dataset.view=='pc'&&!o.W?420:360)),sc=sc0*z,p=44*sc,W=Math.round(W0*z),H=Math.round(H0*z);c.width=W;c.height=H;c.style.width=W+'px';c.style.maxWidth='none';
 const x=c.getContext('2d'),dk=!lt&&document.documentElement.dataset.theme=='dark',fg=dk?'#f1f5f9':'#0f172a';x.clearRect(0,0,W,H);if(lt){x.fillStyle='#fff';x.fillRect(0,0,W,H)}x.fillStyle=fg;x.font=12*sc+'px sans-serif';
 {const ft=x.fillText.bind(x);x.fillText=(t,...a)=>ft(tr(String(t)),...a)}
 if(!n){x.fillText('Belum ada data '+mat,16,H/2);return}
@@ -1187,7 +1196,7 @@ if(!tabOK(tab))tab='input';const v={input:inputView,data:dataView,grafik:grafikV
 $('#app').innerHTML=backBar()+'<div class="vw vw-'+tab+(vmOf()?' vm-'+vmOf():'')+'">'+v+'</div>';let n=$('nav');if(!n){n=document.createElement('nav');document.body.appendChild(n)}
 const sl=n.scrollLeft,vt=visTabs(),bw=vt.length<4?100/vt.length:25;n.innerHTML=vt.map(([k,l])=>`<button data-k="${k}" class="${tab==k?'on':''}" style="flex-basis:${bw}%" onclick="go('${k}')">${NI[k]||''}<span>${k=='grafik'&&LG=='en'?'Charts':l}${k=='master'&&pend()?' &#9679;':''}</span></button>`).join('');n.scrollLeft=sl;
 trDom($('#app'));trDom(n);
-if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>draw($('#cl'+k),false,g.mat,{sub:g.all,z:gzOf(gzKeyL(g))}));else matList().forEach((m,k)=>draw($('#cv'+k),false,m,{z:gzOf('m|'+m)}))}if(tab=='setting'&&isDev())acLoad();if(tab=='data'||tab=='grafik')calFix();scrollTo(0,y)}
+if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>gzDraw('cl',k));else matList().forEach((m,k)=>gzDraw('cv',k))}if(tab=='setting'&&isDev())acLoad();if(tab=='data'||tab=='grafik')calFix();scrollTo(0,y)}
 function go(t){if(!tabOK(t))return toast('Akses ditolak: khusus Developer / Admin');tab=t;scrollTo(0,0);render();const b=document.querySelector('nav button.on');if(b&&b.scrollIntoView)try{b.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}
 /* ---------- SINKRON MASTER KE APPWRITE ---------- */
 const AW_MT="6ad9e3270004fcc8e26d", AW_CH=15000;
