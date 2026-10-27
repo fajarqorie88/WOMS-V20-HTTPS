@@ -642,6 +642,21 @@ html[data-view=pc] .vw-data.vm-grid .pFt{display:grid;grid-template-columns:1fr 
 html[data-view=pc] .vw-data.vm-grid .pFt>.pAp{grid-area:a;justify-self:start}
 html[data-view=pc] .vw-data.vm-grid .pWo{grid-area:w;border-top:1px solid var(--bd);padding-top:8px}
 html[data-view=pc] .vw-data.vm-grid .pD{grid-area:d;margin-left:0}
+.ipb-t{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ipb-n{font-size:28px;font-weight:700;line-height:1.1}
+.ipb-n small{font-size:14px;font-weight:400;opacity:.65;margin-left:6px}
+.ipb-p{font-size:13px;font-weight:700;padding:3px 10px;border-radius:10px;background:rgba(34,197,94,.15);color:#16a34a}
+.ipb-b{height:8px;border-radius:4px;background:rgba(128,128,128,.2);overflow:hidden;margin:10px 0 6px}
+.ipb-b i{display:block;height:100%;background:#22c55e;border-radius:4px;transition:width .5s}
+.ipb-f{display:flex;justify-content:space-between;font-size:12px;opacity:.65}
+.ipl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;margin-bottom:5px}
+.ipl-h span{opacity:.65}.ipl-h b{font-size:14px;text-align:right}
+.ipl-r{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid var(--bd)}
+.ipl-d{width:8px;height:8px;border-radius:50%;flex-shrink:0}.ipl-d.rd{background:#ef4444}.ipl-d.gn{background:#22c55e}
+.ipl-n{font-size:14px;font-weight:600;white-space:nowrap}
+.ipl-t{font-size:12px;opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ipl-x{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap}
+.ipl-m{display:block;width:100%;padding:8px;font-size:12px;opacity:.7;border-top:1px solid var(--bd);background:none;cursor:pointer;text-align:center}
 /* ===== SWITCH GRID / LIST (HP) ===== */
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw{display:flex;justify-content:flex-end;margin:8px 0 2px}
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw button{padding:7px 14px;font-size:12px}
@@ -1390,13 +1405,24 @@ function calView(){
  const p=CF().cal.split('-').map(Number),lb=new Date(p[0],p[1]-1,p[2]).toLocaleDateString(LC(),{day:'numeric',month:'long',year:'numeric'});
  return`<div class="c cal"><div class="cal-top"><b>${en?'Calendar':'Kalender'}</b><button type="button" class="b cal-tg" onclick="calHide()">${CF().dh?'&#9660; Show Date':'&#9650; Hide Date'}</button></div>${CF().dh?'':`<div class="cal-h"><button type="button" class="cal-n" onclick="calMove(-1)">&#8249;</button><div class="cal-t"><button type="button" onclick="calPk('m')">${MN[m]}</button><button type="button" onclick="calPk('y')">${y}</button></div><button type="button" class="cal-n" onclick="calMove(1)">&#8250;</button></div>${body}`}<div class="text-xs opacity-70 text-center mt-2">${lb} - ${cnt[CF().cal]||0} data</div>${CF().dh?'':`<div class="text-xs text-center mt-1 opacity-80"><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#fde047;border:1px solid #eab308;vertical-align:-1px"></span> Pending approval &nbsp;&nbsp;<b style="color:#16a34a">&#10003;</b> Approved</div>`}${tab=='data'&&canApprove()?(n=>`<button type="button" class="b mt-2" style="width:100%;background:${n?'#16a34a':'#94a3b8'}" onclick="apDay()">&#10003; Approve${n?' ('+n+' data)':''}</button>`)(filt(CF()).filter(canAp1).length):''}${tab!='data'?'':`<button type="button" class="b w-full mt-2" onclick="calTog()">${CF().show?'&#9650; Hide Data':'&#9660; Show Data'}</button>`}</div>`}
 function filt(q){return D.insp.filter(i=>(!q.s||(i.main+i.sub+i.job+i.ket+i.c1+i.c2).toLowerCase().includes(q.s.toLowerCase()))&&(!q.main||i.mid==q.main)&&(!q.type||i.subType==q.type)&&(!q.mat||i.mat==q.mat)&&(!q.loc||i.loc==q.loc)&&(!q.st||stV(i)==q.st)&&(!q.ap||apSt(i)==q.ap)&&dtOk(i,q))}
+/* Progress input & filter Sudah/Belum Input: 1 baris = 1 Sub Type (Equipment + Sub), dihitung dari data di tanggal terpilih */
+function inpCalc(){const q=Object.assign({},Q,{st:'',ap:''}),cnt={};
+  filt(q).forEach(i=>{const k=i.mid+'|'+i.sid,c=cnt[k]||(cnt[k]={n:0,ok:0,ng:0});c.n++;stV(i)=='OK'?c.ok++:c.ng++});
+  const rows=[];D.mains.forEach(m=>{if(Q.main&&m.id!=Q.main)return;if(Q.loc&&m.loc!=Q.loc)return;(m.subs||[]).forEach(s=>{if(Q.type&&s.type!=Q.type)return;if(Q.mat&&!(s.mats||[]).some(x=>x.mt==Q.mat))return;const c=cnt[m.id+'|'+s.id];rows.push({m,s,n:c?c.n:0,ok:c?c.ok:0,ng:c?c.ng:0})})});
+  return{rows,done:rows.filter(r=>r.n).length}}
+const inpDt=()=>String(Q.cal||ymd(new Date())).split('-').reverse().join('/');
+function inpBan(){const c=inpCalc(),t=c.rows.length,d=c.done,pc=t?Math.round(d/t*100):0;
+  return`<div class="c ipb"><div class="ipb-t"><div class="ipb-n">${d} / ${t}<small>Data Updated</small></div><span class="ipb-p">${pc}%</span></div><div class="ipb-b"><i style="width:${pc}%"></i></div><div class="ipb-f"><span>${inpDt()}</span><span>${t-d} belum</span></div></div>`}
+function inpList(){const c=inpCalc(),b=Q.inp=='b',all=c.rows,rows=all.filter(r=>b?!r.n:r.n),t=all.length,pc=t?Math.round(c.done/t*100):0,lim=Q.inpAll?rows.length:8;
+  const r1=r=>`<div class="ipl-r"><span class="ipl-d ${b?'rd':'gn'}"></span><span class="ipl-n">${esc(r.m.code)} &middot; ${esc(r.s.name)}</span><span class="ipl-t">${esc(r.s.type||'')}</span><span class="ipl-x">${b?'<span class="bg or">Belum</span>':r.n+' data '+(r.ok?`<span class="bg ok">${r.ok} OK</span>`:'')+(r.ng?` <span class="bg no">${r.ng} NG</span>`:'')}</span></div>`;
+  return`<div class="c ipl"><div class="ipl-h"><span>${inpDt()}</span><b>${rows.length} dari ${t} Sub Type ${b?'belum':'sudah'} input</b></div><div class="ipb-b"><i style="width:${pc}%"></i></div>${rows.length?rows.slice(0,lim).map(r1).join(''):`<p class="text-center opacity-60 py-6">${b?'Semua Sub Type sudah input':'Belum ada Sub Type yang input'}</p>`}${rows.length>lim?`<button type="button" class="ipl-m" onclick="Q.inpAll=1;render()">+ ${rows.length-lim} Sub Type lainnya</button>`:(Q.inpAll&&rows.length>8?`<button type="button" class="ipl-m" onclick="Q.inpAll=0;render()">Ringkas</button>`:'')}</div>`}
 function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button>${undoHas()?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#f59e0b;color:#111" title="Batalkan aksi terakhir (hapus / approve), maksimal 3 kali" onclick="undoDel()">&#8630; Undo${undoCnt()>1?' ('+undoCnt()+')':''}</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada aksi yang bisa di-undo" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c" id="cb_fltd"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltd')"><b>Filters${fltN(Q,['s','main','type','mat','loc','st','ap'])?' <span class="bg or">'+fltN(Q,['s','main','type','mat','loc','st','ap'])+'</span>':''}</b>${bxIcon(BXO.fltd)}</button><div class="cbb" style="display:${BXO.fltd?'block':'none'}"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
-${S('main',Q.main,'Semua Equipment',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',tyAll())}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('ap',Q.ap,'Semua Approval',[['p','Pending approval'],['a','Approved']])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div></div>
-${calView()}${vmSw()}
+${S('main',Q.main,'Semua Equipment',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',tyAll())}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('ap',Q.ap,'Semua Approval',[['p','Pending approval'],['a','Approved']])}${S('inp',Q.inp,'Semua Input',[['s','Sudah Input'],['b','Belum Input']])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div></div>
+${calView()}${Q.inp?inpList():`${Q.show?inpBan():''}${vmSw()}
 ${Q.show?`<p class="text-xs opacity-60">${a.length} data</p>
-${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}
+${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}`}
 ${upBtnHtml()}`}
 let UPB=0,UPP=100;
 const upLbl=()=>!UPB?'Upload Data':UPP>=100?'Selesai':'Uploading '+Math.round(UPP)+'%';
