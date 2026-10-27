@@ -533,6 +533,31 @@ html[data-view=pc] .vw-data.vm-list .dkN{font-size:40px;font-weight:700;line-hei
 html[data-view=pc] .vw-data.vm-list .dkU{font-size:16px;font-weight:500;opacity:.7;margin-left:2px}
 html[data-view=pc] .vw-data.vm-list .dkS{display:block;font-size:12px;opacity:.6;margin-top:2px}
 /* Kartu ringkas (khusus HP grid view): tanggal, kA besar, standar di bawahnya, foto + OK/NG di bawah */
+.dcL{display:none}
+html:not([data-view=pc]) .vw-data.vm-list .dcF{display:none}
+html:not([data-view=pc]) .vw-data.vm-list .dcL{display:flex;flex-direction:column;flex:1;min-width:0}
+.dlH{display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:0}
+.dlE{font-size:15px;font-weight:700;flex-shrink:0}
+.dlH .bg{margin:0;min-width:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;flex-shrink:1}
+.dlH .dlP{margin-left:auto;max-width:none;flex-shrink:0;font-weight:700}
+.dlLn{position:relative;border-top:1px solid var(--bd);margin:9px 0}
+.dlLn:before,.dlLn:after{content:"";position:absolute;top:-4px;width:6px;height:6px;border-radius:50%;background:rgba(128,128,128,.6)}
+.dlLn:before{left:-2px}.dlLn:after{right:-2px}
+.dlB{display:flex;gap:8px;align-items:flex-start}
+.dlL{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dlSd{font-size:13px;font-weight:700}
+.dlC{font-size:12px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dlAp{margin-top:6px;align-self:flex-start;width:auto;height:30px;padding:0 14px;font-size:13px;display:flex;align-items:center;gap:4px;background:#16a34a}
+.dlWho{margin-top:8px;font-size:12px;color:#16a34a}
+.dlR{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.dlX{display:flex;gap:6px}
+.dlK,.dlO,.dlF{width:52px;height:52px;border-radius:10px;box-sizing:border-box;flex-shrink:0}
+.dlK{position:relative;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(128,128,128,.55)}
+.dlK b{font-size:22px;font-weight:700;line-height:1}
+.dlK i{position:absolute;right:5px;bottom:2px;font-style:normal;font-size:10px;opacity:.7}
+.dlO{display:flex;align-items:center;justify-content:center;margin:0;padding:0;font-size:20px!important;font-weight:800}
+.dlF{object-fit:cover;display:block}
+.dlD{font-size:12px;opacity:.75;white-space:nowrap}
 .dcF{display:contents}
 .dcC{display:none;flex-direction:column;min-width:0;width:100%}
 html:not([data-view=pc]) .vw-data.vm-grid .dcF{display:none}
@@ -1808,8 +1833,11 @@ const stSide=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo;
   return`<div class="stS">${p?`<div class="stE"><span class="stEv">Evidence</span><img class="stP rounded-lg" src="${i.photo}"></div>`:''}${b}</div>`};
 const dcCmp=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo,a=apSt(i)=='a';
   return`<div class="dcC"><div class="dcT"><span>${new Date(i.dt).toLocaleDateString(LC())}</span><span style="font-weight:600;color:${a?'#16a34a':'#a16207'}">${a?'&#10003; Approved':'&#9203; Pending'}</span></div><div class="dcN">${esc(i.main)}</div><div class="dcV">${f1(i.kA)}<small>kA</small></div><div class="dcD">Standar ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dcB">${p?`<img class="stP rounded-lg" src="${i.photo}">`:''}<span class="bg stB ${c}" style="display:flex;align-items:center;justify-content:center;margin:0 0 0 auto;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span></div></div>`};
+const dcLst=i=>{const v=stV(i),c=v=='OK'?'ok':'no',a=apSt(i)=='a',ck=[i.c1,i.c2].filter(Boolean).join(' / ')||'-',em=i.userEmail||i.userId||'-',d=new Date(i.dt).toLocaleDateString(LC(),{day:'2-digit',month:'short',year:'2-digit'}).replace(/ /g,'-'),
+  bt=a?`<div class="dlWho">${esc(i.apName||i.apBy||'-')}${i.apRole?' ('+esc(i.apRole)+')':''}</div>`:(canAp1(i)?`<button type="button" class="b dlAp" onclick="event.stopPropagation();apDo('${i.id}')">&#10003; Approve</button>`:'');
+  return`<div class="dcL"><div class="dlH"><b class="dlE">${esc(i.main)}</b><span class="bg">${esc(i.sub)}${i.subType?' '+esc(i.subType):''}</span><span class="bg or">${esc(i.mat)}</span><span class="bg ${a?'ok':'or'} dlP">${a?'Approved':'Pending'}</span></div><div class="dlLn"></div><div class="dlB"><div class="dlL"><div class="dlSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dlC">Check : ${esc(ck)}</div><div class="dlC">Input &nbsp;: ${esc(em)}</div>${bt}</div><div class="dlR"><div class="dlX"><span class="dlK"><b>${f1(i.kA)}</b><i>kA</i></span><span class="bg dlO ${c}">${v}</span>${i.photo?`<img class="dlF" src="${i.photo}" alt="">`:''}</div><div class="dlD">&bull; ${esc(d)}</div></div></div></div>`};
 function dataCard(i,n){
-  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}`;
+  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}${dcLst(i)}`;
   if(!canDel(i))return`<div class="c dc"><div style="display:flex;gap:12px;cursor:pointer" onclick="detail('${i.id}')">${info}</div></div>`;
   return`<div class="c dc sw-c${n==0&&!L.woms_swh?(L.woms_swh=1,' hint'):''}"><button type="button" class="sw-del" onclick="event.stopPropagation();delInsp('${i.id}')"><span style="font-size:20px">&#128465;</span>Hapus</button><div class="sw-in" onclick="detail('${i.id}')">${info}</div></div>`}
 /* ---------- FILTER GRAFIK: EQUIPMENT, LOKASI, TANGGAL/BULAN/TAHUN ---------- */
