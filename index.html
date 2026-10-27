@@ -510,6 +510,33 @@ html[data-view=pc] .vw-data.vm-list>.c{grid-column:1/-1}
 .vw-m button:hover{background:var(--bd)}
 .vw-m button.on{background:#2563EB;color:#fff}
 .vw-m .vi{width:18px;text-align:center}
+/* Kartu data: [Evidence + foto] di samping ikon OK/NG (foto & ikon sama besar) */
+.stS{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.stE{display:flex;flex-direction:column;align-items:center;gap:3px}
+.stEv{font-size:10px;font-weight:700;opacity:.65;letter-spacing:.04em;line-height:1}
+.stP{width:64px;height:64px;object-fit:cover;display:block}
+.stB{width:64px;height:64px;font-size:22px!important;border-radius:12px}
+.stB.p{font-size:20px!important}
+html[data-view=pc] .vw-data .stS,.vw-data.vm-grid .stS{flex-direction:row;align-items:flex-end;justify-content:center;gap:10px}
+html[data-view=pc] .vw-data.vm-list .stS{gap:16px}
+html[data-view=pc] .vw-data.vm-list .stP,html[data-view=pc] .vw-data.vm-list .stB{width:112px;height:112px}
+html[data-view=pc] .vw-data.vm-list .stP{border-radius:14px}
+html[data-view=pc] .vw-data.vm-list .stB,html[data-view=pc] .vw-data.vm-list .stB.p{font-size:38px!important;border-radius:18px}
+html[data-view=pc] .vw-data.vm-list .stEv{font-size:12px;margin-bottom:1px}
+/* Kartu ringkas (khusus HP grid view): tanggal, kA besar, standar di bawahnya, foto + OK/NG di bawah */
+.dcF{display:contents}
+.dcC{display:none;flex-direction:column;min-width:0;width:100%}
+html:not([data-view=pc]) .vw-data.vm-grid .dcF{display:none}
+html:not([data-view=pc]) .vw-data.vm-grid .dcC{display:flex}
+.dcT{display:flex;justify-content:space-between;align-items:center;gap:4px;font-size:11px}
+.dcT span:first-child{opacity:.65}
+.dcN{font-size:14px;font-weight:600;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dcV{font-size:30px;font-weight:700;line-height:1.1;margin-top:4px}
+.dcV small{font-size:14px;font-weight:400;opacity:.65;margin-left:3px}
+.dcD{font-size:11px;opacity:.55;margin-top:2px}
+.dcB{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--bd)}
+.dcB .stP,.dcB .stB{width:56px;height:56px}
+.dcB .stB,.dcB .stB.p{font-size:18px!important}
 /* ===== SWITCH GRID / LIST (HP) ===== */
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw{display:flex;justify-content:flex-end;margin:8px 0 2px}
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw button{padding:7px 14px;font-size:12px}
@@ -580,6 +607,10 @@ html[data-view=pc] nav::-webkit-scrollbar-thumb{background:#38bdf8;border-radius
 .up-l2 .up-cl{fill:#fff}.up-l2 .up-ar{fill:#3AB54A}
 .ms-wrap{position:relative;padding:0 0 4px;pointer-events:none}
 .ms-wrap .up-btn{pointer-events:auto}
+.ms-ck{display:none}
+.up-btn.done .up-ic{display:none}
+.up-btn.done .ms-ck{display:block}
+
 .ms-pd{position:absolute;top:-8px;left:calc(50% + 62px);pointer-events:none;box-shadow:0 2px 6px #0004}
 
 </style></head>
@@ -770,7 +801,7 @@ ${WC.open?`${wcAll().map(([k,l,cu])=>wcBox(k,l,cu)).join('')}
 <div style="border:1px dashed var(--bd);border-radius:12px;padding:10px;margin-top:10px"><b>Parameter Baru</b><div class="flex gap-2 mt-2"><input id="wc_new" class="i" style="margin:0" placeholder="Nama parameter baru" onkeydown="if(event.key=='Enter')wcNew()"><button class="b" style="white-space:nowrap" onclick="wcNew()">+ New Item</button></div></div>`:''}</div>`}
 function wcNew(){const el=$('#wc_new'),v=(el.value||'').trim();if(!v)return toast('Isi nama parameter');
   if(wcAll().some(x=>String(x[1]).toLowerCase()==v.toLowerCase()))return toast('Parameter sudah ada');
-  const k='x'+Date.now().toString(36);(D.M.custom=D.M.custom||[]).push([k,v]);D.M[k]=[];save();render();toast('Parameter "'+v+'" ditambahkan')}
+  const k='x'+Date.now().toString(36);(D.M.custom=D.M.custom||[]).push([k,v]);D.M[k]=[];save();render();awSuccess('Parameter ditambahkan',esc(v))}
 function wcDel(k){const c=(D.M.custom||[]).find(x=>x[0]==k);if(!c||!confirm(tr('Hapus parameter "'+c[1]+'" beserta isinya?')))return;D.M.custom=D.M.custom.filter(x=>x[0]!=k);delete D.M[k];save();render()}
 /* progress bar simpan & update server */
 const SP={p:0,show:false,err:false,t:0};
@@ -912,7 +943,7 @@ norm();D.insp.sort((x,y)=>y.created-x.created);cacheD();flush();if(tab=='data'||
 function fbErr(x){return x&&x.name=='TypeError'?'Tidak ada koneksi ke server':(x&&x.message)||'Gagal'}
 function enter(u){start({id:String(u.id),name:u.name||u.email,email:u.email,provider:'server'});flush();pull()}
 async function fbAuth(e,p){try{let j;if(LM=='reg'){const n=$('#gn').value.trim();if(!n)return toast('Isi nama');if(p.length<8)return toast('Password minimal 8 karakter');if(p!=$('#gp2').value)return toast('Konfirmasi password tidak sama');_nn=n;j=await api('register',{email:e,password:p,name:n});LM='login'}else j=await api('login',{email:e,password:p});TOK=j.token;L.woms_token=TOK;enter(j.user)}catch(x){if(_bio&&x&&x.code&&x.code<500)bioOff(_bio);toast(fbErr(x))}}
-async function fbPass(){const n=$('#pn').value;if(n.length<8)return toast('Password baru minimal 8 karakter');if(n!=$('#pn2').value)return toast('Konfirmasi tidak sama');try{await api('changepw',{new:n});PWO=false;toast('Password berhasil diubah');render()}catch(x){toast(fbErr(x))}}
+async function fbPass(){const n=$('#pn').value;if(n.length<8)return toast('Password baru minimal 8 karakter');if(n!=$('#pn2').value)return toast('Konfirmasi tidak sama');try{await api('changepw',{new:n});PWO=false;render();awSuccess('Password diubah','Password baru berhasil disimpan')}catch(x){toast(fbErr(x))}}
 async function fbInit(){let u=null;if(TOK&&!L.woms_lock){try{u=(await api('me')).user}catch(e){if(e.code==401){TOK='';L.removeItem('woms_token')}else{try{u=JSON.parse(L.woms_user||'null');if(u)u={id:u.id,name:u.name,email:u.email}}catch(x){}}}}
 if(u)enter(u);else{U=D=null;render()}
 addEventListener('online',()=>{flush();pull()});setInterval(()=>{flush();pull()},60000)}
@@ -931,7 +962,7 @@ let PWO=false;
 function pwOpen(){PWO=true;const b=$('#pwbody');if(b)b.style.display='block';const a=$('#pwbox span');if(a)a.style.transform='rotate(180deg)';const i=$('#pn');if(i&&b)i.focus()}
 function pwClose(){if(!PWO)return;PWO=false;const b=$('#pwbody');if(b)b.style.display='none';['#pn','#pn2'].forEach(k=>{const e=$(k);if(e)e.value=''});const a=$('#pwbox span');if(a)a.style.transform=''}
 document.addEventListener('click',e=>{if(PWO&&!(e.target.closest&&e.target.closest('#pwbox')))pwClose()});
-async function pwChange(){const a=$('#pn').value;if(a.length<8)return toast('Password minimal 8 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);cloudPw(U.id,a);PWO=false;toast('Password berhasil diubah');render()}
+async function pwChange(){const a=$('#pn').value;if(a.length<8)return toast('Password minimal 8 karakter');if(a!=$('#pn2').value)return toast('Konfirmasi tidak sama');const ac=accs();ac[U.id].hash=await sha(U.id+a);L.woms_acc=JSON.stringify(ac);cloudPw(U.id,a);PWO=false;render();awSuccess('Password diubah','Password baru berhasil disimpan')}
 function logout(){LV='menu';L.removeItem('woms_lock');save(true);if(SERVER&&TOK){api('logout').catch(()=>{});TOK='';L.removeItem('woms_token');CS=false}L.removeItem('woms_user');L.removeItem('woms_nav');U=D=null;render()}
 
 /* ---------- LOGIN SIDIK JARI (WebAuthn + AES-GCM, kunci non-extractable di IndexedDB) ---------- */
@@ -952,7 +983,7 @@ async function bioEnable(e,name,p){
   const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(p));
   await idbSet('c:'+e,{key,iv,ct});
   L.woms_bio=JSON.stringify(bioList().filter(x=>x.e!=e).concat([{e,n:name||e,id:b64(cred.rawId)}]));
-  toast('Login sidik jari aktif');return true
+  awSuccess('Sidik jari aktif','Login sidik jari sudah diaktifkan');return true
  }catch(x){toast(x&&x.name=='NotAllowedError'?'Dibatalkan':'Sidik jari tidak didukung di perangkat ini');return false}
 }
 async function bioVerify(e){const x=bioList().find(v=>v.e==e);if(!x)return false;
@@ -1119,16 +1150,16 @@ async function upData(){if(UPB)return;UPB=1;awProg(0);let done=0;try{await awSyn
 /* Tombol "Save & Update" di tab Master: tampilan & animasi sama dengan tombol Upload Data */
 let MSB=0,MSP=100,MST=null;
 const msLbl=()=>!MSB?'Save & Update':MSP>=100?'Selesai':'Saving '+Math.round(MSP)+'%';
-const msLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><span class="up-tx">${msLbl()}</span></span>`;
-const msBtnHtml=()=>`<div class="up-wrap ms-wrap"><button type="button" id="msBtn" class="up-btn${MSB?' busy':''}" style="--p:${MSP}%" onclick="msCommit()">${msLayer('up-l1')}${msLayer('up-l2')}</button>${!MSB&&pend()?'<span class="bg or ms-pd">pending</span>':''}</div>`;
-function msProg(pc){MSP=Math.max(0,Math.min(100,pc));const b=document.getElementById('msBtn');if(!b)return;b.style.setProperty('--p',MSP+'%');b.classList.toggle('busy',!!MSB);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=msLbl())}
+const msLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><svg class="ms-ck" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="12" cy="12" r="10.5" pathLength="1" fill="none" stroke="currentColor" stroke-width="2"/><path pathLength="1" d="M7 12.5l3.4 3.4L17 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="up-tx">${msLbl()}</span></span>`;
+const msBtnHtml=()=>`<div class="up-wrap ms-wrap"><button type="button" id="msBtn" class="up-btn${MSB?' busy':''}${MSB&&MSP>=100?' done':''}" style="--p:${MSP}%" onclick="msCommit()">${msLayer('up-l1')}${msLayer('up-l2')}</button>${!MSB&&pend()?'<span class="bg or ms-pd">pending</span>':''}</div>`;
+function msProg(pc){MSP=Math.max(0,Math.min(100,pc));const b=document.getElementById('msBtn');if(!b)return;b.style.setProperty('--p',MSP+'%');b.classList.toggle('busy',!!MSB);b.classList.toggle('done',!!MSB&&MSP>=100);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=msLbl())}
 async function msCommit(){if(MSB)return;MSB=1;msProg(0);
   clearInterval(MST);MST=setInterval(()=>{if(MSP<90)msProg(MSP+(90-MSP)*.12+.6)},180);
   let ok=false;
   try{msProg(8);ok=await commit()}
   catch(e){console.error('Save & Update gagal:',e)}
   clearInterval(MST);
-  if(ok){msProg(100);setTimeout(()=>{MSB=0;msProg(100)},1300)}else{MSB=0;msProg(100)}}
+  if(ok){msProg(100);awSuccess('Master tersimpan','Terkirim ke server (semua perangkat)');setTimeout(()=>{MSB=0;msProg(100)},2400)}else{MSB=0;msProg(100)}}
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.onclick=e=>{if(e.target.closest('button[onclick^="editInsp"]'))return;d.remove()};
 const sv=stV(i);
@@ -1169,10 +1200,10 @@ document.addEventListener('scroll',eqClose,true);
 function stamp(){const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+z(d.getMonth()+1)+z(d.getDate())+'_'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())}
 function mkDoc(){if(!window.jspdf){toast('Library PDF belum termuat');return null}const d=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'}),ot=d.text.bind(d);d.text=(t,...a)=>ot(Array.isArray(t)?t.map(tr):tr(String(t)),...a);return d}
 async function outPdf(doc,name,dl){const C=window.Capacitor&&window.Capacitor.Plugins;try{
-if(dl){if(C&&C.Filesystem){try{await C.Filesystem.writeFile({path:name,data:doc.output('datauristring').split(',')[1],directory:'DOCUMENTS'});toast('Tersimpan di folder Documents: '+name);return}catch(e){}}else{const a=document.createElement('a');a.href=URL.createObjectURL(doc.output('blob'));a.download=name;a.click();toast('PDF diunduh');return}}
+if(dl){if(C&&C.Filesystem){try{await C.Filesystem.writeFile({path:name,data:doc.output('datauristring').split(',')[1],directory:'DOCUMENTS'});awSuccess('PDF tersimpan','Folder Documents: '+esc(name));return}catch(e){}}else{const a=document.createElement('a');a.href=URL.createObjectURL(doc.output('blob'));a.download=name;a.click();awSuccess('PDF berhasil diunduh',esc(name));return}}
 if(C&&C.Filesystem&&C.Share){const r=await C.Filesystem.writeFile({path:name,data:doc.output('datauristring').split(',')[1],directory:'CACHE'});await C.Share.share({title:name,url:r.uri,dialogTitle:'Bagikan PDF'});return}
 const blob=doc.output('blob'),f=new File([blob],name,{type:'application/pdf'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}
-const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();toast('PDF diunduh')}catch(e){if(e&&e.name!='AbortError'&&!/cancel/i.test(e.message||''))toast('Gagal membagikan PDF')}}
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();awSuccess('PDF berhasil diunduh',esc(name))}catch(e){if(e&&e.name!='AbortError'&&!/cancel/i.test(e.message||''))toast('Gagal membagikan PDF')}}
 function pdfTable(doc,y,cols,rows){const head=()=>{doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setFillColor(37,99,235);doc.rect(10,y-4.5,277,6,'F');doc.setTextColor(255);cols.forEach(c=>doc.text(c[0],c[1],y));doc.setTextColor(0);doc.setFont('helvetica','normal');y+=6};head();
 rows.forEach((r,n)=>{if(y>198){doc.addPage();y=14;head()}if(n%2){doc.setFillColor(241,245,249);doc.rect(10,y-4,277,5.5,'F')}cols.forEach((c,j)=>{const t=String(r[j]==null?'':r[j]),mx=c[2]||30;doc.text(t.length>mx?t.slice(0,mx)+'..':t,c[1],y)});y+=5.5});return y}
 async function pdfData(dl){const doc=mkDoc();if(!doc)return;const a=filt(Q).sort((x,y)=>y.created-x.created);
@@ -1293,13 +1324,13 @@ else if(op=='tg'){const x=m.subs[b].mats[k],t=parseFloat(v)||0;x.tg=r2(t);if(x.a
 else if(op=='al'){const x=m.subs[b].mats[k],p=parseFloat(v);if(v===''||isNaN(p)){x.al=''}else{const q=Math.max(0,p),t=tgOf(x);x.al=r2(q);x.min=Math.max(0,r2(t*(1-q/100)));x.max=r2(t*(1+q/100))}}
 else if(op=='min'||op=='max'){const x=m.subs[b].mats[k];x[op]=parseFloat(v)||0;x.tg=r2((x.min+x.max)/2);x.al=x.tg>0?r2((x.max-x.min)/2/x.tg*100):''}
 render()}
-function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render();return awMasterNow()}
+function commit(){D.mains=JSON.parse(JSON.stringify(draft));D.mains.forEach(m=>D.insp.forEach(i=>{if(i.mid==m.id&&i.main!=m.code){i.main=m.code;cloudPut(i)}}));save(true);toast('Master tersimpan');render();return awMasterNow(1)}
 function askYN(msg,fn){const en=LG=='en',d=document.createElement('div');d.className='fixed inset-0 z-50 flex items-center justify-center p-4';d.style.background='rgba(0,0,0,.6)';
  d.innerHTML=`<div class="c max-w-xs w-full text-sm"><b>${en?'Delete data?':'Hapus data?'}</b><p class="my-2 opacity-80">${msg}</p><div class="flex gap-2 mt-3"><button type="button" class="b b2 flex-1" id="qN">${en?'No':'Tidak'}</button><button type="button" class="b bd flex-1" id="qY">${en?'Yes':'Ya'}</button></div></div>`;
  const no=()=>{d.remove();swClose()};d.onclick=e=>{if(e.target===d)no()};document.body.appendChild(d);
  d.querySelector('#qN').onclick=no;d.querySelector('#qY').onclick=()=>{d.remove();fn()}}
 function delInsp(id){const i=D.insp.find(x=>x.id==id);if(!i)return;if(!canDel(i))return toast('Anda hanya bisa menghapus data yang Anda input');const en=LG=='en';
- askYN(en?`Delete record ${esc(i.main)} (${f1(i.kA)} kA)?`:`Hapus data ${esc(i.main)} (${f1(i.kA)} kA) ini?`,()=>{undoPush({t:'del',rec:Object.assign({},i),by:U.id});D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id,i.photoId);save(true);toast('Data dihapus');render()})}
+ askYN(en?`Delete record ${esc(i.main)} (${f1(i.kA)} kA)?`:`Hapus data ${esc(i.main)} (${f1(i.kA)} kA) ini?`,()=>{undoPush({t:'del',rec:Object.assign({},i),by:U.id});D.insp=D.insp.filter(x=>x.id!=id);cloudDel(id);awDel(id,i.photoId);save(true);awSuccess('Data dihapus','Bisa dikembalikan lewat Undo');render()})}
 /* geser kartu ke kiri untuk menampilkan tombol hapus (sentuh & mouse) */
 let swClose=()=>{};
 (function(){const W=84;let s=null,open=null,sup=0;
@@ -1363,7 +1394,7 @@ function renM(k,i){const o=D.M[k][i],n=(prompt('Ubah nama',o)||'').trim();if(!n|
 function delM(k,i){const v=D.M[k][i];if(k=='locs'&&D.mains.concat(draft||[]).some(m=>m.loc==v)&&!confirm('Lokasi "'+v+'" dipakai Main Equipment. Hapus dan kosongkan lokasinya di Master?'))return;if(k=='types'){const u=D.mains.concat(draft||[]).reduce((c,m)=>c+m.subs.filter(x=>x.type==v).length,0);if(u&&!confirm('Type "'+v+'" dipakai '+u+' Sub Equipment di Master. Hapus dan kosongkan type-nya?'))return;D.mains.concat(draft||[]).forEach(m=>m.subs.forEach(x=>{if(x.type==v)x.type=''}))}D.M[k].splice(i,1);if(k=='locs'){D.mains.forEach(m=>{if(m.loc==v)m.loc=''});if(draft)draft.forEach(m=>{if(m.loc==v)m.loc=''})}save();render()}
 function dl(name,txt,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
 function bk(){dl(`WMS_backup_${U.id}_${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(D),'application/json')}
-function rs(f){if(!f)return;const r=new FileReader();r.onload=e=>{try{D=JSON.parse(e.target.result);load_fix();if(SERVER)D.insp.forEach(cloudPut);save(true);draft=null;toast('Restore berhasil');render()}catch(x){toast('File tidak valid')}};r.readAsText(f)}
+function rs(f){if(!f)return;const r=new FileReader();r.onload=e=>{try{D=JSON.parse(e.target.result);load_fix();if(SERVER)D.insp.forEach(cloudPut);save(true);draft=null;awSuccess('Restore berhasil','Data dipulihkan dari backup');render()}catch(x){toast('File tidak valid')}};r.readAsText(f)}
 function load_fix(){D.M=D.M||def().M;D.prof=D.prof||def().prof;D.sync=D.sync||{last:null,auto:true};norm()}
 function wipe(){if(!isDev())return;if(confirm('Hapus semua data akun ini?')){if(SERVER)D.insp.forEach(i=>cloudDel(i.id));D=def();save(true);draft=null;render()}}
 function xl(){if(!window.XLSX)return toast('Library Excel belum termuat');const wb=XLSX.utils.book_new(),jts=a=>XLSX.utils.json_to_sheet(a.map(o=>Object.fromEntries(Object.entries(o).map(([k,v])=>[tr(k),v]))));
@@ -1439,10 +1470,10 @@ async function awMasterPush(){
   }catch(e){console.error('Appwrite master (kirim) gagal:',e);toast('Master gagal dikirim: '+((e&&e.message)||e))}
   awBusy=false;return false;
 }
-async function awMasterNow(){
+async function awMasterNow(q){
   clearTimeout(awT);D.masterT=Date.now();_awSave(true);
   const ok=await awMasterPush();
-  if(ok)toast('Master terkirim ke server (semua perangkat)');
+  if(ok&&!q)toast('Master terkirim ke server (semua perangkat)');
   return ok;
 }
 async function awUpdateServer(){
@@ -1636,16 +1667,16 @@ const acErrT=e=>toast('Gagal: '+((e&&e.message)||e));
 async function acRole(h,r){if(!isDev())return;
   try{const id='u_'+h,u=await rdGet(id);if(!u)return toast('Akun tidak ditemukan');if(isDevEm(u.e))return;
     if(r=='admin'&&!confirm('Jadikan '+(u.n||u.e)+' sebagai Admin?'))return;
-    u.r=r;await rdSet(id,u);toast(r=='admin'?'Admin ditambahkan':'Admin dicabut');acLoad()}catch(e){acErrT(e)}}
+    u.r=r;await rdSet(id,u);awSuccess(r=='admin'?'Admin ditambahkan':'Admin dicabut','Hak akses diperbarui');acLoad()}catch(e){acErrT(e)}}
 async function acDel(h){if(!isDev())return;
   try{const id='u_'+h,u=await rdGet(id);if(!u)return;
     if(isDevEm(u.e)||String(u.e).toLowerCase()==myEm())return toast('Akun ini tidak bisa dihapus');
     if(!confirm('Hapus akun '+(u.n||'')+' ('+u.e+')?\n\nAkun akan dikeluarkan dari semua perangkat dan tidak bisa login/daftar lagi sampai dipulihkan. Data pengecekan yang sudah ada di server tidak ikut terhapus.'))return;
     u.x=1;u.xt=Date.now();u.xb=myEm();u.r='user';await rdSet(id,u);
     try{await awDB.deleteDocument(AW_DB,AW_MT,'p_'+h)}catch(x){}
-    toast('Akun dihapus');acLoad()}catch(e){acErrT(e)}}
+    awSuccess('Akun dihapus','');acLoad()}catch(e){acErrT(e)}}
 async function acRestore(h){if(!isDev())return;
-  try{const id='u_'+h,u=await rdGet(id);if(!u)return;delete u.x;delete u.xt;delete u.xb;await rdSet(id,u);toast('Akun dipulihkan');acLoad()}catch(e){acErrT(e)}}
+  try{const id='u_'+h,u=await rdGet(id);if(!u)return;delete u.x;delete u.xt;delete u.xb;await rdSet(id,u);awSuccess('Akun dipulihkan','');acLoad()}catch(e){acErrT(e)}}
 setInterval(()=>{if(U&&scr=='app'&&tab=='setting'&&isDev()&&document.visibilityState=='visible')acLoad()},30000);
 /* ---------- UNDO (hapus data & approve data, maksimal 3 langkah) ---------- */
 let UNDOS=[];
@@ -1666,13 +1697,13 @@ function undoDel(){
       ['ap','apBy','apName','apRole','apAt'].forEach(k=>{if(sn[k]===undefined)delete i[k];else i[k]=sn[k]});
       i.ea=Date.now();list.push(i)});
     if(!list.length){toast('Approval sudah dibatalkan');render();return}
-    apPush(list);toast(list.length+' data: approval dibatalkan');return}
+    apPush(list);awSuccess('Approval dibatalkan',list.length+' data kembali Pending');return}
   const r=e.rec;
   if(D.insp.some(x=>x.id==r.id)){render();return}
   delete r.photoId;
   D.insp.push(r);save(true);cloudPut(r);
   if(!awCheck())awUpsert(r).catch(x=>toast('Kirim ke server gagal: '+((x&&x.message)||x)));
-  toast('Data dikembalikan');render()}
+  awSuccess('Data dikembalikan','Undo berhasil');render()}
 /* ---------- EDIT DATA (developer & penginput) ---------- */
 let EF=null;
 const canEdit=i=>canDel(i);
@@ -1720,7 +1751,7 @@ async function edSave(){
   Object.assign(i,{dt:EF.dt,mid:m.id,main:m.code,sid:sub.id,sub:sub.name,subType:sub.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:k>=mat.min&&k<=mat.max?'OK':'NG',c1:EF.c1,c2:EF.c2,shift:EF.shift,loc:EF.loc,desc:EF.desc,job:EF.job,ket:EF.ket,editedBy:U.email||U.id,editedByName:(D.prof&&D.prof.name)||U.name||'',ea:Date.now()});
   if(i.ap=='a'){i.ap='p';i.apBy=i.apName=i.apRole='';i.apAt=0}
   if(pc){i.photo=EF.photo;i.photoId=''}
-  save(true);cloudPut(i);edClose();toast('Perubahan disimpan');render();
+  save(true);cloudPut(i);edClose();awSuccess('Perubahan disimpan','Data berhasil diperbarui');render();
   if(!awCheck()){
     try{
       if(pc&&oldPid&&typeof awST!=='undefined'&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}
@@ -1747,23 +1778,25 @@ const apBan=a=>{const m=new Map();a.forEach(i=>{if(i.ap=='a'){const k=(i.apName|
   return`<div class="c text-sm" style="border-left:4px solid #16a34a">${m.size?`<b style="color:#16a34a">&#10003; Data sudah di-approve</b><div class="text-xs mt-1">${[...m].map(([k,n])=>{const[nm,rl]=k.split('|');return esc(nm)+(rl?' ('+esc(rl)+')':'')+' - '+n+' data'}).join('<br>')}</div>`:`<b style="color:#a16207">Belum ada data yang di-approve</b>`}${pend?`<div class="text-xs mt-1" style="color:#a16207">${pend} data masih Pending approval</div>`:''}</div>`};
 function apStamp(i){i.ap='a';i.apBy=myEm();i.apName=(D.prof&&D.prof.name)||U.name||myEm();i.apRole=myLvl()?lvlName(myLvl()):'Developer';i.apAt=Date.now();i.ea=Date.now()}
 async function apPush(list){save(true);list.forEach(cloudPut);render();const pre=awCheck();if(pre)return toast('Tersimpan di perangkat. Server: '+pre);try{for(const i of list)await awUpsert(i)}catch(e){toast('Kirim ke server gagal: '+((e&&e.message)||e))}}
-function apDo(id){const i=D.insp.find(x=>x.id==id);if(!i||apSt(i)=='a')return;if(!canApprove())return toast('Hanya Foreman / Supervisor / Developer yang bisa approve');if(isMine(i)&&!isDev())return toast('Tidak bisa approve data sendiri');undoPush({t:'ap',snaps:[apSnap(i)],by:U.id});apStamp(i);apPush([i]);toast('Data di-approve')}
-function apDay(){if(!canApprove())return;const all=filt(Q),l=all.filter(canAp1),own=isDev()?0:all.filter(i=>apSt(i)=='p'&&isMine(i)).length;if(!l.length)return toast(own?'Data pending di tanggal ini milik Anda sendiri, tidak bisa di-approve':'Tidak ada data Pending approval pada tanggal ini');if(!confirm('Approve '+l.length+' data tanggal '+Q.cal+'?'))return;undoPush({t:'ap',snaps:l.map(apSnap),by:U.id});l.forEach(apStamp);apPush(l);toast(l.length+' data Approved'+(own?' ('+own+' data milik sendiri dilewati)':''))}
+function apDo(id){const i=D.insp.find(x=>x.id==id);if(!i||apSt(i)=='a')return;if(!canApprove())return toast('Hanya Foreman / Supervisor / Developer yang bisa approve');if(isMine(i)&&!isDev())return toast('Tidak bisa approve data sendiri');undoPush({t:'ap',snaps:[apSnap(i)],by:U.id});apStamp(i);apPush([i]);awSuccess('Data di-approve','Approval berhasil')}
+function apDay(){if(!canApprove())return;const all=filt(Q),l=all.filter(canAp1),own=isDev()?0:all.filter(i=>apSt(i)=='p'&&isMine(i)).length;if(!l.length)return toast(own?'Data pending di tanggal ini milik Anda sendiri, tidak bisa di-approve':'Tidak ada data Pending approval pada tanggal ini');if(!confirm('Approve '+l.length+' data tanggal '+Q.cal+'?'))return;undoPush({t:'ap',snaps:l.map(apSnap),by:U.id});l.forEach(apStamp);apPush(l);awSuccess(l.length+' data di-approve',own?own+' data milik sendiri dilewati':'Approval berhasil')}
 function apUndo(id){const i=D.insp.find(x=>x.id==id);if(!i||i.ap!='a')return;if(!(isDev()||String(i.apBy||'').toLowerCase()==myEm()))return;if(!confirm('Batalkan approval data ini?'))return;i.ap='p';i.apBy=i.apName=i.apRole='';i.apAt=0;i.ea=Date.now();apPush([i])}
 function setRole(v){D.prof.role=v;save(true);lvlPush();render()}
 async function lvlPush(){try{if(!U||cloudOff())return;const e=myEm(),ui=await rid('u',e),u=(await rdGet(ui))||{e,n:U.name||e,r:'user',c:Date.now(),l:Date.now()},j=myLvl();if((u.j||'')!=j){u.j=j;await rdSet(ui,u)}}catch(x){console.error('lvl',x)}}
 /* ---------- APPROVAL PANEL (Developer) ---------- */
 function apPanel(){calInit();const o=BXO.apanel,day=AQ.cal,l=D.insp.filter(i=>dtIn(i.dt).slice(0,10)==day),ap=l.filter(i=>i.ap=='a').sort((x,y)=>(y.apAt||0)-(x.apAt||0));
   return`<div class="c" id="cb_apanel"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('apanel')"><b>Approval Panel</b>${bxIcon(o)}</button><div class="cbb" style="display:${o?'block':'none'}"><p class="text-xs opacity-60 my-1">Khusus Developer. Pilih tanggal di kalender, lalu batalkan approval data pada tanggal itu.</p>${calView()}<div class="text-sm mt-2"><b>${ap.length}</b> data Approved &middot; <b>${l.length-ap.length}</b> Pending approval</div>${ap.length?`<div style="max-height:260px;overflow-y:auto;margin-top:6px">${ap.map(i=>`<div class="py-2" style="border-top:1px solid rgba(128,128,128,.25)"><div class="flex justify-between items-start gap-2"><div style="min-width:0" class="text-sm"><b>${esc(i.main)}</b> <span class="text-xs opacity-70">${esc(i.sub)} ${esc(i.subType||'')} - ${esc(i.mat)} - ${f1(i.kA)} kA</span><div class="text-xs" style="color:#16a34a">&#10003; Approved: ${esc(i.apName||i.apBy||'-')}${i.apRole?' ('+esc(i.apRole)+')':''}${i.apAt?' - '+new Date(i.apAt).toLocaleString(LC(),{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'}):''}</div></div><button class="b bd" style="padding:4px 10px;font-size:12px;flex:none" onclick="apUndo('${i.id}')">Cancel</button></div></div>`).join('')}</div><button class="b bd mt-2" style="width:100%" onclick="apCancelDay()">&#10005; Cancel Approval tanggal ini (${ap.length} data)</button>`:`<p class="text-xs opacity-60 mt-1">Tidak ada data Approved pada tanggal ini.</p>`}</div></div>`}
-function apCancelDay(){if(!isDev())return;const day=AQ.cal,l=D.insp.filter(i=>i.ap=='a'&&dtIn(i.dt).slice(0,10)==day);if(!l.length)return toast('Tidak ada data Approved pada tanggal ini');if(!confirm('Cancel approval '+l.length+' data tanggal '+day+'?\nData akan kembali Pending approval.'))return;l.forEach(i=>{i.ap='p';i.apBy=i.apName=i.apRole='';i.apAt=0;i.ea=Date.now();i.apCx=myEm();i.apCxAt=Date.now()});apPush(l);toast(l.length+' data: approval dibatalkan')}
+function apCancelDay(){if(!isDev())return;const day=AQ.cal,l=D.insp.filter(i=>i.ap=='a'&&dtIn(i.dt).slice(0,10)==day);if(!l.length)return toast('Tidak ada data Approved pada tanggal ini');if(!confirm('Cancel approval '+l.length+' data tanggal '+day+'?\nData akan kembali Pending approval.'))return;l.forEach(i=>{i.ap='p';i.apBy=i.apName=i.apRole='';i.apAt=0;i.ea=Date.now();i.apCx=myEm();i.apCxAt=Date.now()});apPush(l);awSuccess('Approval dibatalkan',l.length+' data kembali Pending')}
 /* ---------- DATA: PENGINPUT & HAK HAPUS ---------- */
 const canDel=i=>isDev()||(!!i.userId&&!!U&&String(i.userId).toLowerCase()==String(U.id).toLowerCase());
 const inpName=i=>{const n=i.userName||'',e=i.userEmail||i.userId||'';return n&&e&&n!=e?n+' ('+e+')':(n||e||'-')};
 const stSide=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo;
-  const b=`<span class="bg ${c}" style="display:flex;align-items:center;justify-content:center;margin:0;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800;border-radius:12px;width:64px;height:64px;font-size:${p?'20px':'22px'}">${v}</span>`;
-  return`<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">${p?`<img src="${i.photo}" style="width:64px;height:64px;object-fit:cover" class="rounded-lg">`:''}${b}</div>`};
+  const b=`<span class="bg stB ${c}${p?' p':''}" style="display:flex;align-items:center;justify-content:center;margin:0;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span>`;
+  return`<div class="stS">${p?`<div class="stE"><span class="stEv">Evidence</span><img class="stP rounded-lg" src="${i.photo}"></div>`:''}${b}</div>`};
+const dcCmp=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo,a=apSt(i)=='a';
+  return`<div class="dcC"><div class="dcT"><span>${new Date(i.dt).toLocaleDateString(LC())}</span><span style="font-weight:600;color:${a?'#16a34a':'#a16207'}">${a?'&#10003; Approved':'&#9203; Pending'}</span></div><div class="dcN">${esc(i.main)}</div><div class="dcV">${f1(i.kA)}<small>kA</small></div><div class="dcD">Standar ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dcB">${p?`<img class="stP rounded-lg" src="${i.photo}">`:''}<span class="bg stB ${c}" style="display:flex;align-items:center;justify-content:center;margin:0 0 0 auto;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span></div></div>`};
 function dataCard(i,n){
-  const info=`<div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div>${f1(i.kA)} kA (std ${f1(i.min)}-${f1(i.max)})</div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}`;
+  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div>${f1(i.kA)} kA (std ${f1(i.min)}-${f1(i.max)})</div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}`;
   if(!canDel(i))return`<div class="c dc"><div style="display:flex;gap:12px;cursor:pointer" onclick="detail('${i.id}')">${info}</div></div>`;
   return`<div class="c dc sw-c${n==0&&!L.woms_swh?(L.woms_swh=1,' hint'):''}"><button type="button" class="sw-del" onclick="event.stopPropagation();delInsp('${i.id}')"><span style="font-size:20px">&#128465;</span>Hapus</button><div class="sw-in" onclick="detail('${i.id}')">${info}</div></div>`}
 /* ---------- FILTER GRAFIK: EQUIPMENT, LOKASI, TANGGAL/BULAN/TAHUN ---------- */
