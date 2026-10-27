@@ -1834,8 +1834,8 @@ let rzT,lastW=innerWidth;const onRot=()=>{clearTimeout(rzT);rzT=setTimeout(()=>{
 if(!SERVER&&!RC)try{const u=JSON.parse(L.woms_user||'null');if(u&&!L.woms_lock){U=u;load(u.id);if(NAVR&&String(NAVR.u)==String(u.id)){scr=NAVR.s;tab=NAVR.t;navIn(NAVR)}NAVR=null}}catch(e){}
 render();if(!U){const n=$('nav');if(n)n.remove()}})();
 const NAVK=['dt','c1','c2','shift','job','desc','main','sub','mat'];
-function navSave(){if(!U)return;try{const i2=scr=='app'&&tab=='input'&&IG&&F.step==2,f={};if(i2)NAVK.forEach(k=>{if(F[k])f[k]=F[k]});L.woms_nav=JSON.stringify({s:scr,t:tab,u:U.id,i2:i2?1:0,f:i2?f:null})}catch(e){}}
-function navIn(n){if(n&&n.i2&&n.f&&n.s=='app'&&n.t=='input'){IG=true;F=Object.assign({},n.f,{step:2});IH.open=true}}
+function navSave(){if(!U)return;try{const i2=scr=='app'&&tab=='input'&&IG&&(F.step==1||F.step==2),f={};if(i2)NAVK.forEach(k=>{if(F[k])f[k]=F[k]});L.woms_nav=JSON.stringify({s:scr,t:tab,u:U.id,i2:i2?1:0,st:i2?F.step:0,f:i2?f:null})}catch(e){}}
+function navIn(n){if(n&&n.i2&&n.f&&n.s=='app'&&n.t=='input'){IG=true;F=Object.assign({},n.f,{step:n.st==1?1:2});IH.open=true}}
 addEventListener('pagehide',navSave);document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='hidden')navSave()});
 const _r=render;render=function(){_r();if(U){try{navSave()}catch(e){}}if(!U){const n=$('nav');if(n)n.remove()}else if(CB!==myEm())cloudBoot()};
 if(SERVER)fbInit();
