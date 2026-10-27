@@ -518,11 +518,14 @@ html[data-view=pc] .vw-data.vm-list>.c{grid-column:1/-1}
 .stB{width:64px;height:64px;font-size:22px!important;border-radius:12px}
 .stB.p{font-size:20px!important}
 html[data-view=pc] .vw-data .stS,.vw-data.vm-grid .stS{flex-direction:row;align-items:flex-end;justify-content:center;gap:10px}
-html[data-view=pc] .vw-data.vm-list .stS{gap:16px}
+html[data-view=pc] .vw-data.vm-list .stS{gap:16px;align-items:center;align-self:center}
 html[data-view=pc] .vw-data.vm-list .stP,html[data-view=pc] .vw-data.vm-list .stB{width:112px;height:112px}
 html[data-view=pc] .vw-data.vm-list .stP{border-radius:14px}
 html[data-view=pc] .vw-data.vm-list .stB,html[data-view=pc] .vw-data.vm-list .stB.p{font-size:38px!important;border-radius:18px}
-html[data-view=pc] .vw-data.vm-list .stEv{font-size:12px;margin-bottom:1px}
+html[data-view=pc] .vw-data.vm-list .stEv{display:none}
+html[data-view=pc] .vw-data.vm-list .dkN{font-size:40px;font-weight:700;line-height:1.1;letter-spacing:-.01em}
+html[data-view=pc] .vw-data.vm-list .dkU{font-size:16px;font-weight:500;opacity:.7;margin-left:2px}
+html[data-view=pc] .vw-data.vm-list .dkS{display:block;font-size:12px;opacity:.6;margin-top:2px}
 /* Kartu ringkas (khusus HP grid view): tanggal, kA besar, standar di bawahnya, foto + OK/NG di bawah */
 .dcF{display:contents}
 .dcC{display:none;flex-direction:column;min-width:0;width:100%}
@@ -1796,7 +1799,7 @@ const stSide=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo;
 const dcCmp=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo,a=apSt(i)=='a';
   return`<div class="dcC"><div class="dcT"><span>${new Date(i.dt).toLocaleDateString(LC())}</span><span style="font-weight:600;color:${a?'#16a34a':'#a16207'}">${a?'&#10003; Approved':'&#9203; Pending'}</span></div><div class="dcN">${esc(i.main)}</div><div class="dcV">${f1(i.kA)}<small>kA</small></div><div class="dcD">Standar ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dcB">${p?`<img class="stP rounded-lg" src="${i.photo}">`:''}<span class="bg stB ${c}" style="display:flex;align-items:center;justify-content:center;margin:0 0 0 auto;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span></div></div>`};
 function dataCard(i,n){
-  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div>${f1(i.kA)} kA (std ${f1(i.min)}-${f1(i.max)})</div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}`;
+  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}`;
   if(!canDel(i))return`<div class="c dc"><div style="display:flex;gap:12px;cursor:pointer" onclick="detail('${i.id}')">${info}</div></div>`;
   return`<div class="c dc sw-c${n==0&&!L.woms_swh?(L.woms_swh=1,' hint'):''}"><button type="button" class="sw-del" onclick="event.stopPropagation();delInsp('${i.id}')"><span style="font-size:20px">&#128465;</span>Hapus</button><div class="sw-in" onclick="detail('${i.id}')">${info}</div></div>`}
 /* ---------- FILTER GRAFIK: EQUIPMENT, LOKASI, TANGGAL/BULAN/TAHUN ---------- */
