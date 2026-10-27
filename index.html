@@ -715,6 +715,9 @@ html[data-view=pc] nav::-webkit-scrollbar-thumb{background:#38bdf8;border-radius
 .ms-ck{display:none}
 .up-btn.done .up-ic{display:none}
 .up-btn.done .ms-ck{display:block}
+.up-btn.err{border-color:#ef4444;box-shadow:0 10px 26px rgba(239,68,68,.35)}
+.up-btn.err .up-l2{background:#ef4444;clip-path:inset(0 0 0 0)}
+.up-btn.err .up-l2 .up-ar{fill:#ef4444}
 
 .ms-pd{position:absolute;top:-8px;left:calc(50% + 62px);pointer-events:none;box-shadow:0 2px 6px #0004}
 
@@ -1050,8 +1053,14 @@ function wcNew(){const el=$('#wc_new'),v=(el.value||'').trim();if(!v)return toas
 function wcDel(k){const c=(D.M.custom||[]).find(x=>x[0]==k);if(!c||!confirm(tr('Hapus parameter "'+c[1]+'" beserta isinya?')))return;D.M.custom=D.M.custom.filter(x=>x[0]!=k);delete D.M[k];save();render()}
 /* progress bar simpan & update server */
 const SP={p:0,show:false,err:false,t:0};
+/* Tombol Save & Update di tab Input: tampilan & progres sama dengan tombol di tab Master (ikut state SP) */
+const inLbl=()=>!SP.show?'Save & Update':SP.p<100?'Saving '+Math.round(SP.p)+'%':SP.err?'Gagal':'Selesai';
+const inCls=()=>(SP.show&&SP.p>=100?(SP.err?' err':' done'):'');
+const inBtnHtml=()=>`<div class="up-wrap" style="padding:14px 0 6px"><button type="button" id="inBtn" class="up-btn${inCls()}" style="--p:${SP.show?Math.min(100,SP.p):100}%" onclick="saveInsp()">${msLayer('up-l1',inLbl)}${msLayer('up-l2',inLbl)}</button></div>`;
+function inBtnUpd(){const b=document.getElementById('inBtn');if(!b)return;b.style.setProperty('--p',(SP.show?Math.min(100,SP.p):100)+'%');b.classList.toggle('done',SP.show&&SP.p>=100&&!SP.err);b.classList.toggle('err',SP.show&&SP.p>=100&&!!SP.err);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=inLbl())}
 function spSet(p,err,hide){SP.p=p;SP.err=!!err;SP.show=true;clearTimeout(SP.t);const b=document.getElementById('spb'),w=document.getElementById('spw');if(w)w.style.visibility='visible';if(b){b.style.width=p+'%';b.style.background=err?'#ef4444':'#22c55e'}
-  if(hide)SP.t=setTimeout(()=>{SP.show=false;SP.p=0;SP.err=false;const w=document.getElementById('spw'),b=document.getElementById('spb');if(w)w.style.visibility='hidden';if(b)b.style.width='0%'},err?2500:1500)}
+  inBtnUpd();
+  if(hide)SP.t=setTimeout(()=>{SP.show=false;SP.p=0;SP.err=false;const w=document.getElementById('spw'),b=document.getElementById('spb');if(w)w.style.visibility='hidden';if(b)b.style.width='0%';inBtnUpd()},err?2500:1500)}
 /* ---------- INPUT GATE + HISTORY ---------- */
 const PENC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>';
 function inGate(){return`<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING MONITORING SYSTEM</h1>
@@ -1311,7 +1320,7 @@ ${fld('Lokasi (default dari Master, pilihan dari Setting)',`<select class="i" on
 ${fld('Keterangan',`<textarea class="i" rows="2" oninput="F.ket=this.value">${esc(F.ket||'')}</textarea>`)}
 <label>Foto</label><div class="flex gap-2 my-1"><label class="b flex-1 text-center">Buka Kamera<input type="file" accept="image/*" capture="environment" hidden onchange="pick('f',0,this.files[0])"></label><label class="b b2 flex-1 text-center">Pilih Galeri<input type="file" accept="image/*" hidden onchange="pick('f',0,this.files[0])"></label></div>
 ${F.photo?`<img src="${F.photo}" style="max-height:300px" class="rounded-lg my-2"><button class="b bd" onclick="F.photo='';render()">Hapus Foto</button>`:''}
-<button id="bsv" class="b w-full mt-3" onclick="saveInsp()">Save</button><div id="spw" class="spw" style="${SP.show?'':'visibility:hidden'}"><div id="spb" style="width:${SP.p}%;background:${SP.err?'#ef4444':'#22c55e'}"></div></div><p class="text-xs opacity-60 text-center mt-2">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
+${inBtnHtml()}<p class="text-xs opacity-60 text-center mt-1">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
 function kFmt(el,o){const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.toFixed(1);o.kA=el.value}
 function kpv(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);if(F.kC==null||F.kC!==F.kA||!mat||isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<div class="text-xs mt-1"><span class="bg ${ok?'ok':'no'}">${ok?'OK':'NG'}</span> ${f1(k)} kA (std ${f1(mat.min)}-${f1(mat.max)}) - tekan Simpan Data</div>`}
 function kpvUp(){const e=$('#kpv');if(e)e.innerHTML=kpv()}
@@ -1398,7 +1407,7 @@ async function upData(){if(UPB)return;UPB=1;awProg(0);let done=0;try{await awSyn
 /* Tombol "Save & Update" di tab Master: tampilan & animasi sama dengan tombol Upload Data */
 let MSB=0,MSP=100,MST=null;
 const msLbl=()=>!MSB?'Save & Update':MSP>=100?'Selesai':'Saving '+Math.round(MSP)+'%';
-const msLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><svg class="ms-ck" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="12" cy="12" r="10.5" pathLength="1" fill="none" stroke="currentColor" stroke-width="2"/><path pathLength="1" d="M7 12.5l3.4 3.4L17 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="up-tx">${msLbl()}</span></span>`;
+const msLayer=(c,lf)=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><svg class="ms-ck" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><circle cx="12" cy="12" r="10.5" pathLength="1" fill="none" stroke="currentColor" stroke-width="2"/><path pathLength="1" d="M7 12.5l3.4 3.4L17 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="up-tx">${(lf||msLbl)()}</span></span>`;
 const msBtnHtml=()=>`<div class="up-wrap ms-wrap"><button type="button" id="msBtn" class="up-btn${MSB?' busy':''}${MSB&&MSP>=100?' done':''}" style="--p:${MSP}%" onclick="msCommit()">${msLayer('up-l1')}${msLayer('up-l2')}</button>${!MSB&&pend()?'<span class="bg or ms-pd">pending</span>':''}</div>`;
 function msProg(pc){MSP=Math.max(0,Math.min(100,pc));const b=document.getElementById('msBtn');if(!b)return;b.style.setProperty('--p',MSP+'%');b.classList.toggle('busy',!!MSB);b.classList.toggle('done',!!MSB&&MSP>=100);b.querySelectorAll('.up-tx').forEach(e=>e.textContent=msLbl())}
 async function msCommit(){if(MSB)return;MSB=1;msProg(0);
@@ -1429,7 +1438,11 @@ function chkTbl(a){
   const ar=k=>ss.k==k?(ss.d>0?' &#9650;':' &#9660;'):'';
   const th=(k,t,x)=>`<th${x?' class="'+x+'"':''} onclick="ss={k:'${k}',d:ss.k=='${k}'?-ss.d:1};render()">${t}${ar(k)}</th>`;
   const thE=`<th class="eqh" title="Klik kanan / tahan lama: Ascending / Descending" oncontextmenu="eqMenu(event)" ontouchstart="eqTS(event)" ontouchend="clearTimeout(EQT)" ontouchmove="clearTimeout(EQT)" onclick="if(EQLP){EQLP=0;return}ss={k:'main',d:ss.k=='main'?-ss.d:1};render()">Equipment${ar('main')}</th>`;
-  const cmp=(x,y)=>{const A=ckVal(x,ss.k),B=ckVal(y,ss.k),r=(typeof A=='number'&&typeof B=='number')?A-B:String(A==null?'':A).localeCompare(String(B==null?'':B),undefined,{numeric:true,sensitivity:'base'});return r*ss.d||new Date(x.dt)-new Date(y.dt)};
+  /* Urutan bawaan: Equipment > Sub > Material (SCGA paling atas, lalu material lain A-Z) > waktu. Klik judul kolom = urut kolom itu dulu, sisanya tetap pakai aturan ini */
+  const nat=(a,b)=>String(a==null?'':a).localeCompare(String(b==null?'':b),undefined,{numeric:true,sensitivity:'base'});
+  const rk=i=>String(i.mat||'').trim().toUpperCase()=='SCGA'?0:1;
+  const cmp=(x,y)=>{let r=0;if(ss.k!='dt'){const A=ckVal(x,ss.k),B=ckVal(y,ss.k);r=((typeof A=='number'&&typeof B=='number')?A-B:nat(A,B))*ss.d}
+    return r||nat(x.main,y.main)||nat(x.sub,y.sub)||nat(x.subType,y.subType)||rk(x)-rk(y)||nat(x.mat,y.mat)||(ss.k=='dt'?new Date(y.dt)-new Date(x.dt):new Date(x.dt)-new Date(y.dt))};
   const rows=[...a].sort(cmp).map((i,n)=>{const g=ok(i),p=apSt(i)=='p';
     return`<tr><td>${n+1}</td><td>${esc(i.main)}</td><td>${i.subType?`<span class="sn">${esc(i.sub)} </span>${esc(i.subType)}`:esc(i.sub)}</td><td class="mt">${esc(i.mat)}</td><td>${f1(i.kA)}</td><td><span class="jb ${g?'ok':'ng'}">${g?'OK':'NG'}</span></td><td class="hx"><span class="jb ${p?'pe':'ap'}">${p?'Pending':'Approved'}</span></td><td class="rm hx">${esc(i.ket)||'-'}</td></tr>`}).join('');
   const ds=G.cal||ymd(new Date());
