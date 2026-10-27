@@ -385,6 +385,10 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 .pe-eye:hover{background:#2563EB;color:#fff}.pe-eye:active{transform:scale(.92)}
 .pe-eye svg{width:18px;height:18px}
 #pie-w.nc .pcall{display:none}
+.pcl{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pcl rect{fill:transparent;stroke:transparent}
+.pcl:hover rect,.pcl.drag rect{stroke:currentColor;stroke-opacity:.35;stroke-dasharray:3 3}
+.pcl.drag{cursor:grabbing!important}
 /* Pie chart: slice interaktif, denyut luar, panel data */
 .ps{cursor:pointer;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .3s,filter .3s}
 .ps:hover{filter:brightness(1.1)}
@@ -570,6 +574,56 @@ html:not([data-view=pc]) .vw-data.vm-grid .dcC{display:flex}
 .dcB{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--bd)}
 .dcB .stP,.dcB .stB{width:56px;height:56px}
 .dcB .stB,.dcB .stB.p{font-size:18px!important}
+/* Kartu data khusus PC: list = 1 baris lebar, grid = 2 kolom tetap (vertikal) */
+.dcP{display:none}
+html[data-view=pc] .vw-data .dcF{display:none}
+html[data-view=pc] .vw-data .dcP{display:flex;flex-direction:column;flex:1;min-width:0;width:100%}
+html[data-view=pc] .vw-data.vm-grid>.dc{grid-column:span 6}
+.pH{display:flex;align-items:center;gap:10px;min-width:0}
+.pE{font-size:18px;white-space:nowrap;flex:none}
+.pTg{display:flex;gap:8px;min-width:0;flex-wrap:wrap}
+.pb{display:inline-block;padding:2px 14px;border-radius:8px;font-size:13px;font-weight:500;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.pT{background:#B4C7E7;color:#1F3864}.pK{background:#FFE699;color:#5F4B00}.pM{background:#ED7D31;color:#3B1A00}.pN{background:#ED7D31;color:#3B1A00;font-size:11px;padding:1px 8px}
+.pS{margin-left:auto;flex:none;border-radius:5px;padding:2px 14px;font-weight:600}
+.pS.pe{background:#FFC000;color:#4A3500}.pS.ap{background:#92D050;color:#375623}
+.pLn{position:relative;border-top:1px solid var(--bd);margin:12px 4px}
+.pLn:before,.pLn:after{content:"";position:absolute;top:-5px;width:9px;height:9px;border-radius:50%;background:rgba(128,128,128,.7)}
+.pLn:before{left:-5px}.pLn:after{right:-5px}
+.pB{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pI{flex:1;min-width:0}
+.pLp{font-size:17px;font-weight:700;line-height:1.3}
+.pSd{font-size:22px;font-weight:700;line-height:1.3}
+.pC{font-size:13px;opacity:.75;margin-top:2px;word-break:break-all}
+.pI .pC:first-of-type{margin-top:6px}
+.pX{display:flex;gap:12px;flex:none}
+.pX>*{width:104px;height:104px;border-radius:16px;box-sizing:border-box;flex:none}
+.pBk{position:relative;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--tx)}
+.pBk b{font-size:38px;font-weight:700;line-height:1}
+.pBk i{position:absolute;right:9px;bottom:4px;font-style:normal;font-size:13px;opacity:.8}
+.pBo{display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800}
+.pBo.ok{background:#92D050;color:#375623}.pBo.no{background:#fee2e2;color:#b91c1c}
+.pBf{display:block;object-fit:cover;border:1.5px solid var(--tx)}
+.pBf.e{display:flex;align-items:center;justify-content:center;font-size:18px;opacity:.6}
+.pFt{display:flex;align-items:center;gap:14px;margin-top:12px;font-size:13px;min-height:28px}
+.pAp{background:#92D050;color:#375623;font-weight:700;font-size:14px;padding:4px 18px;border-radius:5px;border:0;white-space:nowrap}
+.pWo{display:flex;gap:12px;opacity:.85;min-width:0}
+.pWo span+span{border-left:1px solid currentColor;padding-left:12px}
+.pD{margin-left:auto;white-space:nowrap;opacity:.8}
+html[data-view=pc] .vw-data.vm-grid .pH{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"e s" "t t";gap:8px}
+html[data-view=pc] .vw-data.vm-grid .pE{grid-area:e}
+html[data-view=pc] .vw-data.vm-grid .pS{grid-area:s;margin-left:0}
+html[data-view=pc] .vw-data.vm-grid .pTg{grid-area:t}
+html[data-view=pc] .vw-data.vm-grid .pB{flex-direction:column;align-items:stretch;gap:12px}
+html[data-view=pc] .vw-data.vm-grid .pLp{font-size:14px}
+html[data-view=pc] .vw-data.vm-grid .pSd{font-size:20px}
+html[data-view=pc] .vw-data.vm-grid .pX{gap:10px}
+html[data-view=pc] .vw-data.vm-grid .pX>*{flex:1;width:auto;height:78px;border-radius:14px}
+html[data-view=pc] .vw-data.vm-grid .pBk b{font-size:30px}
+html[data-view=pc] .vw-data.vm-grid .pBo{font-size:26px}
+html[data-view=pc] .vw-data.vm-grid .pFt{display:grid;grid-template-columns:1fr auto;grid-template-areas:"a d" "w w";row-gap:10px}
+html[data-view=pc] .vw-data.vm-grid .pFt>.pAp{grid-area:a;justify-self:start}
+html[data-view=pc] .vw-data.vm-grid .pWo{grid-area:w;border-top:1px solid var(--bd);padding-top:8px}
+html[data-view=pc] .vw-data.vm-grid .pD{grid-area:d;margin-left:0}
 /* ===== SWITCH GRID / LIST (HP) ===== */
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw{display:flex;justify-content:flex-end;margin:8px 0 2px}
 html:not([data-view=pc]) :is(.vw-data,.vw-grafik) .vm-sw button{padding:7px 14px;font-size:12px}
@@ -870,9 +924,30 @@ ${warn?`<div class="mt-2 p-2" style="border-radius:8px;background:${pc>=90?'#fee
 <p class="text-xs opacity-60 mt-2">Foto: ${fmtB(SC.fb)} (${SC.files} file) - Data: ${fmtB(SC.db)} (${SC.docs} dokumen, perkiraan)</p>`:`<p class="text-xs opacity-60 my-2">Memuat...</p>`}
 <p class="text-xs opacity-60 mt-1">Total kapasitas ${fmtB(cap)} <button class="underline" onclick="scEdit()">ubah</button></p></div>`}
 /* ---------- PIE CHART OK / NG (tab Grafik) ---------- */
-let PS={sel:null,fetching:false,okA:[],ngA:[]};
+let PS={sel:null,fetching:false,okA:[],ngA:[],off:(()=>{try{return JSON.parse(L.wms_pieoff||'{}')||{}}catch(e){return{}}})()};
 function pieBig(id){const r=D.insp.find(x=>String(x.id)==String(id));if(!r||!r.photo)return;const d=document.createElement('div');d.className='fixed';d.style.cssText='inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:12px';d.onclick=()=>d.remove();d.innerHTML='<img src="'+r.photo+'" style="max-width:100%;max-height:100%;border-radius:12px">';document.body.appendChild(d)}
 async function pieFetch(list){if(PS.fetching)return;PS.fetching=true;let n=0;for(const r of list){if(r.photo||!r.photoId||!awST)continue;try{if(await awPhotoGet(r))n++}catch(e){}}PS.fetching=false;if(n&&tab=='grafik')render()}
+/* Callout pie bisa digeser (drag): garis penunjuk ikut menyambung ke sisi kotak label yang terdekat, seperti callout Excel. Ketuk 2x untuk kembalikan ke posisi awal */
+function pieLd(ax,ay,cx,cy,w,h,h0){const L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,f=n=>n.toFixed(2);
+  if(ax<L||ax>R){const sx=ax<L?-1:1,ex=sx<0?L:R,hs=Math.max(8,Math.min(h0,Math.abs(ex-ax)-10)),bx=ex+sx*hs;return`M${f(ax)} ${f(ay)}L${f(bx)} ${f(cy)}L${f(ex)} ${f(cy)}`}
+  const sy=ay<T?-1:1,ey=sy<0?T:B,vs=Math.max(8,Math.min(h0,Math.abs(ey-ay)-10)),by=ey+sy*vs;return`M${f(ax)} ${f(ay)}L${f(cx)} ${f(by)}L${f(cx)} ${f(ey)}`}
+function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
+  cx=Math.max(-102+w/2,Math.min(422-w/2,cx0+ox)),cy=Math.max(6+h/2,Math.min(314-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
+  g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
+  const ld=g.parentNode.querySelector('.pld');if(ld)ld.setAttribute('d',pieLd(+D.ax,+D.ay,cx,cy,w,h,+D.h0))}
+(function(){let d=null,last=null;
+  const xy=(e,rt)=>{const m=rt.getScreenCTM();if(!m)return null;const p=rt.ownerSVGElement.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(m.inverse())};
+  const sv=()=>{try{L.wms_pieoff=JSON.stringify(PS.off)}catch(e){}};
+  document.addEventListener('pointerdown',e=>{const g=e.target&&e.target.closest?e.target.closest('.pcl'):null;if(!g)return;const rt=g.parentNode.parentNode,q=xy(e,rt);if(!q)return;
+    d={g,rt,q,sx:e.clientX,sy:e.clientY,ox:+g.dataset.ox||0,oy:+g.dataset.oy||0,id:e.pointerId,mv:false};try{g.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+  document.addEventListener('pointermove',e=>{if(!d||e.pointerId!=d.id)return;
+    if(!d.mv){if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<4)return;d.mv=true;d.g.classList.add('drag')}
+    const q=xy(e,d.rt);if(!q)return;piePlace(d.g,d.ox+q.x-d.q.x,d.oy+q.y-d.q.y);e.preventDefault()});
+  const up=e=>{if(!d||e.pointerId!=d.id)return;const g=d.g,k=g.dataset.k;g.classList.remove('drag');
+    if(d.mv){PS.off[k]=[+(+g.dataset.ox).toFixed(1),+(+g.dataset.oy).toFixed(1)];sv();last=null}
+    else{const t=Date.now();if(last&&last.k==k&&t-last.t<400){piePlace(g,0,0);delete PS.off[k];sv();last=null}else last={k,t}}
+    d=null};
+  document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)})();
 function pieSvg(ok,ng){
   const t=ok+ng,C=160,R=104,pt=(a,r)=>[C+r*Math.cos(a),C+r*Math.sin(a)],f=n=>n.toFixed(2);
   const arc=(a0,a1,r0,r1)=>{const [x0,y0]=pt(a0,r1),[x1,y1]=pt(a1,r1),[x2,y2]=pt(a1,r0),[x3,y3]=pt(a0,r0),L=a1-a0>Math.PI?1:0;return`M${f(x0)} ${f(y0)}A${r1} ${r1} 0 ${L} 1 ${f(x1)} ${f(y1)}${r0?`L${f(x2)} ${f(y2)}A${r0} ${r0} 0 ${L} 0 ${f(x3)} ${f(y3)}Z`:`L${C} ${C}Z`}`};
@@ -898,8 +973,9 @@ function pieSvg(ok,ng){
     co.forEach(c=>{const th=c.mid,sd=Math.cos(th)<0?-1:1,sn=Math.sin(th),vs=Math.abs(sn)<.15?(sd>0?-1:1):(sn<0?-1:1),
       ax=C+Math.cos(th)*R*.84,ay=C+Math.sin(th)*R*.84,ty=C+vs*136,dya=Math.abs(ty-ay),
       dx=Math.max(14,Math.min(dya*1.5,128-Math.abs(ax-C))),bx=ax+sd*dx,ex=C+sd*Math.min(Math.abs(bx-C)+80,165),
-      col=c.lb=='OK'?'#22c55e':'#ef4444',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85,cx=ex+sd*(6+w/2);
-      calls+=`<g class="pcall" style="pointer-events:none"><polyline points="${f(ax)},${f(ay)} ${f(bx)},${f(ty)} ${f(ex)},${f(ty)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${f(ax)}" cy="${f(ay)}" r="3.6" fill="${col}" stroke="#fff" stroke-width="1.2"/><text class="pie-ct" x="${f(cx)}" y="${f(ty)}" text-anchor="middle" font-size="22" fill="${col}">${pct}</text><text class="pie-ct" x="${f(cx)}" y="${f(ty+16)}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g>`})}
+      col=c.lb=='OK'?'#22c55e':'#ef4444',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85,cx=ex+sd*(6+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
+      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-102+w/2,Math.min(422-w/2,cx+(+of[0]||0))),ncy=Math.max(6+h/2,Math.min(314-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy;
+      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${pieLd(ax,ay,ncx,ncy,w,h,h0)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${f(ax)}" cy="${f(ay)}" r="3.6" fill="${col}" stroke="#fff" stroke-width="1.2"/><g class="pcl" data-k="${c.lb}" data-ax="${f(ax)}" data-ay="${f(ay)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect x="${f(cx-w/2-4)}" y="${f(cy-h/2-2)}" width="${f(w+8)}" height="${h+4}" rx="6"/><text class="pie-ct" x="${f(cx)}" y="${f(ty)}" text-anchor="middle" font-size="22" fill="${col}">${pct}</text><text class="pie-ct" x="${f(cx)}" y="${f(ty+16)}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
@@ -1944,6 +2020,7 @@ function apPanel(){calInit();const o=BXO.apanel,day=AQ.cal,l=D.insp.filter(i=>dt
 function apCancelDay(){if(!isDev())return;const day=AQ.cal,l=D.insp.filter(i=>i.ap=='a'&&dtIn(i.dt).slice(0,10)==day);if(!l.length)return toast('Tidak ada data Approved pada tanggal ini');if(!confirm('Cancel approval '+l.length+' data tanggal '+day+'?\nData akan kembali Pending approval.'))return;l.forEach(i=>{i.ap='p';i.apBy=i.apName=i.apRole='';i.apAt=0;i.ea=Date.now();i.apCx=myEm();i.apCxAt=Date.now()});apPush(l);awSuccess('Approval dibatalkan',l.length+' data kembali Pending')}
 /* ---------- DATA: PENGINPUT & HAK HAPUS ---------- */
 const canDel=i=>isDev()||(!!i.userId&&!!U&&String(i.userId).toLowerCase()==String(U.id).toLowerCase());
+const inpShow=i=>isDev()?inpName(i):(i.userName||String(i.userEmail||i.userId||'-').split('@')[0]);
 const inpName=i=>{const n=i.userName||'',e=i.userEmail||i.userId||'';return n&&e&&n!=e?n+' ('+e+')':(n||e||'-')};
 const stSide=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo;
   const b=`<span class="bg stB ${c}${p?' p':''}" style="display:flex;align-items:center;justify-content:center;margin:0;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span>`;
@@ -1952,9 +2029,12 @@ const dcCmp=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo,a=apSt(i)=='a';
   return`<div class="dcC"><div class="dcT"><span>${new Date(i.dt).toLocaleDateString(LC())}</span><span style="font-weight:600;color:${a?'#16a34a':'#a16207'}">${a?'&#10003; Approved':'&#9203; Pending'}</span></div><div class="dcN">${esc(i.main)}</div><div class="dcV">${f1(i.kA)}<small>kA</small></div><div class="dcD">Standar ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dcB">${p?`<img class="stP rounded-lg" src="${i.photo}">`:''}<span class="bg stB ${c}" style="display:flex;align-items:center;justify-content:center;margin:0 0 0 auto;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span></div></div>`};
 const dcLst=i=>{const v=stV(i),c=v=='OK'?'ok':'no',a=apSt(i)=='a',ck=[i.c1,i.c2].filter(Boolean).join(' / ')||'-',em=i.userEmail||i.userId||'-',d=new Date(i.dt).toLocaleDateString(LC(),{day:'2-digit',month:'short',year:'2-digit'}).replace(/ /g,'-'),
   bt=a?`<div class="dlWho">${esc(i.apName||i.apBy||'-')}${i.apRole?' ('+esc(i.apRole)+')':''}</div>`:(canAp1(i)?`<button type="button" class="b dlAp" onclick="event.stopPropagation();apDo('${i.id}')">&#10003; Approve</button>`:'');
-  return`<div class="dcL"><div class="dlH"><b class="dlE">${esc(i.main)}</b><span class="bg">${esc(i.sub)}${i.subType?' '+esc(i.subType):''}</span><span class="bg or">${esc(i.mat)}</span><span class="bg ${a?'ok':'or'} dlP">${a?'Approved':'Pending'}</span></div><div class="dlLn"></div><div class="dlB"><div class="dlL"><div class="dlSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dlC">Check : ${esc(ck)}</div><div class="dlC">Input &nbsp;: ${esc(em)}</div>${bt}</div><div class="dlR"><div class="dlX"><span class="dlK"><b>${f1(i.kA)}</b><i>kA</i></span><span class="bg dlO ${c}">${v}</span>${i.photo?`<img class="dlF" src="${i.photo}" alt="">`:''}</div><div class="dlD">&bull; ${esc(d)}</div></div></div></div>`};
+  return`<div class="dcL"><div class="dlH"><b class="dlE">${esc(i.main)}</b><span class="bg">${esc(i.sub)}${i.subType?' '+esc(i.subType):''}</span><span class="bg or">${esc(i.mat)}</span><span class="bg ${a?'ok':'or'} dlP">${a?'Approved':'Pending'}</span></div><div class="dlLn"></div><div class="dlB"><div class="dlL"><div class="dlSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dlC">Check : ${esc(ck)}</div><div class="dlC">Input &nbsp;: ${esc(inpShow(i))}</div>${bt}</div><div class="dlR"><div class="dlX"><span class="dlK"><b>${f1(i.kA)}</b><i>kA</i></span><span class="bg dlO ${c}">${v}</span>${i.photo?`<img class="dlF" src="${i.photo}" alt="">`:''}</div><div class="dlD">&bull; ${esc(d)}</div></div></div></div>`};
+const dcPc=i=>{const v=stV(i),c=v=='OK'?'ok':'no',a=apSt(i)=='a',ck=[i.c1,i.c2].filter(Boolean).join(' / ')||'-',em=i.userEmail||i.userId||'-',d=new Date(i.dt).toLocaleDateString(LC(),{day:'2-digit',month:'short',year:'2-digit'}).replace(/ /g,'-'),
+  bt=a?`<span class="pAp">&#10003; Approved</span><span class="pWo"><span>Approved by: ${esc(i.apName||i.apBy||'-')}</span>${i.apRole?`<span>${esc(i.apRole)}</span>`:''}</span>`:(canAp1(i)?`<button type="button" class="pAp" onclick="event.stopPropagation();apDo('${i.id}')">&#10003; Approve</button>`:'');
+  return`<div class="dcP"><div class="pH"><span class="pE"><b>${esc(i.main)}</b>${Date.now()-i.created<3e5?' <span class="pb pN">BARU</span>':''}</span><span class="pTg">${i.subType?`<span class="pb pT">${esc(i.subType)}</span>`:''}<span class="pb pK">${esc(i.sub)}</span><span class="pb pM">${esc(i.mat)}</span></span><span class="pb pS ${a?'ap':'pe'}">${a?'Approved':'Pending'}</span></div><div class="pLn"></div><div class="pB"><div class="pI"><div class="pLp">Line Process: ${esc(i.loc||'-')}</div><div class="pSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="pC">Check : ${esc(ck)}</div><div class="pC">Input &nbsp;: ${esc(inpShow(i))}</div></div><div class="pX"><span class="pBk"><b>${f1(i.kA)}</b><i>kA</i></span><span class="pBo ${c}">${v}</span>${i.photo?`<img class="pBf" src="${i.photo}" alt="">`:`<span class="pBf e">Foto</span>`}</div></div><div class="pFt">${bt}<span class="pD">&bull; ${esc(d)}</span></div></div>`};
 function dataCard(i,n){
-  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}${dcLst(i)}`;
+  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div>${isDev()?`<div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpName(i))}</div>`:''}${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}${dcLst(i)}${dcPc(i)}`;
   if(!canDel(i))return`<div class="c dc"><div style="display:flex;gap:12px;cursor:pointer" onclick="detail('${i.id}')">${info}</div></div>`;
   return`<div class="c dc sw-c${n==0&&!L.woms_swh?(L.woms_swh=1,' hint'):''}"><button type="button" class="sw-del" onclick="event.stopPropagation();delInsp('${i.id}')"><span style="font-size:20px">&#128465;</span>Hapus</button><div class="sw-in" onclick="detail('${i.id}')">${info}</div></div>`}
 /* ---------- FILTER GRAFIK: EQUIPMENT, LOKASI, TANGGAL/BULAN/TAHUN ---------- */
