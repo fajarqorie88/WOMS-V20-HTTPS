@@ -631,7 +631,7 @@ html[data-view=pc] .vw-data.vm-grid .pB{flex-direction:column;align-items:stretc
 html[data-view=pc] .vw-data.vm-grid .pLp{font-size:14px}
 html[data-view=pc] .vw-data.vm-grid .pSd{font-size:20px}
 html[data-view=pc] .vw-data.vm-grid .pX{gap:10px}
-html[data-view=pc] .vw-data.vm-grid .pX>*{flex:0 0 calc((100% - 20px)/3);width:auto;height:78px;border-radius:14px}
+html[data-view=pc] .vw-data.vm-grid .pX>*{flex:0 0 calc((100% - 20px)/3);width:auto;height:auto;aspect-ratio:1/1;border-radius:14px}
 html[data-view=pc] .vw-data.vm-grid .pBk{border:0;background:rgba(128,128,128,.18)}
 html[data-view=pc] .vw-data.vm-grid .pBf{border:0}
 html[data-view=pc] .vw-data.vm-grid .pBf.e{display:none}
@@ -652,6 +652,9 @@ html[data-view=pc] .vw-data.vm-grid .pD{grid-area:d;margin-left:0}
 .ipl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;margin-bottom:5px}
 .ipl-h span{opacity:.65}.ipl-h b{font-size:14px;text-align:right}
 .ipl-r{display:flex;align-items:center;gap:10px;padding:8px 2px;border-top:1px solid var(--bd)}
+.ipl-c{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ipl-c:active{background:rgba(128,128,128,.14)}
+.ipl-g{opacity:.45;font-size:20px;line-height:1;flex:none}
 .ipl-d{width:8px;height:8px;border-radius:50%;flex-shrink:0}.ipl-d.rd{background:#ef4444}.ipl-d.gn{background:#22c55e}
 .ipl-n{font-size:14px;font-weight:600;white-space:nowrap}
 .ipl-t{font-size:12px;opacity:.55;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -1349,7 +1352,7 @@ function kFmt(el,o){const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.t
 function kpv(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);if(F.kC==null||F.kC!==F.kA||!mat||isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<div class="text-xs mt-1"><span class="bg ${ok?'ok':'no'}">${ok?'OK':'NG'}</span> ${f1(k)} kA (std ${f1(mat.min)}-${f1(mat.max)}) - tekan Simpan Data</div>`}
 function kpvUp(){const e=$('#kpv');if(e)e.innerHTML=kpv()}
 function kEnter(e){if(e.key!='Enter')return;e.preventDefault();const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat);F.kA=e.target.value;if(!mat)return toast('Pilih Main, Sub & Material dulu');if(isNaN(parseFloat(F.kA)))return toast('Isi nilai Arus (kA)');F.kC=F.kA;kpvUp();e.target.blur();setTimeout(()=>{const b=$('#bsv');if(b)b.scrollIntoView({block:'center',behavior:'smooth'})},200)}
-function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');F.step=2;scrollTo(0,0);render()}
+function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');saveProf();F.step=2;scrollTo(0,0);render()}
 function cbFill(all){const l=$('#cbl'),i=$('#mq');if(!l||!i)return[];const q=all?'':i.value.trim().toLowerCase(),cur=mainBy(F.main),a=D.mains.filter(m=>!q||m.code.toLowerCase().includes(q));
  l.innerHTML=a.length?a.map(m=>`<div class="cb-o${cur&&cur.id==m.id?' on':''}" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="cbPick('${esc(String(m.id))}')">${esc(m.code)}</div>`).join(''):`<div class="cb-o" style="opacity:.6">${LG=='en'?'Not found':'Tidak ditemukan'}</div>`;return a}
 function cbOpen(all){const l=$('#cbl');if(!l)return;cbFill(all);l.classList.add('show');const o=l.querySelector('.on');if(o)o.scrollIntoView({block:'nearest'})}
@@ -1364,7 +1367,7 @@ const st=i=>{const v=stV(i);return`<span class="bg ${v=='OK'?'ok':'no'}">${v}</s
 function saveInsp(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);
 if(!m||!sub||!mat||isNaN(k))return toast('Lengkapi Main, Sub, Material & kA');if(!(F.loc||m.loc))return toast('Pilih lokasi');
 const r={id:uid8(),dt:F.dt,mid:m.id,main:m.code,sid:sub.id,sub:sub.name,subType:sub.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:k>=mat.min&&k<=mat.max?'OK':'NG',c1:F.c1||'',c2:F.c2||'',shift:F.shift||'',loc:F.loc||m.loc,desc:F.desc||'',job:F.job||'',ket:F.ket||'',photo:F.photo||'',userId:U.id,userName:(D.prof&&D.prof.name)||U.name||'',userEmail:U.email||U.id,created:Date.now(),ap:'p'};
-D.insp.unshift(r);cloudPut(r);save(true);awSaveSync(r);F={step:2,dt:F.dt,main:F.main,sub:F.sub,mat:F.mat,shift:F.shift,c1:F.c1,c2:F.c2,job:F.job,desc:F.desc};toast('Tersimpan ('+r.status+') - Pending approval Foreman / Supervisor');render()}
+D.insp.unshift(r);cloudPut(r);save(true);awSaveSync(r);saveProf();F={step:2,dt:F.dt,main:F.main,sub:F.sub,mat:F.mat,shift:F.shift,c1:F.c1,c2:F.c2,job:F.job,desc:F.desc};toast('Tersimpan ('+r.status+') - Pending approval Foreman / Supervisor');render()}
 
 /* ---------- DATA (read only) ---------- */
 function dtOk(i,q){if(!q.cal)return true;return dtIn(i.dt).slice(0,10)==q.cal}
@@ -1423,8 +1426,24 @@ const inpDt=()=>String(Q.cal||ymd(new Date())).split('-').reverse().join('/');
 function inpBan(){const c=inpCalc(),t=c.rows.length,d=c.done,pc=t?Math.round(d/t*100):0;
   return`<div class="c ipb"><div class="ipb-t"><div class="ipb-n">${d} / ${t}<small>Data Updated</small></div><span class="ipb-p">${pc}%</span></div><div class="ipb-b"><i style="width:${pc}%"></i></div><div class="ipb-f"><span>${inpDt()}</span><span>${t-d} belum</span></div></div>`}
 function inpList(){const c=inpCalc(),b=Q.inp=='b',all=c.rows,rows=all.filter(r=>b?!r.n:r.n),t=all.length,pc=t?Math.round(c.done/t*100):0,lim=Q.inpAll?rows.length:8;
-  const r1=r=>`<div class="ipl-r"><span class="ipl-d ${b?'rd':'gn'}"></span><span class="ipl-n">${esc(r.m.code)} &middot; ${esc(r.s.name)}</span><span class="bg">${esc(r.mt)}</span><span class="ipl-t">${esc(r.s.type||'')}</span><span class="ipl-x">${b?'<span class="bg or">Belum</span>':r.n+' data '+(r.ok?`<span class="bg ok">${r.ok} OK</span>`:'')+(r.ng?` <span class="bg no">${r.ng} NG</span>`:'')}</span></div>`;
+  const r1=r=>`<div class="ipl-r ipl-c" role="button" tabindex="0" data-m="${r.m.id}" data-s="${r.s.id}" data-mt="${esc(r.mt)}" data-b="${b?1:0}" onclick="inpTap(this)" onkeydown="if(event.key=='Enter')inpTap(this)"><span class="ipl-d ${b?'rd':'gn'}"></span><span class="ipl-n">${esc(r.m.code)} &middot; ${esc(r.s.name)}</span><span class="bg">${esc(r.mt)}</span><span class="ipl-t">${esc(r.s.type||'')}</span><span class="ipl-x">${b?'<span class="bg or">Belum</span>':r.n+' data '+(r.ok?`<span class="bg ok">${r.ok} OK</span>`:'')+(r.ng?` <span class="bg no">${r.ng} NG</span>`:'')}</span><span class="ipl-g">&rsaquo;</span></div>`;
   return`<div class="c ipl"><div class="ipl-h"><span>${inpDt()}</span><b>${rows.length} dari ${t} Material ${b?'belum':'sudah'} input</b></div><div class="ipb-b"><i style="width:${pc}%"></i></div>${rows.length?rows.slice(0,lim).map(r1).join(''):`<p class="text-center opacity-60 py-6">${b?'Semua Material sudah input':'Belum ada Material yang input'}</p>`}${rows.length>lim?`<button type="button" class="ipl-m" onclick="Q.inpAll=1;render()">+ ${rows.length-lim} Material lainnya</button>`:(Q.inpAll&&rows.length>8?`<button type="button" class="ipl-m" onclick="Q.inpAll=0;render()">Ringkas</button>`:'')}</div>`}
+/* Profil input terakhir di perangkat ini (Checker, Shift, Job, Deskripsi) */
+const lastProf=()=>{try{return JSON.parse(L.woms_lastprof||'null')}catch(e){return null}};
+const saveProf=()=>{try{L.woms_lastprof=JSON.stringify({c1:F.c1||'',c2:F.c2||'',shift:F.shift||'',job:F.job||'',desc:F.desc||''})}catch(e){}};
+/* Tap baris progress: Sudah input -> detail data; Belum input -> tab Input dengan Main/Sub/Material terisi */
+function inpTap(el){const mid=el.dataset.m,sid=el.dataset.s,mt=el.dataset.mt;
+  if(el.dataset.b=='1')return inpGoNew(mid,sid,mt);
+  const a=filt(Object.assign({},Q,{st:'',ap:''})).filter(i=>String(i.mid)==String(mid)&&String(i.sid)==String(sid)&&i.mat==mt).sort((x,y)=>y.created-x.created);
+  if(!a.length)return;if(a.length==1)return detail(a[0].id);inpPick(a)}
+function inpPick(a){const d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';d.onclick=e=>{if(e.target==d)d.remove()};
+  d.innerHTML=`<div class="c max-w-xl mx-auto text-sm" style="position:relative"><button type="button" style="position:absolute;top:8px;right:12px;font-size:18px;line-height:1" onclick="this.closest('.fixed').remove()">&#10005;</button><b style="font-size:16px;padding-right:26px;display:block">${esc(a[0].main)} - ${esc(a[0].sub)} &middot; ${esc(a[0].mat)}</b><div class="text-xs opacity-60 mb-2">${a.length} data, pilih salah satu</div>${a.map(i=>{const v=stV(i);return`<div class="ipl-r ipl-c" onclick="this.closest('.fixed').remove();detail('${i.id}')"><span class="bg ${v=='OK'?'ok':'no'}">${v}</span><span class="ipl-n">${f1(i.kA)} kA</span><span class="ipl-t">${new Date(i.dt).toLocaleString(LC())}${i.c1?' &middot; '+esc(i.c1):''}</span><span class="ipl-x">${apSt(i)=='a'?'<span class="bg apOk">&#10003; Approved</span>':'<span class="bg apPd">Pending</span>'}</span><span class="ipl-g">&rsaquo;</span></div>`}).join('')}</div>`;
+  document.body.appendChild(d)}
+function inpGoNew(mid,sid,mt){const m=D.mains.find(x=>String(x.id)==String(mid)),sb=m&&(m.subs||[]).find(x=>String(x.id)==String(sid));if(!m||!sb)return;
+  if(!tabOK('input'))return toast('Akses ditolak');
+  const pr=lastProf()||{},ok=!!(pr.c1&&pr.shift),t=nowLocal();
+  F={step:ok?2:1,dt:(Q.cal||t.slice(0,10))+t.slice(10),main:m.id,sub:sb.id,mat:mt,loc:'',c1:pr.c1||'',c2:pr.c2||'',shift:pr.shift||'',job:pr.job||'',desc:pr.desc||''};
+  IG=true;go('input');if(!ok)toast('Isi Info Pengecekan dulu, lalu lanjut ke '+m.code)}
 function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.created-y.created:Q.sort=='hi'?y.kA-x.kA:Q.sort=='lo'?x.kA-y.kA:y.created-x.created);
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button>${undoHas()?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#f59e0b;color:#111" title="Batalkan aksi terakhir (hapus / approve), maksimal 3 kali" onclick="undoDel()">&#8630; Undo${undoCnt()>1?' ('+undoCnt()+')':''}</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada aksi yang bisa di-undo" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c" id="cb_fltd"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltd')"><b>Filters${fltN(Q,['s','main','type','mat','loc','st','ap'])?' <span class="bg or">'+fltN(Q,['s','main','type','mat','loc','st','ap'])+'</span>':''}</b>${bxIcon(BXO.fltd)}</button><div class="cbb" style="display:${BXO.fltd?'block':'none'}"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
