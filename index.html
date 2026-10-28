@@ -726,7 +726,7 @@ html[data-theme=dark] .cb-gi{background:rgba(37,99,235,.2);border-color:rgba(96,
 .pu-sec{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:12px;margin-bottom:12px}
 .pu-ph{display:flex;gap:6px;align-items:center}
 .pu-ty{min-width:84px;height:34px;line-height:34px;text-align:center;padding:0 14px;border-radius:999px;font-weight:800;font-size:13px;color:#fff;flex:none;box-sizing:border-box}
-.pu-ty.c{background:linear-gradient(135deg,#6366f1,#8b5cf6)}.pu-ty.x{background:linear-gradient(135deg,#0d9488,#14b8a6)}
+.pu-ty.tc{background:linear-gradient(135deg,#6366f1,#8b5cf6)}.pu-ty.tx{background:linear-gradient(135deg,#0d9488,#14b8a6)}
 .pu-nm{flex:1;min-width:0;height:34px;line-height:34px;box-sizing:border-box;text-align:center;padding:0 12px;border-radius:999px;background:#fde68a;color:#78350f;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pu-r{margin-top:10px}.pu-rw{display:flex;gap:6px;align-items:center}
 .pu-ip{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:1.5px solid #60a5fa;border-radius:999px;padding:0 12px;height:40px;background:var(--bg)}
@@ -754,6 +754,12 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-ct{font-size:17px;font-weight:800}.pu-cb p{font-size:13px;opacity:.75;margin:6px 0 14px}
 .pu-cr{display:flex;gap:8px}.pu-cr .pu-sv{flex:1;width:auto}
 .pu-b0{flex:1;height:40px;border-radius:999px;background:var(--bd);color:var(--tx);border:0;font-weight:700}
+.cp{display:inline-flex;align-items:center;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);color:#1e3a8a;font-size:13px;font-weight:600;overflow:hidden;max-width:100%}
+.cp button{padding:7px 10px;color:inherit;font:inherit;background:transparent;border:0;text-align:left}
+.cp button.cpx{padding:7px 10px 7px 2px;font-size:16px;line-height:1;opacity:.7}
+.cp.on{background:linear-gradient(135deg,#2563EB,#0891b2);color:#fff}
+html[data-theme=dark] .cp{background:rgba(37,99,235,.25);color:#bfdbfe}
+html[data-theme=dark] .cp.on{background:linear-gradient(135deg,#2563EB,#0891b2);color:#fff}
 .pu-mn{margin-top:8px;border:1px solid var(--bd);border-radius:14px;background:var(--bg);overflow:hidden}
 .pu-mt{font-size:12px;opacity:.7;padding:8px 12px 4px}
 .pu-mi{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:10px 12px;border:0;border-top:1px solid var(--bd);background:transparent;color:var(--tx);font-weight:700;font-size:14px}
@@ -1399,14 +1405,14 @@ function inputView(){if(!IG)return inGate();return inputView0()+inHist()}
 function inputView0(){F.dt=F.dt||nowLocal();const last=D.insp[0];
 const lc='';
 const hd='<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING MONITORING SYSTEM</h1>';
-if(F.step!=2)return hd+`<div class="c"><b>Langkah 1 - Info Pengecekan</b><div class="text-xs opacity-60 mb-2">Diisi sekali, berlaku untuk semua data yang diinput berikutnya.</div>
+if(F.step!=2)return hd+`<div class="c"><b>Langkah 1 - Info Pengecekan</b><div class="text-xs opacity-60 mb-2">Diisi sekali, berlaku untuk semua data yang diinput berikutnya.</div>${cpBar()}
 ${fld('Checker 1',`<select class="i" onchange="F.c1=this.value">${opts(D.M.checkers,F.c1,'- pilih -')}</select>`)}
 ${fld('Checker 2',`<select class="i" onchange="F.c2=this.value">${opts(D.M.checkers,F.c2,'- pilih -')}</select>`)}
 ${fld('Tanggal & Waktu Pengecekan',`<input type="datetime-local" class="i" value="${F.dt}" oninput="F.dt=this.value">`)}
 ${fld('Shift',`<select class="i" onchange="F.shift=this.value">${opts(D.M.shifts,F.shift,'- pilih -')}</select>`)}
 ${fld('Job',`<select class="i" onchange="F.job=this.value">${opts(D.M.jobs,F.job,D.M.jobs.length?'- pilih -':'- belum ada, tambah di Setting -')}</select>`)}
 ${fld('Deskripsi',`<select class="i" onchange="F.desc=this.value">${opts(D.M.descs,F.desc,'- pilih -')}</select>`)}
-<button class="b w-full mt-2" onclick="cekOutput()">Cek Output</button></div>`+lc;
+<button class="b w-full mt-2" onclick="cekOutput()">Cek Output</button><button type="button" class="b b2 w-full mt-2" onclick="cpSave()">${TT('Simpan Profil Checker','Save Checker Profile')}</button></div>`+lc;
 const m=mainBy(F.main),sub=subBy(m,F.sub),sb=m?m.subs.map(s=>[s.id,`${s.name} (${s.type})`]):[],mt=sub?sub.mats.map(x=>x.mt):[];
 return hd+`<div class="c flex justify-between items-center"><div class="text-sm"><b>Langkah 2 - Input Data</b><div class="text-xs opacity-70">${esc(F.c1)}${F.c2?' / '+esc(F.c2):''} - ${esc(F.shift)} - ${new Date(F.dt).toLocaleString(LC())}${F.job?'<br>Job: '+esc(F.job):''}${F.desc?' - '+esc(F.desc):''}</div></div><button class="b b2" onclick="F.step=1;render()">Ubah</button></div><div class="c">
 ${fld('Main Equipment',`<div class="cb"><input id="mq" class="i" autocomplete="off" value="${esc(m?m.code:F.mq||'')}" oninput="F.mq=this.value;cbOpen(false)" onfocus="cbOpen(!!mainBy(F.main))" onkeydown="cbKey(event)" onchange="selMain(this.value)" placeholder="Ketik atau pilih Main Equipment"><button type="button" class="cb-b" tabindex="-1" aria-label="Pilih" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="cbTog()">&#9662;</button><div id="cbl" class="cb-l"></div></div>`)}
@@ -1424,7 +1430,7 @@ function puRowH(si,s,mat,mi,S){const R=puRow(S,s.id,mat.mt),d=R.saved,kk=s.id+'|
  return`<div class="pu-r"><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b>${esc(mat.mt)}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div>${S.open[kk]?`<textarea id="puK_${si}_${mi}" class="pu-ta" rows="2" oninput="puKin(${si},${mi},this.value)" onchange="puApply(${si},${mi})" placeholder="Remarks ${esc(mat.mt)}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si},${mi})">&times;</button></div>`:''}</div>`}
 function puMenuH(si,s,S){const k=S.menu[0]=='k';return`<div class="pu-mn" id="puM_${si}"><div class="pu-mt">${k?TT('Remarks untuk material:','Remarks for material:'):TT('Foto untuk material:','Photo for material:')}</div>${s.mats.map((mat,mi)=>{const kk=s.id+'|'+mat.mt,has=k?S.ket[kk]:S.ph[kk];return k?`<button type="button" class="pu-mi" onclick="puPick(${si},${mi})"><span>${esc(mat.mt)}</span>${has?PUI.ck:''}</button>`:`<div class="pu-mi"><span>${esc(mat.mt)}${has?' '+PUI.ck:''}</span><span class="pu-mb"><button type="button" onclick="puPick(${si},${mi},'c')">${TT('Kamera','Camera')}</button><button type="button" onclick="puPick(${si},${mi},'g')">${TT('Galeri','Gallery')}</button></span></div>`}).join('')}</div>`}
 function puSec(m,si,S){const s=m.subs[si],hk=s.mats.some(x=>S.ket[s.id+'|'+x.mt]),hp=s.mats.some(x=>S.ph[s.id+'|'+x.mt]);
- return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'x':'c'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${hk?' on':''}" onclick="puMenu('k',${si})">${TT('Keterangan','Remarks')}</button><button type="button" class="pu-ab p${hp?' on':''}" aria-label="Foto" onclick="puMenu('p',${si})">${PUI.cm}</button></div>${S.menu&&S.menu[1]==si?puMenuH(si,s,S):''}<input type="file" id="puF_${si}" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this)"><input type="file" id="puG_${si}" accept="image/*" hidden onchange="puPhoto(${si},this)"></div>`}
+ return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'tx':'tc'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${hk?' on':''}" onclick="puMenu('k',${si})">${TT('Keterangan','Remarks')}</button><button type="button" class="pu-ab p${hp?' on':''}" aria-label="Foto" onclick="puMenu('p',${si})">${PUI.cm}</button></div>${S.menu&&S.menu[1]==si?puMenuH(si,s,S):''}<input type="file" id="puF_${si}" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this)"><input type="file" id="puG_${si}" accept="image/*" hidden onchange="puPhoto(${si},this)"></div>`}
 function puDraw(){const m=mainBy(PUC);if(!m)return puHide();const S=puSt(m);let o=document.getElementById('pu');
  if(!o){o=document.createElement('div');o.id='pu';o.className='pu-ov';o.addEventListener('pointerdown',e=>{if(e.target===o)puClose()});document.body.appendChild(o)}
  const old=o.querySelector('.pu-bx'),st=old?old.scrollTop:0;
@@ -1463,6 +1469,13 @@ function kFmt(el,o){const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.t
 function kpv(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);if(F.kC==null||F.kC!==F.kA||!mat||isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<div class="text-xs mt-1"><span class="bg ${ok?'ok':'no'}">${ok?'OK':'NG'}</span> ${f1(k)} kA (std ${f1(mat.min)}-${f1(mat.max)}) - tekan Simpan Data</div>`}
 function kpvUp(){const e=$('#kpv');if(e)e.innerHTML=kpv()}
 function kEnter(e){if(e.key!='Enter')return;e.preventDefault();const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat);F.kA=e.target.value;if(!mat)return toast('Pilih Main, Sub & Material dulu');if(isNaN(parseFloat(F.kA)))return toast('Isi nilai Arus (kA)');F.kC=F.kA;kpvUp();e.target.blur();setTimeout(()=>{const b=$('#bsv');if(b)b.scrollIntoView({block:'center',behavior:'smooth'})},200)}
+const cpGet=()=>{try{const a=JSON.parse(L.woms_cprofs||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}},cpSet=a=>{try{L.woms_cprofs=JSON.stringify(a)}catch(e){}};
+const cpKeys=['c1','c2','shift','job','desc'],cpSame=(a,b)=>cpKeys.every(k=>(a[k]||'')==(b[k]||''));
+const cpLbl=p=>[[p.c1,p.c2].filter(Boolean).join(' / '),p.shift,p.job].filter(Boolean).join(' · ');
+function cpBar(){const a=cpGet();if(!a.length)return'';return`<div class="mb-2"><div class="text-xs opacity-70 mb-1">${TT('Profil tersimpan (tap untuk pakai)','Saved profiles (tap to use)')}</div><div class="flex flex-wrap gap-2">${a.map((p,i)=>`<span class="cp${cpSame(p,F)?' on':''}"><button type="button" onclick="cpUse(${i})">${esc(cpLbl(p))}</button><button type="button" class="cpx" aria-label="Hapus profil" onclick="cpDel(${i})">&times;</button></span>`).join('')}</div></div>`}
+function cpSave(){if(!F.c1)return toast('Pilih Checker 1');if(!F.shift)return toast('Pilih Shift');const p={};cpKeys.forEach(k=>p[k]=F[k]||'');const a=cpGet().filter(x=>!cpSame(x,p));a.unshift(p);cpSet(a.slice(0,10));toast('Profil tersimpan');render()}
+function cpUse(i){const p=cpGet()[i];if(!p)return;cpKeys.forEach(k=>F[k]=p[k]||'');render()}
+function cpDel(i){const a=cpGet();a.splice(i,1);cpSet(a);render()}
 function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');saveProf();PUS={};F.step=2;scrollTo(0,0);render()}
 let CBALL=true;
 const cbMv=()=>{try{return localStorage.getItem('wms_mv')=='grid'?'grid':'list'}catch(e){return'list'}};
