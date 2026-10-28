@@ -706,6 +706,55 @@ html[data-view=pc] .vw-grafik.vm-grid>.c.gc{grid-column:span 6}
 .cb-b{position:absolute;right:4px;top:3px;bottom:11px;width:36px;border:0;background:transparent;color:var(--tx);opacity:.6;font-size:16px}
 .cb-l{display:none;position:absolute;left:0;right:0;top:calc(100% - 8px);max-height:224px;overflow-y:auto;overscroll-behavior:contain;z-index:30;background:var(--bg);border:1px solid var(--bd);border-radius:10px;box-shadow:0 10px 26px rgba(0,0,0,.28)}
 .cb-l.show{display:block}
+
+.cb-l{max-height:320px}
+.cb-h{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--bg);z-index:1}
+.cb-h span{font-size:12px;opacity:.7}
+.cb-sw{display:flex;border:1px solid var(--bd);border-radius:99px;overflow:hidden}
+.cb-sw button{padding:4px 12px;font-size:12px;font-weight:600;color:var(--tx);background:transparent}
+.cb-sw button.on{background:#2563EB;color:#fff}
+.cb-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px}
+.cb-gi{padding:12px 4px;border-radius:12px;border:1px solid #bfdbfe;background:linear-gradient(135deg,#eff6ff,#e0f2fe);font-size:13px;font-weight:700;text-align:center;color:#1e40af;cursor:pointer}
+html[data-theme=dark] .cb-gi{background:rgba(37,99,235,.2);border-color:rgba(96,165,250,.35);color:#bfdbfe}
+.cb-gi.on{background:linear-gradient(135deg,#2563EB,#0891b2);color:#fff;border-color:transparent}
+.pu-ov{position:fixed;inset:0;z-index:500;background:rgba(2,6,23,.62);display:flex;align-items:center;justify-content:center;padding:12px}
+.pu-bx{width:100%;max-width:440px;max-height:92vh;overflow-y:auto;border-radius:20px;background:var(--bg);border:1px solid var(--bd);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.pu-hd{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:linear-gradient(135deg,#2563EB,#0891b2);color:#fff;position:sticky;top:0;z-index:2}
+.pu-t{font-size:20px;font-weight:800}.pu-s{font-size:12px;opacity:.85}
+.pu-x{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;border:0;padding:0}
+.pu-bd{padding:12px}
+.pu-sec{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:12px;margin-bottom:12px}
+.pu-ph{display:flex;gap:6px}
+.pu-ty{min-width:84px;text-align:center;padding:6px 14px;border-radius:999px;font-weight:800;font-size:13px;color:#fff}
+.pu-ty.c{background:linear-gradient(135deg,#6366f1,#8b5cf6)}.pu-ty.x{background:linear-gradient(135deg,#0d9488,#14b8a6)}
+.pu-nm{flex:1;min-width:0;text-align:center;padding:6px 12px;border-radius:999px;background:#fde68a;color:#78350f;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pu-r{margin-top:10px}.pu-rw{display:flex;gap:6px;align-items:center}
+.pu-ip{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:1.5px solid #60a5fa;border-radius:999px;padding:0 12px;height:40px;background:var(--bg)}
+.pu-ip b{font-size:13px;color:#3b82f6}
+.pu-ip input{border:0;background:transparent;color:var(--tx);flex:1;min-width:0;width:auto;margin:0;padding:0;text-align:right;font-size:15px;font-weight:600;outline:0}
+.pu-ip i{font-style:normal;font-size:12px;opacity:.7}
+.pu-ip.lk{background:rgba(148,163,184,.16);border-color:var(--bd)}
+.pu-sv{width:86px;height:40px;border-radius:999px;border:0;color:#fff;font-weight:800;font-size:13px;background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 4px 12px rgba(34,197,94,.35);display:flex;align-items:center;justify-content:center;gap:4px}
+.pu-sv.dn{background:#cbd5e1;color:#475569;box-shadow:none}
+html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
+.pu-bg{width:42px;text-align:center}
+.pu-b{display:inline-block;padding:4px 8px;border-radius:99px;font-size:12px;font-weight:800}
+.pu-b.ok{background:#dcfce7;color:#15803d}.pu-b.no{background:#fee2e2;color:#b91c1c}
+.pu-ed{width:34px;height:34px;border-radius:50%;background:#dbeafe;color:#2563eb;border:0;padding:0;display:flex;align-items:center;justify-content:center}
+.pu-std{font-size:11px;opacity:.65;margin:2px 0 0 14px}.pu-er{color:#ef4444;font-size:12px;margin-left:14px}
+.pu-ac{display:flex;gap:8px;margin-top:12px}
+.pu-ab{flex:1;height:40px;border-radius:999px;border:0;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.pu-ab.k{background:#fef3c7;color:#92400e}.pu-ab.p{background:#ede9fe;color:#6d28d9}
+.pu-ab.on{box-shadow:inset 0 0 0 2px currentColor}
+.pu-ta{width:100%;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:12px;padding:8px;margin-top:8px;font-size:14px}
+.pu-th{position:relative;display:inline-block;margin-top:8px}.pu-th img{max-height:120px;border-radius:10px}
+.pu-th button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#ef4444;color:#fff;border:0;padding:0;font-size:14px;line-height:1}
+.pu-cf{position:absolute;inset:0;background:rgba(2,6,23,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:3}
+.pu-cb{background:var(--bg);border:1px solid var(--bd);border-radius:16px;padding:18px;width:100%;max-width:300px;text-align:center}
+.pu-ct{font-size:17px;font-weight:800}.pu-cb p{font-size:13px;opacity:.75;margin:6px 0 14px}
+.pu-cr{display:flex;gap:8px}.pu-cr .pu-sv{flex:1;width:auto}
+.pu-b0{flex:1;height:40px;border-radius:999px;background:var(--bd);color:var(--tx);border:0;font-weight:700}
+.vw-data>.dg{grid-column:1/-1}
 .cb-o{padding:11px 12px;font-size:15px;border-bottom:1px solid var(--bd);cursor:pointer}
 .cb-o:last-child{border-bottom:0}
 .cb-o.on{background:var(--bd);font-weight:700}
@@ -1357,28 +1406,70 @@ ${fld('Deskripsi',`<select class="i" onchange="F.desc=this.value">${opts(D.M.des
 const m=mainBy(F.main),sub=subBy(m,F.sub),sb=m?m.subs.map(s=>[s.id,`${s.name} (${s.type})`]):[],mt=sub?sub.mats.map(x=>x.mt):[];
 return hd+`<div class="c flex justify-between items-center"><div class="text-sm"><b>Langkah 2 - Input Data</b><div class="text-xs opacity-70">${esc(F.c1)}${F.c2?' / '+esc(F.c2):''} - ${esc(F.shift)} - ${new Date(F.dt).toLocaleString(LC())}${F.job?'<br>Job: '+esc(F.job):''}${F.desc?' - '+esc(F.desc):''}</div></div><button class="b b2" onclick="F.step=1;render()">Ubah</button></div><div class="c">
 ${fld('Main Equipment',`<div class="cb"><input id="mq" class="i" autocomplete="off" value="${esc(m?m.code:F.mq||'')}" oninput="F.mq=this.value;cbOpen(false)" onfocus="cbOpen(!!mainBy(F.main))" onkeydown="cbKey(event)" onchange="selMain(this.value)" placeholder="Ketik atau pilih Main Equipment"><button type="button" class="cb-b" tabindex="-1" aria-label="Pilih" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="cbTog()">&#9662;</button><div id="cbl" class="cb-l"></div></div>`)}
-${fld('Sub Equipment',`<select class="i" onchange="F.sub=this.value;F.mat='';render()">${opts(sb,F.sub,'- pilih -')}</select>`)}
-${fld('Material Type',`<select class="i" onchange="F.mat=this.value;render()">${opts(mt,F.mat,'- pilih -')}</select>`)}
-${fld('Arus (kA)',`<input id="ka" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" class="i" value="${esc(F.kA||'')}" oninput="F.kA=this.value;F.kC=null;kpvUp()" onblur="kFmt(this,F)" onkeydown="kEnter(event)"><div id="kpv">${kpv()}</div>`)}
-${fld('Lokasi (default dari Master, pilihan dari Setting)',`<select class="i" onchange="F.loc=this.value">${opts(D.M.locs,F.loc||(m?m.loc:''),'- pilih -')}</select>`)}
-${fld('Keterangan',`<textarea class="i" rows="2" oninput="F.ket=this.value">${esc(F.ket||'')}</textarea>`)}
-<label>Foto</label><div class="flex gap-2 my-1"><label class="b flex-1 text-center">Buka Kamera<input type="file" accept="image/*" capture="environment" hidden onchange="pick('f',0,this.files[0])"></label><label class="b b2 flex-1 text-center">Pilih Galeri<input type="file" accept="image/*" hidden onchange="pick('f',0,this.files[0])"></label></div>
-${F.photo?`<img src="${F.photo}" style="max-height:300px" class="rounded-lg my-2"><button class="b bd" onclick="F.photo='';render()">Hapus Foto</button>`:''}
-${inBtnHtml()}<p class="text-xs opacity-60 text-center mt-1">Data otomatis masuk ke tab Data dan Grafik.</p></div>`+lc}
+${m?`<button class="b w-full mt-1" onclick="puOpen()">${TT('Buka input','Open input')} ${esc(m.code)}</button>`:''}<p class="text-xs opacity-60 text-center mt-2">${TT('Pilih Main Equipment, lalu isi data di jendela yang muncul. Data otomatis masuk ke tab Data dan Grafik.','Pick a Main Equipment, then fill in the data in the window that opens. Data goes to the Data and Charts tabs automatically.')}</p></div>`+lc}
+/* ---------- POPUP INPUT PER MAIN EQUIPMENT ---------- */
+const TT=(a,b)=>LG=='en'?b:a;
+let PUS={},PUQ=Promise.resolve(),PUC=null;
+const PUI={ck:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',ed:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',cm:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg>',x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'};
+const puSt=m=>PUS[m.id]||(PUS[m.id]={rows:{},ket:{},ph:{},open:{}});
+const puRow=(S,sid,mt)=>S.rows[sid+'|'+mt]||(S.rows[sid+'|'+mt]={kA:'',sv:'',rid:'',saved:false,err:''});
+const puId=(p,si,mi)=>document.getElementById(p+'_'+si+'_'+mi);
+function puOpen(){const m=mainBy(F.main);if(!m)return;PUC=m.id;document.body.style.overflow='hidden';puDraw()}
+function puBadge(R,mat){const k=parseFloat(R.kA);if(isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<span class="pu-b ${ok?'ok':'no'}">${ok?'OK':'NG'}</span>`}
+function puRowH(si,s,mat,mi,S){const R=puRow(S,s.id,mat.mt),d=R.saved;
+ return`<div class="pu-r"><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b>${esc(mat.mt)}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div></div>`}
+function puSec(m,si,S){const s=m.subs[si],ket=S.ket[s.id]||'',ph=S.ph[s.id]||'';
+ return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'x':'c'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${ket?' on':''}" onclick="puKet(${si})">${TT('Keterangan','Remarks')}</button><label class="pu-ab p${ph?' on':''}">${PUI.cm}<input type="file" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this.files[0])"></label></div>${S.open[s.id]?`<textarea id="puK_${si}" class="pu-ta" rows="2" oninput="puKin(${si},this.value)" onchange="puApply(${si})" placeholder="${TT('Tulis keterangan','Write remarks')}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si})">&times;</button></div>`:''}</div>`}
+function puDraw(){const m=mainBy(PUC);if(!m)return puHide();const S=puSt(m);let o=document.getElementById('pu');
+ if(!o){o=document.createElement('div');o.id='pu';o.className='pu-ov';o.addEventListener('pointerdown',e=>{if(e.target===o)puClose()});document.body.appendChild(o)}
+ const old=o.querySelector('.pu-bx'),st=old?old.scrollTop:0;
+ o.innerHTML=`<div class="pu-bx"><div class="pu-hd"><div><div class="pu-t">${esc(m.code)}</div>${m.loc?`<div class="pu-s">${esc(m.loc)}</div>`:''}</div><button type="button" class="pu-x" aria-label="Tutup" onclick="puClose()">${PUI.x}</button></div><div class="pu-bd">${m.subs.length?m.subs.map((s,si)=>puSec(m,si,S)).join(''):`<p class="text-sm opacity-70 text-center py-4">${TT('Belum ada Sub Equipment di Master','No Sub Equipment in Master yet')}</p>`}</div></div>`;
+ const nb=o.querySelector('.pu-bx');if(nb)nb.scrollTop=st}
+function puIn(si,mi,el){const m=mainBy(PUC),s=m.subs[si],mat=s.mats[mi],R=puRow(puSt(m),s.id,mat.mt);R.kA=el.value;R.err='';const e=puId('puR',si,mi);if(e)e.textContent='';const b=puId('puB',si,mi);if(b)b.innerHTML=puBadge(R,mat)}
+function puFmt(si,mi,el){if(el.readOnly)return;const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.toFixed(1);puIn(si,mi,el)}
+function puDo(si,mi){const m=mainBy(PUC);if(!m)return false;const s=m.subs[si],mat=s.mats[mi],S=puSt(m),R=puRow(S,s.id,mat.mt);if(R.saved)return true;
+ const k=parseFloat(R.kA);if(isNaN(k)){R.err=TT('Isi angka kA dulu','Enter the kA value first');return false}
+ const loc=F.loc||m.loc;if(!loc){toast('Pilih lokasi');return false}
+ const ket=S.ket[s.id]||'',ph=S.ph[s.id]||'',stt=k>=mat.min&&k<=mat.max?'OK':'NG';let r=R.rid&&D.insp.find(x=>x.id==R.rid),oldPid='';
+ if(r){if(ph!==r.photo){oldPid=r.photoId||'';r.photo=ph;r.photoId=''}Object.assign(r,{kA:k,min:mat.min,max:mat.max,status:stt,ket:ket,loc:loc,editedBy:U.email||U.id,editedByName:(D.prof&&D.prof.name)||U.name||'',ea:Date.now()});puApR(r)}
+ else{r={id:uid8(),dt:F.dt,mid:m.id,main:m.code,sid:s.id,sub:s.name,subType:s.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:stt,c1:F.c1||'',c2:F.c2||'',shift:F.shift||'',loc:loc,desc:F.desc||'',job:F.job||'',ket:ket,photo:ph,userId:U.id,userName:(D.prof&&D.prof.name)||U.name||'',userEmail:U.email||U.id,created:Date.now(),ap:'p'};D.insp.unshift(r);R.rid=r.id}
+ R.kA=k.toFixed(1);R.sv=R.kA;R.saved=true;R.err='';save(true);cloudPut(r);puSync(r,oldPid);return true}
+function puSave(si,mi){if(puDo(si,mi))try{hap('ok')}catch(e){}puDraw()}
+const puApR=r=>{if(r.ap=='a'){r.ap='p';r.apBy=r.apName=r.apRole='';r.apAt=0}};
+function puSync(r,oldPid){PUQ=PUQ.then(async()=>{if(awCheck())return;try{if(oldPid&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}await awUpsert(r)}catch(e){console.error('Kirim data gagal:',e)}}).catch(()=>{})}
+function puEdit(si,mi){const m=mainBy(PUC),s=m.subs[si],R=puRow(puSt(m),s.id,s.mats[mi].mt);R.saved=false;puDraw();const e=puId('puI',si,mi);if(e)e.focus()}
+function puKet(si){const m=mainBy(PUC),s=m.subs[si],S=puSt(m);S.open[s.id]=!S.open[s.id];puDraw();const e=document.getElementById('puK_'+si);if(e)e.focus()}
+function puKin(si,v){const m=mainBy(PUC);puSt(m).ket[m.subs[si].id]=v}
+function puApply(si){const m=mainBy(PUC),s=m.subs[si],S=puSt(m),ket=S.ket[s.id]||'',ph=S.ph[s.id]||'';let ch=false;
+ s.mats.forEach(mat=>{const R=puRow(S,s.id,mat.mt),r=R.rid&&D.insp.find(x=>x.id==R.rid);if(!r||(r.ket==ket&&r.photo==ph))return;let op='';if(r.photo!==ph){op=r.photoId||'';r.photo=ph;r.photoId=''}r.ket=ket;r.ea=Date.now();puApR(r);cloudPut(r);puSync(r,op);ch=true});if(ch)save(true)}
+function puPhoto(si,f){if(!f)return;const m=mainBy(PUC),s=m.subs[si];compress(f,d=>{puSt(m).ph[s.id]=d;puApply(si);puDraw()})}
+function puPhDel(si){const m=mainBy(PUC),s=m.subs[si];puSt(m).ph[s.id]='';puApply(si);puDraw()}
+function puDirty(m){const S=puSt(m),o=[];m.subs.forEach((s,si)=>s.mats.forEach((mat,mi)=>{const R=puRow(S,s.id,mat.mt);if(!R.saved&&R.kA!==''&&R.kA!==R.sv&&!isNaN(parseFloat(R.kA)))o.push([si,mi])}));return o}
+function puClose(){const m=mainBy(PUC);if(!m)return puHide();if(document.getElementById('puC'))return;if(puDirty(m).length)return puAsk();puHide()}
+function puHide(){const m=mainBy(PUC);if(m){const S=puSt(m);Object.keys(S.rows).forEach(k=>{const R=S.rows[k];if(R.sv!==''&&!R.saved&&R.kA===R.sv)R.saved=true})}const o=document.getElementById('pu');if(o)o.remove();PUC=null;document.body.style.overflow='';render()}
+function puAsk(){const o=document.getElementById('pu'),m=mainBy(PUC);if(!o||!m)return;const d=document.createElement('div');d.id='puC';d.className='pu-cf';d.innerHTML=`<div class="pu-cb"><div class="pu-ct">${TT('Simpan dulu?','Save first?')}</div><p>${TT('Masih ada data yang belum disimpan di ','There is unsaved data in ')}${esc(m.code)}.</p><div class="pu-cr"><button type="button" class="pu-b0" onclick="puDiscard()">${TT('Buang','Discard')}</button><button type="button" class="pu-sv" onclick="puSaveAll()">${TT('Simpan','Save')}</button></div></div>`;o.appendChild(d)}
+function puDiscard(){const m=mainBy(PUC);if(m){const S=puSt(m);puDirty(m).forEach(p=>{const s=m.subs[p[0]],R=puRow(S,s.id,s.mats[p[1]].mt);R.kA=R.sv;R.err='';if(R.sv!=='')R.saved=true})}puHide()}
+function puSaveAll(){const m=mainBy(PUC);if(m){let ok=true;puDirty(m).forEach(p=>{if(!puDo(p[0],p[1]))ok=false});if(!ok){const c=document.getElementById('puC');if(c)c.remove();puDraw();return}}try{hap('ok')}catch(e){}puHide()}
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&PUC)puClose()});
 function kFmt(el,o){const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.toFixed(1);o.kA=el.value}
 function kpv(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);if(F.kC==null||F.kC!==F.kA||!mat||isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<div class="text-xs mt-1"><span class="bg ${ok?'ok':'no'}">${ok?'OK':'NG'}</span> ${f1(k)} kA (std ${f1(mat.min)}-${f1(mat.max)}) - tekan Simpan Data</div>`}
 function kpvUp(){const e=$('#kpv');if(e)e.innerHTML=kpv()}
 function kEnter(e){if(e.key!='Enter')return;e.preventDefault();const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat);F.kA=e.target.value;if(!mat)return toast('Pilih Main, Sub & Material dulu');if(isNaN(parseFloat(F.kA)))return toast('Isi nilai Arus (kA)');F.kC=F.kA;kpvUp();e.target.blur();setTimeout(()=>{const b=$('#bsv');if(b)b.scrollIntoView({block:'center',behavior:'smooth'})},200)}
-function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');saveProf();F.step=2;scrollTo(0,0);render()}
-function cbFill(all){const l=$('#cbl'),i=$('#mq');if(!l||!i)return[];const q=all?'':i.value.trim().toLowerCase(),cur=mainBy(F.main),a=D.mains.filter(m=>!q||m.code.toLowerCase().includes(q));
- l.innerHTML=a.length?a.map(m=>`<div class="cb-o${cur&&cur.id==m.id?' on':''}" onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()" onclick="cbPick('${esc(String(m.id))}')">${esc(m.code)}</div>`).join(''):`<div class="cb-o" style="opacity:.6">${LG=='en'?'Not found':'Tidak ditemukan'}</div>`;return a}
-function cbOpen(all){const l=$('#cbl');if(!l)return;cbFill(all);l.classList.add('show');const o=l.querySelector('.on');if(o)o.scrollIntoView({block:'nearest'})}
+function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');saveProf();PUS={};F.step=2;scrollTo(0,0);render()}
+let CBALL=true;
+const cbMv=()=>{try{return localStorage.getItem('wms_mv')=='grid'?'grid':'list'}catch(e){return'list'}};
+function cbView(v){try{localStorage.setItem('wms_mv',v)}catch(e){}cbFill(CBALL)}
+function cbFill(all){CBALL=all;const l=$('#cbl'),i=$('#mq');if(!l||!i)return[];const q=all?'':i.value.trim().toLowerCase(),cur=mainBy(F.main),a=D.mains.filter(m=>!q||m.code.toLowerCase().includes(q)),g=cbMv()=='grid',ev=' onpointerdown="event.preventDefault()" onmousedown="event.preventDefault()"';
+ const hd=`<div class="cb-h"><span>${TT('Tampilan','View')}</span><div class="cb-sw"><button type="button" class="${g?'':'on'}"${ev} onclick="cbView('list')">List</button><button type="button" class="${g?'on':''}"${ev} onclick="cbView('grid')">Grid</button></div></div>`;
+ const body=a.length?(g?'<div class="cb-g">'+a.map(m=>`<button type="button" class="cb-gi${cur&&cur.id==m.id?' on':''}"${ev} onclick="cbPick('${esc(String(m.id))}')">${esc(m.code)}</button>`).join('')+'</div>':a.map(m=>`<div class="cb-o${cur&&cur.id==m.id?' on':''}"${ev} onclick="cbPick('${esc(String(m.id))}')">${esc(m.code)}</div>`).join('')):`<div class="cb-o" style="opacity:.6">${LG=='en'?'Not found':'Tidak ditemukan'}</div>`;
+ l.innerHTML=hd+body;return a}
+function cbOpen(all){const l=$('#cbl');if(!l)return;cbFill(all);l.classList.add('show');const o=l.querySelector('.cb-o.on,.cb-gi.on');if(o)o.scrollIntoView({block:'nearest'})}
 function cbClose(){const l=$('#cbl');if(l)l.classList.remove('show')}
 function cbTog(){const l=$('#cbl');if(!l)return;if(l.classList.contains('show'))cbClose();else cbOpen(true)}
-function cbPick(id){const m=D.mains.find(x=>String(x.id)==String(id));cbClose();if(!m)return;if(String(F.main)==String(m.id)){const i=$('#mq');if(i)i.value=m.code;return}F.main=m.id;F.sub='';F.mat='';F.loc='';F.mq='';render()}
+function cbPick(id){const m=D.mains.find(x=>String(x.id)==String(id));cbClose();if(!m)return;if(String(F.main)==String(m.id)){const i=$('#mq');if(i)i.value=m.code;puOpen();return}F.main=m.id;F.sub='';F.mat='';F.loc='';F.mq='';render();puOpen()}
 function cbKey(e){if(e.key=='Escape')return cbClose();if(e.key!='Enter')return;e.preventDefault();const v=e.target.value.trim().toLowerCase(),a=cbFill(false),x=a.find(m=>m.code.toLowerCase()==v)||(a.length==1?a[0]:null);if(x)cbPick(x.id);else cbClose()}
 document.addEventListener('pointerdown',e=>{const t=e.target.closest?e.target:e.target.parentNode;if(!t.closest('.cb'))cbClose()});
-function selMain(v){const m=D.mains.find(x=>x.code.toLowerCase()==v.toLowerCase());if(m){F.main=m.id;F.sub='';F.mat='';F.loc='';render()}}
+function selMain(v){const m=D.mains.find(x=>x.code.toLowerCase()==v.toLowerCase());if(m){if(String(F.main)==String(m.id))return;F.main=m.id;F.sub='';F.mat='';F.loc='';render();puOpen()}}
 const stV=i=>{const k=parseFloat(i.kA),a=parseFloat(i.min),b=parseFloat(i.max);return isNaN(k)||isNaN(a)||isNaN(b)?i.status:(k>=a&&k<=b?'OK':'NG')};
 const st=i=>{const v=stV(i);return`<span class="bg ${v=='OK'?'ok':'no'}">${v}</span>`};
 function saveInsp(){const m=mainBy(F.main),sub=subBy(m,F.sub),mat=sub&&sub.mats.find(x=>x.mt==F.mat),k=parseFloat(F.kA);
@@ -1465,10 +1556,16 @@ function dataView(){calInit();let a=filt(Q);a.sort((x,y)=>Q.sort=='old'?x.create
 const S=(k,v,ph,o)=>`<select class="i" style="width:48%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`,S3=(k,v,ph,o)=>`<select class="i" style="width:32%;display:inline-block" onchange="Q.${k}=this.value;render()">${opts(o,v,ph)}</select>`;
 return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-bold py-3">Data Pengecekan <span class="bg">Read Only</span></h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:420px"><button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData(1)">&#11015; Unduh PDF</button><button class="b b2" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap" onclick="pdfData()">Bagikan</button>${undoHas()?`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#f59e0b;color:#111" title="Batalkan aksi terakhir (hapus / approve), maksimal 3 kali" onclick="undoDel()">&#8630; Undo${undoCnt()>1?' ('+undoCnt()+')':''}</button>`:`<button class="b" style="display:flex;align-items:center;justify-content:center;width:100%;height:40px;padding:0 6px;font-size:13px;white-space:nowrap;grid-column:1/-1;background:#cbd5e1;color:#64748b;cursor:not-allowed;box-shadow:none" title="Belum ada aksi yang bisa di-undo" onclick="undoDel()">&#8630; Undo</button>`}</div></div><div class="c" id="cb_fltd"><button type="button" class="flex justify-between items-center w-full" style="text-align:left;cursor:pointer" onclick="bxTog('fltd')"><b>Filters${fltN(Q,['s','main','type','mat','loc','st','ap'])?' <span class="bg or">'+fltN(Q,['s','main','type','mat','loc','st','ap'])+'</span>':''}</b>${bxIcon(BXO.fltd)}</button><div class="cbb" style="display:${BXO.fltd?'block':'none'}"><input class="i" placeholder="Cari..." value="${esc(Q.s||'')}" onchange="Q.s=this.value;render()">
 ${S('main',Q.main,'Semua Equipment',D.mains.map(m=>[m.id,m.code]))}${S('type',Q.type,'Semua Type',tyAll())}${S('mat',Q.mat,'Semua Material',D.M.mats)}${S('loc',Q.loc,'Semua Lokasi',D.M.locs)}${S('st',Q.st,'Semua Status',['OK','NG'])}${S('ap',Q.ap,'Semua Approval',[['p','Pending approval'],['a','Approved']])}${S('inp',Q.inp,'Semua Input',[['s','Sudah Input'],['b','Belum Input']])}${S('sort',Q.sort,'',[['new','Terbaru'],['old','Terlama'],['hi','kA tertinggi'],['lo','kA terendah']])}</div></div>
-${calView()}${Q.inp?inpList():`${Q.show?inpBan():''}${vmSw()}
+${calView()}${Q.inp?inpList():`${Q.show?inpBan():''}${dtGrp()}${vmSw()}
 ${Q.show?`<p class="text-xs opacity-60">${a.length} data</p>
-${a.map(dataCard).join('')||'<p class="text-center opacity-60 py-8">Belum ada data</p>'}`:''}`}
+${dtList(a)}`:''}`}
 ${upBtnHtml()}`}
+function dtGrp(){const g=Q.grp||'',b=(k,l)=>`<button type="button" class="b${g==k?'':' b2'}" style="flex:1;padding:8px;font-size:13px" onclick="Q.grp='${k}';render()">${l}</button>`;return`<div class="dg" style="display:flex;gap:6px;margin:6px 0">${b('',TT('Semua','All'))}${b('mat','Per Material')}${b('loc','Per Lokasi')}</div>`}
+function dtList(a){if(!a.length)return'<p class="text-center opacity-60 py-8">Belum ada data</p>';const g=Q.grp||'';let n=0;if(!g)return a.map(i=>dataCard(i,n++)).join('');
+ const ord=(arr,key,base)=>{const o=[...base];arr.forEach(i=>{const v=i[key]||'';if(!o.includes(v))o.push(v)});return o},by=(arr,key,v)=>arr.filter(i=>(i[key]||'')==v),hd=(t,c)=>`<h3 class="font-bold pt-2 dg">${t} <span class="text-xs opacity-60 font-normal">(${c} data)</span></h3>`;let h='';
+ if(g=='mat')ord(a,'mat',D.M.mats).forEach(m=>{const r=by(a,'mat',m);if(r.length)h+=hd('Material: '+esc(m||'-'),r.length)+r.map(i=>dataCard(i,n++)).join('')});
+ else ord(a,'loc',D.M.locs).forEach(l=>{const r=by(a,'loc',l);if(!r.length)return;h+=hd('Lokasi: '+esc(l||'-'),r.length);ord(r,'mat',D.M.mats).forEach(m=>{const q=by(r,'mat',m);if(q.length)h+=`<div class="text-xs opacity-70 pt-1 dg">Material ${esc(m||'-')}</div>`+q.map(i=>dataCard(i,n++)).join('')})});
+ return h}
 let UPB=0,UPP=100;
 const upLbl=()=>!UPB?'Upload Data':UPP>=100?'Selesai':'Uploading '+Math.round(UPP)+'%';
 const upLayer=c=>`<span class="up-l ${c}"><svg class="up-ic" viewBox="0 0 64 44" width="34" height="24" aria-hidden="true"><path class="up-cl" d="M51.5 19.2A16 16 0 0 0 20.6 14.6 12.5 12.5 0 0 0 14 38.8h37a10 10 0 0 0 .5-19.6z"/><path class="up-ar" d="M32 14 22 25h6.5v8h7v-8H42z"/></svg><span class="up-tx">${upLbl()}</span></span>`;
