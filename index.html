@@ -264,7 +264,7 @@ body{padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(64px + env(saf
 label{font-size:12px;font-weight:600;opacity:.8}
 nav{position:fixed;bottom:0;left:0;right:0;background:#000;display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
 nav button{flex:1;padding:10px 0;color:#94a3b8;font-size:11px}nav button.on{color:#2563EB;font-weight:700}
-#t{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:8px 16px;border-radius:99px;z-index:50;display:none;font-size:13px}
+#t{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:8px 16px;border-radius:99px;z-index:950;display:none;font-size:13px}
 .lg{position:fixed;inset:0;overflow:auto;z-index:30;color:#f1f5f9;background:radial-gradient(circle at 20% 10%,#1e40af 0,transparent 45%),radial-gradient(circle at 85% 90%,#0ea5e9 0,transparent 40%),#020617;padding:calc(24px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
 .lg .in{max-width:380px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center}
 .glass{background:rgba(255,255,255,.08);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:20px}
@@ -1458,7 +1458,7 @@ function puSec(m,si,S){const s=m.subs[si],hk=s.mats.some(x=>S.ket[s.id+'|'+x.mt]
 function puDraw(){const m=mainBy(PUC);if(!m)return puHide();const S=puSt(m);let o=document.getElementById('pu');
  if(!o){o=document.createElement('div');o.id='pu';o.className='pu-ov';o.addEventListener('pointerdown',e=>{if(e.target===o)puClose()});document.body.appendChild(o)}
  const old=o.querySelector('.pu-bx'),st=old?old.scrollTop:0;
- o.innerHTML=`<div class="pu-bx"><div class="pu-hd"><div><div class="pu-t">${esc(m.code)}</div>${m.loc?`<div class="pu-s">${esc(m.loc)}</div>`:''}</div><button type="button" class="pu-x" aria-label="Tutup" onclick="puClose()">${PUI.x}</button></div><div class="pu-bd">${m.subs.length?m.subs.map((s,si)=>puSec(m,si,S)).join(''):`<p class="text-sm opacity-70 text-center py-4">${TT('Belum ada Sub Equipment di Master','No Sub Equipment in Master yet')}</p>`}</div>${m.subs.length?`<div class="pu-ft"><button type="button" class="pu-fs" onclick="puSaveBtn()">Save</button></div>`:''}</div>`;
+ o.innerHTML=`<div class="pu-bx"><div class="pu-hd"><div><div class="pu-t">${esc(m.code)}</div>${m.loc?`<div class="pu-s">${esc(m.loc)}</div>`:''}</div><button type="button" class="pu-x" aria-label="Tutup" onclick="puClose()">${PUI.x}</button></div><div class="pu-bd">${m.subs.length?m.subs.map((s,si)=>puSec(m,si,S)).join(''):`<p class="text-sm opacity-70 text-center py-4">${TT('Belum ada Sub Equipment di Master','No Sub Equipment in Master yet')}</p>`}</div>${m.subs.length?`<div class="pu-ft"><button type="button" class="pu-fs" onclick="puSaveBtn()">Save Partial</button></div>`:''}</div>`;
  const nb=o.querySelector('.pu-bx');if(nb)nb.scrollTop=st}
 function puIn(si,mi,el){const m=mainBy(PUC),s=m.subs[si],mat=s.mats[mi],R=puRow(puSt(m),s.id,mat.mt);R.kA=el.value;R.err='';const e=puId('puR',si,mi);if(e)e.textContent='';const b=puId('puB',si,mi);if(b)b.innerHTML=puBadge(R,mat)}
 function puFmt(si,mi,el){if(el.readOnly)return;const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.toFixed(1);puIn(si,mi,el)}
@@ -1480,7 +1480,7 @@ async function puAuto(){const m=mainBy(PUC);if(!m||PUA)return;PUA=1;
 function puSaveBtn(){const m=mainBy(PUC);if(!m||PUA)return;puSettle(m);let n=0,bad=0;puDirty(m).forEach(p=>{if(puDo(p[0],p[1]))n++;else bad++});puDraw();if(bad)return;
  const t=puStat(m);
  if(t[0]==t[1]){if(n){try{hap('ok')}catch(e){}puAuto()}else toast(TT('Belum ada data baru untuk disimpan','No new data to save'));return}
- if(!n)return toast(TT('Isi minimal satu field dulu','Fill in at least one field first'));
+ if(!n&&!t[0])return toast(TT('Isi minimal satu field dulu','Fill in at least one field first'));
  awSuccess(TT('Tersimpan','Saved'),t[0]+' / '+t[1]+' '+TT('field terisi','fields filled'))}
 const puApR=r=>{if(r.ap=='a'){r.ap='p';r.apBy=r.apName=r.apRole='';r.apAt=0}};
 function puSync(r,oldPid){PUQ=PUQ.then(async()=>{if(awCheck())return;try{if(oldPid&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}await awUpsert(r)}catch(e){PUERR=1;console.error('Kirim data gagal:',e)}}).catch(()=>{})}
