@@ -230,7 +230,7 @@ function awCling(){
 function awSuccess(title,sub){try{hap('ok')}catch(e){}
   if(!document.getElementById("aw-css")){
     const st=document.createElement("style");st.id="aw-css";
-    st.textContent=".aw-ok{position:fixed;top:0;left:0;width:100%;height:100%;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);animation:awf .2s}"+
+    st.textContent=".aw-ok{position:fixed;top:0;left:0;width:100%;height:100%;z-index:900;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);animation:awf .2s}"+
     ".aw-card{display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--cd,#fff);color:var(--tx,#0f172a);border-radius:16px;padding:16px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35);animation:awp .3s;max-width:80%}"+
     ".aw-ok svg{display:block;margin:0 auto;flex:none}"+
     ".aw-ok circle{transform:rotate(-90deg);transform-origin:26px 26px}"+
@@ -595,7 +595,7 @@ html[data-view=pc] .vw-data.vm-grid>.dc{grid-column:span 6}
 .pE{font-size:18px;white-space:nowrap;flex:none}
 .pTg{display:flex;gap:8px;min-width:0;flex-wrap:wrap}
 .pb{display:inline-block;padding:2px 14px;border-radius:8px;font-size:13px;font-weight:500;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-.pT{background:#B4C7E7;color:#1F3864}.pK{background:#FFE699;color:#5F4B00}.pM{background:#ED7D31;color:#3B1A00}.pN{background:#ED7D31;color:#3B1A00;font-size:11px;padding:1px 8px}
+.pT{background:linear-gradient(135deg,#166534,#22a04a);color:#fff}.pK{background:linear-gradient(90deg,#5b7aa6,#a9cdee);color:#16284a}.pM{background:linear-gradient(135deg,#3a1d8c,#5b2aa0);color:#fff}.pN{background:#ED7D31;color:#3B1A00;font-size:11px;padding:1px 8px}
 .pS{margin-left:auto;flex:none;border-radius:5px;padding:2px 14px;font-weight:600}
 .pS.pe{background:#FFC000;color:#4A3500}.pS.ap{background:#92D050;color:#375623}
 .pLn{position:relative;border-top:1px solid var(--bd);margin:12px 4px}
@@ -703,6 +703,10 @@ html:not([data-view=pc]) .vw-data.vm-grid>.dc{grid-column:auto;margin:0;min-widt
 html:not([data-view=pc]) .vw-data.vm-grid .dc .sw-in,html:not([data-view=pc]) .vw-data.vm-grid .dc>div[onclick]{flex-direction:column;gap:6px;padding:10px;min-width:0}
 html:not([data-view=pc]) .vw-data.vm-grid .dc .text-sm{font-size:12px;min-width:0;word-break:break-word}
 html:not([data-view=pc]) .vw-data.vm-grid .dc .bg{font-size:10px}
+html .bg.bgT{background:linear-gradient(135deg,#166534,#22a04a);color:#fff;border:0}
+html .bg.bgS{background:linear-gradient(90deg,#5b7aa6,#a9cdee);color:#16284a;border:0}
+html .bg.bgM{background:linear-gradient(135deg,#3a1d8c,#5b2aa0);color:#fff;border:0}
+.dlH .bg.bgT{flex-shrink:0;max-width:none}
 html[data-view=pc] .vw-grafik.vm-grid>.c.gc{grid-column:span 6}
 @media(max-width:1100px){html[data-view=pc] .vw-grafik.vm-grid>.c.gc{grid-column:1/-1}}
 /* ===== COMBOBOX (ketik + dropdown) ===== */
@@ -758,6 +762,8 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-cb{background:var(--bg);border:1px solid var(--bd);border-radius:16px;padding:18px;width:100%;max-width:300px;text-align:center}
 .pu-ct{font-size:17px;font-weight:800}.pu-cb p{font-size:13px;opacity:.75;margin:6px 0 14px}
 .pu-cr{display:flex;gap:8px}.pu-cr .pu-sv{flex:1;width:auto}
+.pu-ft{position:sticky;bottom:0;z-index:2;padding:10px 12px;background:var(--bg);border-top:1px solid var(--bd)}
+.pu-fs{width:100%;height:44px;border-radius:999px;border:0;color:#fff;font-weight:800;font-size:15px;background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 4px 12px rgba(34,197,94,.35)}
 .pu-b0{flex:1;height:40px;border-radius:999px;background:var(--bd);color:var(--tx);border:0;font-weight:700}
 .cp{display:inline-flex;align-items:center;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);color:#1e3a8a;font-size:13px;font-weight:600;overflow:hidden;max-width:100%}
 .cp button{padding:7px 10px;color:inherit;font:inherit;background:transparent;border:0;text-align:left}
@@ -1437,7 +1443,7 @@ ${fld('Main Equipment',`<div class="cb"><input id="mq" class="i" autocomplete="o
 ${m?`<button class="b w-full mt-1" onclick="puOpen()">${TT('Buka input','Open input')} ${esc(m.code)}</button>`:''}<p class="text-xs opacity-60 text-center mt-2">${TT('Pilih Main Equipment, lalu isi data di jendela yang muncul. Data otomatis masuk ke tab Data dan Grafik.','Pick a Main Equipment, then fill in the data in the window that opens. Data goes to the Data and Charts tabs automatically.')}</p></div>`+lc}
 /* ---------- POPUP INPUT PER MAIN EQUIPMENT ---------- */
 const TT=(a,b)=>LG=='en'?b:a;
-let PUS={},PUQ=Promise.resolve(),PUC=null,PUPM=0;
+let PUS={},PUQ=Promise.resolve(),PUC=null,PUPM=0,PUERR=0,PUA=0;
 const PUI={ck:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',ed:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',cm:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg>',x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'};
 const puSt=m=>PUS[m.id]||(PUS[m.id]={rows:{},ket:{},ph:{},open:{}});
 const puRow=(S,sid,mt)=>S.rows[sid+'|'+mt]||(S.rows[sid+'|'+mt]={kA:'',sv:'',rid:'',saved:false,err:''});
@@ -1452,7 +1458,7 @@ function puSec(m,si,S){const s=m.subs[si],hk=s.mats.some(x=>S.ket[s.id+'|'+x.mt]
 function puDraw(){const m=mainBy(PUC);if(!m)return puHide();const S=puSt(m);let o=document.getElementById('pu');
  if(!o){o=document.createElement('div');o.id='pu';o.className='pu-ov';o.addEventListener('pointerdown',e=>{if(e.target===o)puClose()});document.body.appendChild(o)}
  const old=o.querySelector('.pu-bx'),st=old?old.scrollTop:0;
- o.innerHTML=`<div class="pu-bx"><div class="pu-hd"><div><div class="pu-t">${esc(m.code)}</div>${m.loc?`<div class="pu-s">${esc(m.loc)}</div>`:''}</div><button type="button" class="pu-x" aria-label="Tutup" onclick="puClose()">${PUI.x}</button></div><div class="pu-bd">${m.subs.length?m.subs.map((s,si)=>puSec(m,si,S)).join(''):`<p class="text-sm opacity-70 text-center py-4">${TT('Belum ada Sub Equipment di Master','No Sub Equipment in Master yet')}</p>`}</div></div>`;
+ o.innerHTML=`<div class="pu-bx"><div class="pu-hd"><div><div class="pu-t">${esc(m.code)}</div>${m.loc?`<div class="pu-s">${esc(m.loc)}</div>`:''}</div><button type="button" class="pu-x" aria-label="Tutup" onclick="puClose()">${PUI.x}</button></div><div class="pu-bd">${m.subs.length?m.subs.map((s,si)=>puSec(m,si,S)).join(''):`<p class="text-sm opacity-70 text-center py-4">${TT('Belum ada Sub Equipment di Master','No Sub Equipment in Master yet')}</p>`}</div>${m.subs.length?`<div class="pu-ft"><button type="button" class="pu-fs" onclick="puSaveBtn()">Save</button></div>`:''}</div>`;
  const nb=o.querySelector('.pu-bx');if(nb)nb.scrollTop=st}
 function puIn(si,mi,el){const m=mainBy(PUC),s=m.subs[si],mat=s.mats[mi],R=puRow(puSt(m),s.id,mat.mt);R.kA=el.value;R.err='';const e=puId('puR',si,mi);if(e)e.textContent='';const b=puId('puB',si,mi);if(b)b.innerHTML=puBadge(R,mat)}
 function puFmt(si,mi,el){if(el.readOnly)return;const n=parseFloat(el.value);if(isNaN(n))return;el.value=n.toFixed(1);puIn(si,mi,el)}
@@ -1463,9 +1469,21 @@ function puDo(si,mi){const m=mainBy(PUC);if(!m)return false;const s=m.subs[si],m
  if(r){if(ph!==r.photo){oldPid=r.photoId||'';r.photo=ph;r.photoId=''}Object.assign(r,{kA:k,min:mat.min,max:mat.max,status:stt,ket:ket,loc:loc,editedBy:U.email||U.id,editedByName:(D.prof&&D.prof.name)||U.name||'',ea:Date.now()});puApR(r)}
  else{r={id:uid8(),dt:F.dt,mid:m.id,main:m.code,sid:s.id,sub:s.name,subType:s.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:stt,c1:F.c1||'',c2:F.c2||'',shift:F.shift||'',loc:loc,desc:F.desc||'',job:F.job||'',ket:ket,photo:ph,userId:U.id,userName:(D.prof&&D.prof.name)||U.name||'',userEmail:U.email||U.id,created:Date.now(),ap:'p'};D.insp.unshift(r);R.rid=r.id}
  R.kA=k.toFixed(1);R.sv=R.kA;R.saved=true;R.err='';save(true);cloudPut(r);puSync(r,oldPid);return true}
-function puSave(si,mi){if(puDo(si,mi))try{hap('ok')}catch(e){}puDraw()}
+function puSave(si,mi){const m=mainBy(PUC),R=m&&puRow(puSt(m),m.subs[si].id,m.subs[si].mats[mi].mt),was=R&&R.saved;if(puDo(si,mi))try{hap('ok')}catch(e){}puDraw();if(m&&R&&!was&&R.saved){const t=puStat(m);if(t[0]==t[1])puAuto()}}
+function puStat(m){const S=puSt(m);let d=0,t=0;m.subs.forEach(s=>s.mats.forEach(mat=>{t++;if(puRow(S,s.id,mat.mt).saved)d++}));return[d,t]}
+function puSettle(m){const S=puSt(m);Object.keys(S.rows).forEach(k=>{const R=S.rows[k];if(R.sv!==''&&!R.saved&&R.kA===R.sv)R.saved=true})}
+async function puAuto(){const m=mainBy(PUC);if(!m||PUA)return;PUA=1;
+ try{await PUQ}catch(e){}
+ const bad=PUERR||!!awCheck()||!navigator.onLine;PUERR=0;
+ awSuccess(bad?TT('Tersimpan di perangkat','Saved on device'):TT('Update berhasil','Update successful'),bad?TT('Dikirim ke server lewat Upload Data','Sent to server via Upload Data'):TT('Data terkirim ke server','Data sent to server'));
+ setTimeout(()=>{PUA=0;if(PUC===m.id)puHide()},1200)}
+function puSaveBtn(){const m=mainBy(PUC);if(!m||PUA)return;puSettle(m);let n=0,bad=0;puDirty(m).forEach(p=>{if(puDo(p[0],p[1]))n++;else bad++});puDraw();if(bad)return;
+ const t=puStat(m);
+ if(t[0]==t[1]){if(n){try{hap('ok')}catch(e){}puAuto()}else toast(TT('Belum ada data baru untuk disimpan','No new data to save'));return}
+ if(!n)return toast(TT('Isi minimal satu field dulu','Fill in at least one field first'));
+ awSuccess(TT('Tersimpan','Saved'),t[0]+' / '+t[1]+' '+TT('field terisi','fields filled'))}
 const puApR=r=>{if(r.ap=='a'){r.ap='p';r.apBy=r.apName=r.apRole='';r.apAt=0}};
-function puSync(r,oldPid){PUQ=PUQ.then(async()=>{if(awCheck())return;try{if(oldPid&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}await awUpsert(r)}catch(e){console.error('Kirim data gagal:',e)}}).catch(()=>{})}
+function puSync(r,oldPid){PUQ=PUQ.then(async()=>{if(awCheck())return;try{if(oldPid&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}await awUpsert(r)}catch(e){PUERR=1;console.error('Kirim data gagal:',e)}}).catch(()=>{})}
 function puEdit(si,mi){const m=mainBy(PUC),s=m.subs[si],R=puRow(puSt(m),s.id,s.mats[mi].mt);R.saved=false;puDraw();const e=puId('puI',si,mi);if(e)e.focus()}
 function puMenu(t,si){const m=mainBy(PUC),S=puSt(m);S.menu=(S.menu&&S.menu[0]==t&&S.menu[1]==si)?null:[t,si];puDraw()}
 function puPick(si,mi,src){const m=mainBy(PUC),s=m.subs[si],S=puSt(m),k=S.menu&&S.menu[0]=='k';S.menu=null;
@@ -2297,12 +2315,12 @@ const dcCmp=i=>{const v=stV(i),c=v=='OK'?'ok':'no',p=!!i.photo,a=apSt(i)=='a';
   return`<div class="dcC"><div class="dcT"><span>${new Date(i.dt).toLocaleDateString(LC())}</span><span class="apBx ${a?'apOk':'apPd'}">${a?'&#10003; Approved':'Pending'}</span></div><div class="dcN">${esc(i.main)}</div><div class="dcV">${f1(i.kA)}<small>kA</small></div><div class="dcD">Standar ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dcB">${p?`<img class="stP rounded-lg" src="${i.photo}">`:''}<span class="bg stB ${c}" style="display:flex;align-items:center;justify-content:center;margin:0 0 0 auto;padding:0;flex-shrink:0;box-sizing:border-box;font-weight:800">${v}</span></div></div>`};
 const dcLst=i=>{const v=stV(i),c=v=='OK'?'ok':'no',a=apSt(i)=='a',ck=[i.c1,i.c2].filter(Boolean).join(' / ')||'-',em=i.userEmail||i.userId||'-',d=new Date(i.dt).toLocaleDateString(LC(),{day:'2-digit',month:'short',year:'2-digit'}).replace(/ /g,'-'),
   bt=a?`<div class="dlWho">${esc(i.apName||i.apBy||'-')}${i.apRole?' ('+esc(i.apRole)+')':''}</div>`:(canAp1(i)?`<button type="button" class="b dlAp apAct" onclick="event.stopPropagation();apDo('${i.id}')">&#10003; Approve</button>`:'');
-  return`<div class="dcL"><div class="dlH"><b class="dlE">${esc(i.main)}</b><span class="bg">${esc(i.sub)}${i.subType?' '+esc(i.subType):''}</span><span class="bg or">${esc(i.mat)}</span><span class="bg ${a?'apOk':'apPd'} dlP">${a?'&#10003; Approved':'Pending'}</span></div><div class="dlLn"></div><div class="dlB"><div class="dlL"><div class="dlSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dlC">Check : ${esc(ck)}</div><div class="dlC">Input &nbsp;: ${esc(inpShow(i))}</div>${bt}</div><div class="dlR"><div class="dlX"><span class="dlK"><b>${f1(i.kA)}</b><i>kA</i></span><span class="bg dlO ${c}">${v}</span>${i.photo?`<img class="dlF" src="${i.photo}" alt="">`:''}</div><div class="dlD">&bull; ${esc(d)}</div></div></div></div>`};
+  return`<div class="dcL"><div class="dlH"><b class="dlE">${esc(i.main)}</b>${i.subType?`<span class="bg bgT">${esc(i.subType)}</span>`:''}<span class="bg bgS">${esc(i.sub)}</span><span class="bg bgM">${esc(i.mat)}</span><span class="bg ${a?'apOk':'apPd'} dlP">${a?'&#10003; Approved':'Pending'}</span></div><div class="dlLn"></div><div class="dlB"><div class="dlL"><div class="dlSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="dlC">Check : ${esc(ck)}</div><div class="dlC">Input &nbsp;: ${esc(inpShow(i))}</div>${bt}</div><div class="dlR"><div class="dlX"><span class="dlK"><b>${f1(i.kA)}</b><i>kA</i></span><span class="bg dlO ${c}">${v}</span>${i.photo?`<img class="dlF" src="${i.photo}" alt="">`:''}</div><div class="dlD">&bull; ${esc(d)}</div></div></div></div>`};
 const dcPc=i=>{const v=stV(i),c=v=='OK'?'ok':'no',a=apSt(i)=='a',ck=[i.c1,i.c2].filter(Boolean).join(' / ')||'-',em=i.userEmail||i.userId||'-',d=new Date(i.dt).toLocaleDateString(LC(),{day:'2-digit',month:'short',year:'2-digit'}).replace(/ /g,'-'),
   bt=a?`<span class="pAp">&#10003; Approved</span><span class="pWo"><span>Approved by: ${esc(i.apName||i.apBy||'-')}</span>${i.apRole?`<span>${esc(i.apRole)}</span>`:''}</span>`:(canAp1(i)?`<button type="button" class="pAp apAct" onclick="event.stopPropagation();apDo('${i.id}')">&#10003; Approve</button>`:'');
   return`<div class="dcP"><div class="pH"><span class="pE"><b>${esc(i.main)}</b>${Date.now()-i.created<3e5?' <span class="pb pN">BARU</span>':''}</span><span class="pTg">${i.subType?`<span class="pb pT">${esc(i.subType)}</span>`:''}<span class="pb pK">${esc(i.sub)}</span><span class="pb pM">${esc(i.mat)}</span></span><span class="pb pS ${a?'ap':'pe'}">${a?'&#10003; Approved':'Pending'}</span></div><div class="pLn"></div><div class="pB"><div class="pI"><div class="pLp">Line Process: ${esc(i.loc||'-')}</div><div class="pSd">Std: ${f1(i.min)} - ${f1(i.max)} kA</div><div class="pC">Check : ${esc(ck)}</div><div class="pC">Input &nbsp;: ${esc(inpShow(i))}</div></div><div class="pX"><span class="pBk"><b>${f1(i.kA)}</b><i>kA</i></span><span class="pBo ${c}">${v}</span>${i.photo?`<img class="pBf" src="${i.photo}" alt="">`:`<span class="pBf n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M3 17l5-4 4 3 3-2 6 4"/></svg>No image<br>available</span>`}</div></div><div class="pFt">${bt}<span class="pD">&bull; ${esc(d)}</span></div></div>`};
 function dataCard(i,n){
-  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> <span class="bg">${esc(i.sub)} ${i.subType}</span><span class="bg or">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div><div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpShow(i))}</div>${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}${dcLst(i)}${dcPc(i)}`;
+  const info=`<div class="dcF"><div class="flex-1 text-sm"><div class="text-xs opacity-60">${new Date(i.dt).toLocaleString(LC())} ${Date.now()-i.created<3e5?'<span class="bg or">BARU</span>':''}</div><b>${esc(i.main)}</b> ${i.subType?`<span class="bg bgT">${esc(i.subType)}</span> `:''}<span class="bg bgS">${esc(i.sub)}</span> <span class="bg bgM">${esc(i.mat)}</span><div class="dkA"><span class="dkN">${f1(i.kA)}</span> <span class="dkU">kA</span> <span class="dkS">(std ${f1(i.min)}-${f1(i.max)})</span></div><div class="text-xs opacity-70">${esc(i.c1)} ${esc(i.c2)} - ${esc(i.loc)}</div><div class="text-xs opacity-60 mt-1" style="word-break:break-all">&#128100; Input oleh: ${esc(inpShow(i))}</div>${apRow(i)}</div>${stSide(i)}</div>${dcCmp(i)}${dcLst(i)}${dcPc(i)}`;
   if(!canDel(i))return`<div class="c dc"><div style="display:flex;gap:12px;cursor:pointer" onclick="detail('${i.id}')">${info}</div></div>`;
   return`<div class="c dc sw-c${n==0&&!L.woms_swh?(L.woms_swh=1,' hint'):''}"><button type="button" class="sw-del" onclick="event.stopPropagation();delInsp('${i.id}')"><span style="font-size:20px">&#128465;</span>Hapus</button><div class="sw-in" onclick="detail('${i.id}')">${info}</div></div>`}
 /* ---------- FILTER GRAFIK: EQUIPMENT, LOKASI, TANGGAL/BULAN/TAHUN ---------- */
