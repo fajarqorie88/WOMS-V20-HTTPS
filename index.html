@@ -724,23 +724,23 @@ html[data-theme=dark] .cb-gi{background:rgba(37,99,235,.2);border-color:rgba(96,
 .pu-x{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);color:#fff;display:flex;align-items:center;justify-content:center;border:0;padding:0}
 .pu-bd{padding:12px}
 .pu-sec{background:var(--cd);border:1px solid var(--bd);border-radius:16px;padding:12px;margin-bottom:12px}
-.pu-ph{display:flex;gap:6px}
-.pu-ty{min-width:84px;text-align:center;padding:6px 14px;border-radius:999px;font-weight:800;font-size:13px;color:#fff}
+.pu-ph{display:flex;gap:6px;align-items:center}
+.pu-ty{min-width:84px;height:34px;line-height:34px;text-align:center;padding:0 14px;border-radius:999px;font-weight:800;font-size:13px;color:#fff;flex:none;box-sizing:border-box}
 .pu-ty.c{background:linear-gradient(135deg,#6366f1,#8b5cf6)}.pu-ty.x{background:linear-gradient(135deg,#0d9488,#14b8a6)}
-.pu-nm{flex:1;min-width:0;text-align:center;padding:6px 12px;border-radius:999px;background:#fde68a;color:#78350f;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pu-nm{flex:1;min-width:0;height:34px;line-height:34px;box-sizing:border-box;text-align:center;padding:0 12px;border-radius:999px;background:#fde68a;color:#78350f;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pu-r{margin-top:10px}.pu-rw{display:flex;gap:6px;align-items:center}
 .pu-ip{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:1.5px solid #60a5fa;border-radius:999px;padding:0 12px;height:40px;background:var(--bg)}
 .pu-ip b{font-size:13px;color:#3b82f6}
 .pu-ip input{border:0;background:transparent;color:var(--tx);flex:1;min-width:0;width:auto;margin:0;padding:0;text-align:right;font-size:15px;font-weight:600;outline:0}
 .pu-ip i{font-style:normal;font-size:12px;opacity:.7}
 .pu-ip.lk{background:rgba(148,163,184,.16);border-color:var(--bd)}
-.pu-sv{width:86px;height:40px;border-radius:999px;border:0;color:#fff;font-weight:800;font-size:13px;background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 4px 12px rgba(34,197,94,.35);display:flex;align-items:center;justify-content:center;gap:4px}
+.pu-sv{width:80px;flex:none;height:40px;border-radius:999px;border:0;color:#fff;font-weight:800;font-size:13px;background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 4px 12px rgba(34,197,94,.35);display:flex;align-items:center;justify-content:center;gap:4px}
 .pu-sv.dn{background:#cbd5e1;color:#475569;box-shadow:none}
 html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
-.pu-bg{width:42px;text-align:center}
-.pu-b{display:inline-block;padding:4px 8px;border-radius:99px;font-size:12px;font-weight:800}
+.pu-bg{width:48px;flex:none;display:flex;justify-content:center}
+.pu-b{display:flex;align-items:center;justify-content:center;width:48px;height:40px;border-radius:999px;font-size:14px;font-weight:800}
 .pu-b.ok{background:#dcfce7;color:#15803d}.pu-b.no{background:#fee2e2;color:#b91c1c}
-.pu-ed{width:34px;height:34px;border-radius:50%;background:#dbeafe;color:#2563eb;border:0;padding:0;display:flex;align-items:center;justify-content:center}
+.pu-ed{width:38px;height:38px;flex:none;border-radius:50%;background:#dbeafe;color:#2563eb;border:0;padding:0;display:flex;align-items:center;justify-content:center}
 .pu-std{font-size:11px;opacity:.65;margin:2px 0 0 14px}.pu-er{color:#ef4444;font-size:12px;margin-left:14px}
 .pu-ac{display:flex;gap:8px;margin-top:12px}
 .pu-ab{flex:1;height:40px;border-radius:999px;border:0;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
@@ -754,6 +754,10 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-ct{font-size:17px;font-weight:800}.pu-cb p{font-size:13px;opacity:.75;margin:6px 0 14px}
 .pu-cr{display:flex;gap:8px}.pu-cr .pu-sv{flex:1;width:auto}
 .pu-b0{flex:1;height:40px;border-radius:999px;background:var(--bd);color:var(--tx);border:0;font-weight:700}
+.pu-mn{margin-top:8px;border:1px solid var(--bd);border-radius:14px;background:var(--bg);overflow:hidden}
+.pu-mt{font-size:12px;opacity:.7;padding:8px 12px 4px}
+.pu-mi{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:10px 12px;border:0;border-top:1px solid var(--bd);background:transparent;color:var(--tx);font-weight:700;font-size:14px}
+.pu-mb{display:flex;gap:6px}.pu-mb button{height:32px;padding:0 14px;border-radius:999px;border:0;font-weight:700;font-size:13px;background:#ede9fe;color:#6d28d9}.pu-mb button+button{background:#dbeafe;color:#1d4ed8}
 .vw-data>.dg{grid-column:1/-1}
 .cb-o{padding:11px 12px;font-size:15px;border-bottom:1px solid var(--bd);cursor:pointer}
 .cb-o:last-child{border-bottom:0}
@@ -1409,17 +1413,18 @@ ${fld('Main Equipment',`<div class="cb"><input id="mq" class="i" autocomplete="o
 ${m?`<button class="b w-full mt-1" onclick="puOpen()">${TT('Buka input','Open input')} ${esc(m.code)}</button>`:''}<p class="text-xs opacity-60 text-center mt-2">${TT('Pilih Main Equipment, lalu isi data di jendela yang muncul. Data otomatis masuk ke tab Data dan Grafik.','Pick a Main Equipment, then fill in the data in the window that opens. Data goes to the Data and Charts tabs automatically.')}</p></div>`+lc}
 /* ---------- POPUP INPUT PER MAIN EQUIPMENT ---------- */
 const TT=(a,b)=>LG=='en'?b:a;
-let PUS={},PUQ=Promise.resolve(),PUC=null;
+let PUS={},PUQ=Promise.resolve(),PUC=null,PUPM=0;
 const PUI={ck:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',ed:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',cm:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg>',x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>'};
 const puSt=m=>PUS[m.id]||(PUS[m.id]={rows:{},ket:{},ph:{},open:{}});
 const puRow=(S,sid,mt)=>S.rows[sid+'|'+mt]||(S.rows[sid+'|'+mt]={kA:'',sv:'',rid:'',saved:false,err:''});
 const puId=(p,si,mi)=>document.getElementById(p+'_'+si+'_'+mi);
 function puOpen(){const m=mainBy(F.main);if(!m)return;PUC=m.id;document.body.style.overflow='hidden';puDraw()}
 function puBadge(R,mat){const k=parseFloat(R.kA);if(isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<span class="pu-b ${ok?'ok':'no'}">${ok?'OK':'NG'}</span>`}
-function puRowH(si,s,mat,mi,S){const R=puRow(S,s.id,mat.mt),d=R.saved;
- return`<div class="pu-r"><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b>${esc(mat.mt)}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div></div>`}
-function puSec(m,si,S){const s=m.subs[si],ket=S.ket[s.id]||'',ph=S.ph[s.id]||'';
- return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'x':'c'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${ket?' on':''}" onclick="puKet(${si})">${TT('Keterangan','Remarks')}</button><label class="pu-ab p${ph?' on':''}">${PUI.cm}<input type="file" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this.files[0])"></label></div>${S.open[s.id]?`<textarea id="puK_${si}" class="pu-ta" rows="2" oninput="puKin(${si},this.value)" onchange="puApply(${si})" placeholder="${TT('Tulis keterangan','Write remarks')}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si})">&times;</button></div>`:''}</div>`}
+function puRowH(si,s,mat,mi,S){const R=puRow(S,s.id,mat.mt),d=R.saved,kk=s.id+'|'+mat.mt,ket=S.ket[kk]||'',ph=S.ph[kk]||'';
+ return`<div class="pu-r"><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b>${esc(mat.mt)}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div>${S.open[kk]?`<textarea id="puK_${si}_${mi}" class="pu-ta" rows="2" oninput="puKin(${si},${mi},this.value)" onchange="puApply(${si},${mi})" placeholder="Remarks ${esc(mat.mt)}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si},${mi})">&times;</button></div>`:''}</div>`}
+function puMenuH(si,s,S){const k=S.menu[0]=='k';return`<div class="pu-mn" id="puM_${si}"><div class="pu-mt">${k?TT('Remarks untuk material:','Remarks for material:'):TT('Foto untuk material:','Photo for material:')}</div>${s.mats.map((mat,mi)=>{const kk=s.id+'|'+mat.mt,has=k?S.ket[kk]:S.ph[kk];return k?`<button type="button" class="pu-mi" onclick="puPick(${si},${mi})"><span>${esc(mat.mt)}</span>${has?PUI.ck:''}</button>`:`<div class="pu-mi"><span>${esc(mat.mt)}${has?' '+PUI.ck:''}</span><span class="pu-mb"><button type="button" onclick="puPick(${si},${mi},'c')">${TT('Kamera','Camera')}</button><button type="button" onclick="puPick(${si},${mi},'g')">${TT('Galeri','Gallery')}</button></span></div>`}).join('')}</div>`}
+function puSec(m,si,S){const s=m.subs[si],hk=s.mats.some(x=>S.ket[s.id+'|'+x.mt]),hp=s.mats.some(x=>S.ph[s.id+'|'+x.mt]);
+ return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'x':'c'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${hk?' on':''}" onclick="puMenu('k',${si})">${TT('Keterangan','Remarks')}</button><button type="button" class="pu-ab p${hp?' on':''}" aria-label="Foto" onclick="puMenu('p',${si})">${PUI.cm}</button></div>${S.menu&&S.menu[1]==si?puMenuH(si,s,S):''}<input type="file" id="puF_${si}" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this)"><input type="file" id="puG_${si}" accept="image/*" hidden onchange="puPhoto(${si},this)"></div>`}
 function puDraw(){const m=mainBy(PUC);if(!m)return puHide();const S=puSt(m);let o=document.getElementById('pu');
  if(!o){o=document.createElement('div');o.id='pu';o.className='pu-ov';o.addEventListener('pointerdown',e=>{if(e.target===o)puClose()});document.body.appendChild(o)}
  const old=o.querySelector('.pu-bx'),st=old?old.scrollTop:0;
@@ -1430,7 +1435,7 @@ function puFmt(si,mi,el){if(el.readOnly)return;const n=parseFloat(el.value);if(i
 function puDo(si,mi){const m=mainBy(PUC);if(!m)return false;const s=m.subs[si],mat=s.mats[mi],S=puSt(m),R=puRow(S,s.id,mat.mt);if(R.saved)return true;
  const k=parseFloat(R.kA);if(isNaN(k)){R.err=TT('Isi angka kA dulu','Enter the kA value first');return false}
  const loc=F.loc||m.loc;if(!loc){toast('Pilih lokasi');return false}
- const ket=S.ket[s.id]||'',ph=S.ph[s.id]||'',stt=k>=mat.min&&k<=mat.max?'OK':'NG';let r=R.rid&&D.insp.find(x=>x.id==R.rid),oldPid='';
+ const kk=s.id+'|'+mat.mt,ket=S.ket[kk]||'',ph=S.ph[kk]||'',stt=k>=mat.min&&k<=mat.max?'OK':'NG';let r=R.rid&&D.insp.find(x=>x.id==R.rid),oldPid='';
  if(r){if(ph!==r.photo){oldPid=r.photoId||'';r.photo=ph;r.photoId=''}Object.assign(r,{kA:k,min:mat.min,max:mat.max,status:stt,ket:ket,loc:loc,editedBy:U.email||U.id,editedByName:(D.prof&&D.prof.name)||U.name||'',ea:Date.now()});puApR(r)}
  else{r={id:uid8(),dt:F.dt,mid:m.id,main:m.code,sid:s.id,sub:s.name,subType:s.type,mat:mat.mt,kA:k,min:mat.min,max:mat.max,status:stt,c1:F.c1||'',c2:F.c2||'',shift:F.shift||'',loc:loc,desc:F.desc||'',job:F.job||'',ket:ket,photo:ph,userId:U.id,userName:(D.prof&&D.prof.name)||U.name||'',userEmail:U.email||U.id,created:Date.now(),ap:'p'};D.insp.unshift(r);R.rid=r.id}
  R.kA=k.toFixed(1);R.sv=R.kA;R.saved=true;R.err='';save(true);cloudPut(r);puSync(r,oldPid);return true}
@@ -1438,12 +1443,15 @@ function puSave(si,mi){if(puDo(si,mi))try{hap('ok')}catch(e){}puDraw()}
 const puApR=r=>{if(r.ap=='a'){r.ap='p';r.apBy=r.apName=r.apRole='';r.apAt=0}};
 function puSync(r,oldPid){PUQ=PUQ.then(async()=>{if(awCheck())return;try{if(oldPid&&awST){try{await awST.deleteFile(AW_BK,String(oldPid))}catch(e){}}await awUpsert(r)}catch(e){console.error('Kirim data gagal:',e)}}).catch(()=>{})}
 function puEdit(si,mi){const m=mainBy(PUC),s=m.subs[si],R=puRow(puSt(m),s.id,s.mats[mi].mt);R.saved=false;puDraw();const e=puId('puI',si,mi);if(e)e.focus()}
-function puKet(si){const m=mainBy(PUC),s=m.subs[si],S=puSt(m);S.open[s.id]=!S.open[s.id];puDraw();const e=document.getElementById('puK_'+si);if(e)e.focus()}
-function puKin(si,v){const m=mainBy(PUC);puSt(m).ket[m.subs[si].id]=v}
-function puApply(si){const m=mainBy(PUC),s=m.subs[si],S=puSt(m),ket=S.ket[s.id]||'',ph=S.ph[s.id]||'';let ch=false;
- s.mats.forEach(mat=>{const R=puRow(S,s.id,mat.mt),r=R.rid&&D.insp.find(x=>x.id==R.rid);if(!r||(r.ket==ket&&r.photo==ph))return;let op='';if(r.photo!==ph){op=r.photoId||'';r.photo=ph;r.photoId=''}r.ket=ket;r.ea=Date.now();puApR(r);cloudPut(r);puSync(r,op);ch=true});if(ch)save(true)}
-function puPhoto(si,f){if(!f)return;const m=mainBy(PUC),s=m.subs[si];compress(f,d=>{puSt(m).ph[s.id]=d;puApply(si);puDraw()})}
-function puPhDel(si){const m=mainBy(PUC),s=m.subs[si];puSt(m).ph[s.id]='';puApply(si);puDraw()}
+function puMenu(t,si){const m=mainBy(PUC),S=puSt(m);S.menu=(S.menu&&S.menu[0]==t&&S.menu[1]==si)?null:[t,si];puDraw()}
+function puPick(si,mi,src){const m=mainBy(PUC),s=m.subs[si],S=puSt(m),k=S.menu&&S.menu[0]=='k';S.menu=null;
+ if(k){S.open[s.id+'|'+s.mats[mi].mt]=true;puDraw();const e=document.getElementById('puK_'+si+'_'+mi);if(e)e.focus()}
+ else{PUPM=mi;const mn=document.getElementById('puM_'+si);if(mn)mn.remove();const f=document.getElementById(src=='g'?'puG_'+si:'puF_'+si);if(f)f.click()}}
+function puKin(si,mi,v){const m=mainBy(PUC),s=m.subs[si];puSt(m).ket[s.id+'|'+s.mats[mi].mt]=v}
+function puApply(si,mi){const m=mainBy(PUC),s=m.subs[si],mat=s.mats[mi],S=puSt(m),kk=s.id+'|'+mat.mt,ket=S.ket[kk]||'',ph=S.ph[kk]||'',R=puRow(S,s.id,mat.mt),r=R.rid&&D.insp.find(x=>x.id==R.rid);
+ if(!r||(r.ket==ket&&r.photo==ph))return;let op='';if(r.photo!==ph){op=r.photoId||'';r.photo=ph;r.photoId=''}r.ket=ket;r.ea=Date.now();puApR(r);cloudPut(r);puSync(r,op);save(true)}
+function puPhoto(si,el){const f=el.files&&el.files[0];el.value='';if(!f)return;const m=mainBy(PUC),s=m.subs[si],mi=PUPM,kk=s.id+'|'+s.mats[mi].mt;compress(f,d=>{puSt(m).ph[kk]=d;puApply(si,mi);puDraw()})}
+function puPhDel(si,mi){const m=mainBy(PUC),s=m.subs[si];puSt(m).ph[s.id+'|'+s.mats[mi].mt]='';puApply(si,mi);puDraw()}
 function puDirty(m){const S=puSt(m),o=[];m.subs.forEach((s,si)=>s.mats.forEach((mat,mi)=>{const R=puRow(S,s.id,mat.mt);if(!R.saved&&R.kA!==''&&R.kA!==R.sv&&!isNaN(parseFloat(R.kA)))o.push([si,mi])}));return o}
 function puClose(){const m=mainBy(PUC);if(!m)return puHide();if(document.getElementById('puC'))return;if(puDirty(m).length)return puAsk();puHide()}
 function puHide(){const m=mainBy(PUC);if(m){const S=puSt(m);Object.keys(S.rows).forEach(k=>{const R=S.rows[k];if(R.sv!==''&&!R.saved&&R.kA===R.sv)R.saved=true})}const o=document.getElementById('pu');if(o)o.remove();PUC=null;document.body.style.overflow='';render()}
