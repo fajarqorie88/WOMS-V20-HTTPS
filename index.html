@@ -770,6 +770,19 @@ html[data-theme=dark] .cp.on{background:linear-gradient(135deg,#2563EB,#0891b2);
 .pu-mi{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;padding:10px 12px;border:0;border-top:1px solid var(--bd);background:transparent;color:var(--tx);font-weight:700;font-size:14px}
 .pu-mb{display:flex;gap:6px}.pu-mb button{height:32px;padding:0 14px;border-radius:999px;border:0;font-weight:700;font-size:13px;background:#ede9fe;color:#6d28d9}.pu-mb button+button{background:#dbeafe;color:#1d4ed8}
 .vw-data>.dg{grid-column:1/-1}
+/* Dropdown Profile (Step 1, HP & PC) */
+.cpd{position:relative;flex:none}
+.cpd-b{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:linear-gradient(180deg,#5aa7ec,#3b8fd6);color:#0b2a4a;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 2px 6px rgba(37,99,235,.3)}
+.cpd-m{display:none;position:absolute;right:0;top:calc(100% + 6px);width:min(300px,82vw);max-height:300px;overflow-y:auto;z-index:35;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);padding:6px}
+.cpd-m.show{display:block}
+.cpd-t{font-size:11px;opacity:.6;padding:4px 8px}
+.cpd-r{display:flex;align-items:center;border-radius:8px}
+.cpd-r:hover{background:rgba(37,99,235,.14)}
+.cpd-r.on{background:rgba(37,99,235,.2)}
+.cpd-s{flex:1;min-width:0;text-align:left;padding:10px;font-size:13px;font-weight:600;background:none;color:inherit}
+.cpd-x{padding:6px 12px;font-size:18px;opacity:.6;background:none;color:inherit}
+.cpd-e{font-size:12px;opacity:.7;padding:10px}
+.c:has(.cpd-m.show){position:relative;z-index:40}
 .cb-o{padding:11px 12px;font-size:15px;border-bottom:1px solid var(--bd);cursor:pointer}
 .cb-o:last-child{border-bottom:0}
 .cb-o.on{background:var(--bd);font-weight:700}
@@ -1410,7 +1423,7 @@ function inputView(){if(!IG)return inGate();return inputView0()+inHist()}
 function inputView0(){F.dt=F.dt||nowLocal();const last=D.insp[0];
 const lc='';
 const hd='<h1 class="text-lg font-extrabold py-3 text-blue-600">WELDING MONITORING SYSTEM</h1>';
-if(F.step!=2)return hd+`<div class="c"><b>Langkah 1 - Info Pengecekan</b><div class="text-xs opacity-60 mb-2">Diisi sekali, berlaku untuk semua data yang diinput berikutnya.</div>${cpBar()}
+if(F.step!=2)return hd+`<div class="c"><div class="flex justify-between items-start gap-2"><div><b>Langkah 1 - Info Pengecekan</b><div class="text-xs opacity-60 mb-2">Diisi sekali, berlaku untuk semua data yang diinput berikutnya.</div></div>${cpDrop()}</div>
 ${fld('Checker 1',`<select class="i" onchange="F.c1=this.value">${opts(D.M.checkers,F.c1,'- pilih -')}</select>`)}
 ${fld('Checker 2',`<select class="i" onchange="F.c2=this.value">${opts(D.M.checkers,F.c2,'- pilih -')}</select>`)}
 ${fld('Tanggal & Waktu Pengecekan',`<input type="datetime-local" class="i" value="${F.dt}" oninput="F.dt=this.value">`)}
@@ -1479,7 +1492,12 @@ const cpKeys=['c1','c2','shift','job','desc'],cpSame=(a,b)=>cpKeys.every(k=>(a[k
 const cpLbl=p=>[[p.c1,p.c2].filter(Boolean).join(' / '),p.shift,p.job].filter(Boolean).join(' · ');
 function cpBar(){const a=cpGet();if(!a.length)return'';return`<div class="mb-2"><div class="text-xs opacity-70 mb-1">${TT('Profil tersimpan (tap untuk pakai)','Saved profiles (tap to use)')}</div><div class="flex flex-wrap gap-2">${a.map((p,i)=>`<span class="cp${cpSame(p,F)?' on':''}"><button type="button" onclick="cpUse(${i})">${esc(cpLbl(p))}</button><button type="button" class="cpx" aria-label="Hapus profil" onclick="cpDel(${i})">&times;</button></span>`).join('')}</div></div>`}
 function cpSave(){if(!F.c1)return toast('Pilih Checker 1');if(!F.shift)return toast('Pilih Shift');const p={};cpKeys.forEach(k=>p[k]=F[k]||'');const a=cpGet().filter(x=>!cpSame(x,p));a.unshift(p);cpSet(a.slice(0,10));toast('Profil tersimpan');render()}
-function cpUse(i){const p=cpGet()[i];if(!p)return;cpKeys.forEach(k=>F[k]=p[k]||'');render()}
+function cpUse(i){const p=cpGet()[i];if(!p)return;cpKeys.forEach(k=>F[k]=p[k]||'');CPO=false;render()}
+let CPO=false;
+function cpDrop(){const a=cpGet(),on=a.findIndex(p=>cpSame(p,F));
+ return`<div class="cpd" id="cpd"><button type="button" class="cpd-b" onclick="cpTog()" aria-haspopup="true"><span>Profile</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="cpm" class="cpd-m${CPO?' show':''}">${a.length?`<div class="cpd-t">${TT('Pilih profil tersimpan','Select saved profile')}</div>`+a.map((p,i)=>`<div class="cpd-r${i==on?' on':''}"><button type="button" class="cpd-s" onclick="cpUse(${i})">${i==on?'&#10003; ':''}${esc(cpLbl(p))}</button><button type="button" class="cpd-x" aria-label="Hapus profil" onclick="cpDel(${i})">&times;</button></div>`).join(''):`<div class="cpd-e">${TT('Belum ada profil. Isi data lalu tekan Simpan Profil Checker.','No profiles yet. Fill the form, then tap Save Checker Profile.')}</div>`}</div></div>`}
+function cpTog(){CPO=!CPO;const m=document.getElementById('cpm');if(m)m.classList.toggle('show',CPO)}
+document.addEventListener('click',e=>{if(CPO&&!(e.target.closest&&e.target.closest('#cpd'))){CPO=false;const m=document.getElementById('cpm');if(m)m.classList.remove('show')}});
 function cpDel(i){const a=cpGet();a.splice(i,1);cpSet(a);render()}
 function cekOutput(){if(!F.c1)return toast('Pilih Checker 1');if(!F.dt)return toast('Isi tanggal pengecekan');if(!F.shift)return toast('Pilih Shift');saveProf();PUS={};F.step=2;scrollTo(0,0);render()}
 let CBALL=true;
