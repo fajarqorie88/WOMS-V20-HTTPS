@@ -654,6 +654,11 @@ html[data-view=pc] .vw-data.vm-grid .pSd{font-size:17px}
 html[data-view=pc] .vw-data.vm-grid .pC{font-size:12px}
 html[data-view=pc] .vw-data.vm-grid .pX{gap:8px}
 html[data-view=pc] .vw-data.vm-grid .pX>*{flex:0 0 calc((100% - 16px)/3);border-radius:12px}
+/* FIX: kotak kA/OK/Foto di grid PC selalu 3 kolom sama besar (grid, bukan flex) supaya foto besar tidak membuat kotak melebar */
+html[data-view=pc] .vw-data.vm-grid .pX{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;min-width:0}
+html[data-view=pc] .vw-data.vm-grid .pX>*{width:100%;min-width:0;max-width:100%;height:auto;aspect-ratio:1/1;align-self:start;overflow:hidden}
+html[data-view=pc] .vw-data.vm-grid .pX>img.pBf{object-fit:cover}
+html[data-view=pc] .vw-data.vm-grid .pB>*{min-width:0}
 html[data-view=pc] .vw-data.vm-grid .pBk b{font-size:24px}
 html[data-view=pc] .vw-data.vm-grid .pBk i{font-size:11px;right:6px;bottom:3px}
 html[data-view=pc] .vw-data.vm-grid .pBo{font-size:21px}
