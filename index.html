@@ -755,7 +755,7 @@ html[data-theme=dark] .cb-gi{background:rgba(37,99,235,.2);border-color:rgba(96,
 .pu-nm{flex:1;min-width:0;height:34px;line-height:34px;box-sizing:border-box;text-align:center;padding:0 12px;border-radius:999px;background:#fde68a;color:#78350f;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pu-r{margin-top:10px}.pu-rw{display:flex;gap:4px;align-items:center}
 .pu-ip{flex:1;min-width:0;display:flex;align-items:center;gap:4px;border:1.5px solid #60a5fa;border-radius:999px;padding:0 10px;height:40px;background:var(--bg);overflow:hidden;box-sizing:border-box}
-.pu-ip b.pu-lb{flex:0 1 auto;max-width:46%;line-height:1.1;font-weight:700;color:#3b82f6;word-break:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
+.pu-ip b.pu-lb{flex:0 1 auto;max-width:46%;line-height:1.1;font-weight:700;color:#3b82f6;word-break:normal;overflow-wrap:anywhere;display:none;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
 .pu-lb.f1{font-size:13px}.pu-lb.f2{font-size:12px}.pu-lb.f3{font-size:11px}.pu-lb.f4,.pu-lb.f5{font-size:10px}
 .pu-ip input{border:0;background:transparent;color:var(--tx);flex:1 0 60px;min-width:60px;width:auto;margin:0;padding:0;text-align:right;font-size:16px;font-weight:600;outline:0}
 .pu-ip i{font-style:normal;font-size:11px;opacity:.7;flex:none;white-space:nowrap}
@@ -783,10 +783,16 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-ft{position:sticky;bottom:0;z-index:2;padding:10px 12px;background:var(--bg);border-top:1px solid var(--bd)}
 .pu-fs{width:100%;height:44px;border-radius:999px;border:0;color:#fff;font-weight:800;font-size:15px;background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 4px 12px rgba(34,197,94,.35)}
 .pu-b0{flex:1;height:40px;border-radius:999px;background:var(--bd);color:var(--tx);border:0;font-weight:700}
+.pu-ml{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 3px 12px;font-size:12px}
+.pu-ml b{font-weight:700;color:#3b82f6;font-size:13px;line-height:1.15;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
+.pu-ml span{opacity:.65;font-size:11px;white-space:nowrap;flex:none}
+.pu-std{display:none}
+@media(max-width:339px){.pu-ip{padding:0 8px;gap:2px}.pu-sv{width:56px}}
 @media(min-width:600px){
 .pu-rw{gap:6px}
 .pu-ip{gap:6px;padding:0 12px}
-.pu-ip b.pu-lb{max-width:52%}
+.pu-ip b.pu-lb{display:-webkit-box;max-width:52%}
+.pu-ml{display:none}.pu-std{display:block}
 .pu-lb.f1,.pu-lb.f2,.pu-lb.f3{font-size:14px}
 .pu-lb.f4{font-size:12px}
 .pu-lb.f5{font-size:11px}
@@ -797,18 +803,6 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-b{width:48px;font-size:14px}
 .pu-ed{width:38px;height:38px}
 }
-html[data-view=pc] .pu-rw{gap:6px}
-html[data-view=pc] .pu-ip{gap:6px;padding:0 12px}
-html[data-view=pc] .pu-ip b.pu-lb{max-width:52%}
-html[data-view=pc] .pu-lb.f1,html[data-view=pc] .pu-lb.f2,html[data-view=pc] .pu-lb.f3{font-size:14px}
-html[data-view=pc] .pu-lb.f4{font-size:12px}
-html[data-view=pc] .pu-lb.f5{font-size:11px}
-html[data-view=pc] .pu-ip i{font-size:12px}
-html[data-view=pc] .pu-sv{width:72px;font-size:13px;gap:4px}
-html[data-view=pc] .pu-sv svg{width:16px;height:16px}
-html[data-view=pc] .pu-bg{width:48px}
-html[data-view=pc] .pu-b{width:48px;font-size:14px}
-html[data-view=pc] .pu-ed{width:38px;height:38px}
 .cp{display:inline-flex;align-items:center;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);color:#1e3a8a;font-size:13px;font-weight:600;overflow:hidden;max-width:100%}
 .cp button{padding:7px 10px;color:inherit;font:inherit;background:transparent;border:0;text-align:left}
 .cp button.cpx{padding:7px 10px 7px 2px;font-size:16px;line-height:1;opacity:.7}
@@ -1547,7 +1541,7 @@ function puOpen(){const m=mainBy(F.main);if(!m)return;PUC=m.id;document.body.sty
 function puBadge(R,mat){const k=parseFloat(R.kA);if(isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<span class="pu-b ${ok?'ok':'no'}">${ok?'OK':'NG'}</span>`}
 const puFs=n=>{const w=String(n).split(/[\s-]+/).reduce((a,x)=>Math.max(a,x.length),0);return w<=4?'f1':w<=6?'f2':w<=8?'f3':w<=10?'f4':'f5'};
 function puRowH(si,s,mat,mi,S){const R=puRow(S,s.id,mat.mt),d=R.saved,kk=s.id+'|'+mat.mt,ket=S.ket[kk]||'',ph=S.ph[kk]||'';
- return`<div class="pu-r"><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b class="pu-lb ${puFs(mat.mt)}" title="${esc(mat.mt)}">${esc(mat.mt).replace(/-/g,'-<wbr>')}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div>${S.open[kk]?`<textarea id="puK_${si}_${mi}" class="pu-ta" rows="2" oninput="puKin(${si},${mi},this.value)" onchange="puApply(${si},${mi})" placeholder="Remarks ${esc(mat.mt)}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si},${mi})">&times;</button></div>`:''}</div>`}
+ return`<div class="pu-r"><div class="pu-ml"><b title="${esc(mat.mt)}">${esc(mat.mt).replace(/-/g,'-<wbr>')}</b><span>std ${f1(mat.min)}-${f1(mat.max)} kA</span></div><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b class="pu-lb ${puFs(mat.mt)}" title="${esc(mat.mt)}">${esc(mat.mt).replace(/-/g,'-<wbr>')}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div>${S.open[kk]?`<textarea id="puK_${si}_${mi}" class="pu-ta" rows="2" oninput="puKin(${si},${mi},this.value)" onchange="puApply(${si},${mi})" placeholder="Remarks ${esc(mat.mt)}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si},${mi})">&times;</button></div>`:''}</div>`}
 function puMenuH(si,s,S){const k=S.menu[0]=='k';return`<div class="pu-mn" id="puM_${si}"><div class="pu-mt">${k?TT('Remarks untuk material:','Remarks for material:'):TT('Foto untuk material:','Photo for material:')}</div>${s.mats.map((mat,mi)=>{const kk=s.id+'|'+mat.mt,has=k?S.ket[kk]:S.ph[kk];return k?`<button type="button" class="pu-mi" onclick="puPick(${si},${mi})"><span>${esc(mat.mt)}</span>${has?PUI.ck:''}</button>`:`<div class="pu-mi"><span>${esc(mat.mt)}${has?' '+PUI.ck:''}</span><span class="pu-mb"><button type="button" onclick="puPick(${si},${mi},'c')">${TT('Kamera','Camera')}</button><button type="button" onclick="puPick(${si},${mi},'g')">${TT('Galeri','Gallery')}</button></span></div>`}).join('')}</div>`}
 function puSec(m,si,S){const s=m.subs[si],hk=s.mats.some(x=>S.ket[s.id+'|'+x.mt]),hp=s.mats.some(x=>S.ph[s.id+'|'+x.mt]);
  return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'tx':'tc'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${hk?' on':''}" onclick="puMenu('k',${si})">${TT('Keterangan','Remarks')}</button><button type="button" class="pu-ab p${hp?' on':''}" aria-label="Foto" onclick="puMenu('p',${si})">${PUI.cm}</button></div>${S.menu&&S.menu[1]==si?puMenuH(si,s,S):''}<input type="file" id="puF_${si}" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this)"><input type="file" id="puG_${si}" accept="image/*" hidden onchange="puPhoto(${si},this)"></div>`}
