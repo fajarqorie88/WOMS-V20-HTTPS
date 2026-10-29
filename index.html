@@ -417,6 +417,14 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 @media (prefers-reduced-motion:reduce){.pglow{animation:none;opacity:.55}}
 .pl{cursor:pointer;padding:4px 12px;border-radius:999px;transition:background .25s,transform .25s;-webkit-tap-highlight-color:transparent}
 .pl.on{background:rgba(128,128,128,.2);transform:scale(1.07)}
+.pa .pw{transform-box:fill-box;transform-origin:center;animation:pwIn 1.1s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes pwIn{from{transform:rotate(-130deg) scale(.1);opacity:0}55%{opacity:1}}
+.pa .pcall{animation:pcIn .5s .85s ease-out backwards}
+@keyframes pcIn{from{opacity:0}}
+.ngg{pointer-events:none;transform-box:fill-box;transform-origin:center;animation:ngP 1.6s ease-in-out infinite}
+@keyframes ngP{0%,100%{opacity:.25}50%{opacity:.95}}
+.pcd{cursor:grab}.pcd.drag{cursor:grabbing}
+@media (prefers-reduced-motion:reduce){.pa .pw,.pa .pcall{animation:none}.ngg{animation:none;opacity:.55}}
 .pie-pan{animation:pieIn .4s ease both}
 .pie-sec+.pie-sec{margin-top:12px}
 @keyframes pieIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
@@ -1078,13 +1086,14 @@ ${warn?`<div class="mt-2 p-2" style="border-radius:8px;background:${pc>=90?'#fee
 <p class="text-xs opacity-60 mt-2">Foto: ${fmtB(SC.fb)} (${SC.files} file) - Data: ${fmtB(SC.db)} (${SC.docs} dokumen, perkiraan)</p>`:`<p class="text-xs opacity-60 my-2">Memuat...</p>`}
 <p class="text-xs opacity-60 mt-1">Total kapasitas ${fmtB(cap)} <button class="underline" onclick="scEdit()">ubah</button></p></div>`}
 /* ---------- PIE CHART OK / NG (tab Grafik) ---------- */
-let PS={sel:null,fetching:false,okA:[],ngA:[],off:(()=>{try{return JSON.parse(L.wms_pieoff||'{}')||{}}catch(e){return{}}})()};
+let PS={sel:null,fetching:false,okA:[],ngA:[],off:(()=>{try{return JSON.parse(L.wms_pieoff||'{}')||{}}catch(e){return{}}})(),dof:(()=>{try{return JSON.parse(L.wms_piedot||'{}')||{}}catch(e){return{}}})(),ak:null};
 function pieBig(id){const r=D.insp.find(x=>String(x.id)==String(id));if(!r||!r.photo)return;const d=document.createElement('div');d.className='fixed';d.style.cssText='inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:12px';d.onclick=()=>d.remove();d.innerHTML='<img src="'+r.photo+'" style="max-width:100%;max-height:100%;border-radius:12px">';document.body.appendChild(d)}
 async function pieFetch(list){if(PS.fetching)return;PS.fetching=true;let n=0;for(const r of list){if(r.photo||!r.photoId||!awST)continue;try{if(await awPhotoGet(r))n++}catch(e){}}PS.fetching=false;if(n&&tab=='grafik')render()}
 /* Callout pie bisa digeser (drag): garis penunjuk ikut menyambung ke sisi kotak label yang terdekat, seperti callout Excel. Ketuk 2x untuk kembalikan ke posisi awal */
 function pieLd(ax,ay,cx,cy,w,h,h0){const L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,f=n=>n.toFixed(2);
   if(ax<L||ax>R){const sx=ax<L?-1:1,ex=sx<0?L:R,hs=Math.max(8,Math.min(h0,Math.abs(ex-ax)-10)),bx=ex+sx*hs;return`M${f(ax)} ${f(ay)}L${f(bx)} ${f(cy)}L${f(ex)} ${f(cy)}`}
   const sy=ay<T?-1:1,ey=sy<0?T:B,vs=Math.max(8,Math.min(h0,Math.abs(ey-ay)-10)),by=ey+sy*vs;return`M${f(ax)} ${f(ay)}L${f(cx)} ${f(by)}L${f(cx)} ${f(ey)}`}
+function pieDotClamp(x,y){const C=160,vx=x-C,vy=y-C,r=Math.hypot(vx,vy),mn=44,mx=98;if(!r)return[C+mn,C];const k=r<mn?mn/r:r>mx?mx/r:1;return[C+vx*k,C+vy*k]}
 function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
   cx=Math.max(-102+w/2,Math.min(422-w/2,cx0+ox)),cy=Math.max(6+h/2,Math.min(314-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
   g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
@@ -1102,21 +1111,40 @@ function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
     else{const t=Date.now();if(last&&last.k==k&&t-last.t<400){piePlace(g,0,0);delete PS.off[k];sv();last=null}else last={k,t}}
     d=null};
   document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)})();
+/* Titik callout (hitam) juga bisa digeser; garis ikut menyambung. Dibatasi di antara arc reactor dan tepi pie. Ketuk 2x untuk reset */
+(function(){let d=null,last=null;
+  const xy=(e,rt)=>{const m=rt.getScreenCTM();if(!m)return null;const p=rt.ownerSVGElement.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(m.inverse())};
+  const sv=()=>{try{L.wms_piedot=JSON.stringify(PS.dof)}catch(e){}};
+  const put=(g,ox,oy)=>{const D=g.dataset,ax0=+D.ax0,ay0=+D.ay0,[x,y]=pieDotClamp(ax0+ox,ay0+oy);ox=x-ax0;oy=y-ay0;
+    g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
+    const c=g.parentNode,l=c.querySelector('.pcl'),ld=c.querySelector('.pld');
+    if(l&&ld){const Q=l.dataset;Q.ax=x.toFixed(2);Q.ay=y.toFixed(2);ld.setAttribute('d',pieLd(x,y,+Q.cx+(+Q.ox||0),+Q.cy+(+Q.oy||0),+Q.w,+Q.h,+Q.h0))}};
+  document.addEventListener('pointerdown',e=>{const g=e.target&&e.target.closest?e.target.closest('.pcd'):null;if(!g)return;const rt=g.parentNode.parentNode,q=xy(e,rt);if(!q)return;
+    d={g,rt,q,sx:e.clientX,sy:e.clientY,ox:+g.dataset.ox||0,oy:+g.dataset.oy||0,id:e.pointerId,mv:false};try{g.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+  document.addEventListener('pointermove',e=>{if(!d||e.pointerId!=d.id)return;
+    if(!d.mv){if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<4)return;d.mv=true;d.g.classList.add('drag')}
+    const q=xy(e,d.rt);if(!q)return;put(d.g,d.ox+q.x-d.q.x,d.oy+q.y-d.q.y);e.preventDefault()});
+  const up=e=>{if(!d||e.pointerId!=d.id)return;const g=d.g,k=g.dataset.k;g.classList.remove('drag');
+    if(d.mv){PS.dof[k]=[+(+g.dataset.ox).toFixed(1),+(+g.dataset.oy).toFixed(1)];sv();last=null}
+    else{const t=Date.now();if(last&&last.k==k&&t-last.t<400){put(g,0,0);delete PS.dof[k];sv();last=null}else last={k,t}}
+    d=null};
+  document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)})();
 function pieSvg(ok,ng){
+  const ak=ok+'|'+ng+'|'+(G.cal||''),play=PS.ak!==ak;PS.ak=ak;
   const t=ok+ng,C=160,R=104,pt=(a,r)=>[C+r*Math.cos(a),C+r*Math.sin(a)],f=n=>n.toFixed(2);
   const arc=(a0,a1,r0,r1)=>{const [x0,y0]=pt(a0,r1),[x1,y1]=pt(a1,r1),[x2,y2]=pt(a1,r0),[x3,y3]=pt(a0,r0),L=a1-a0>Math.PI?1:0;return`M${f(x0)} ${f(y0)}A${r1} ${r1} 0 ${L} 1 ${f(x1)} ${f(y1)}${r0?`L${f(x2)} ${f(y2)}A${r0} ${r0} 0 ${L} 0 ${f(x3)} ${f(y3)}Z`:`L${C} ${C}Z`}`};
-  const defs=`<defs><linearGradient id="pgo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bbf7d0"/><stop offset=".5" stop-color="#4ade80"/><stop offset="1" stop-color="#15803d"/></linearGradient><linearGradient id="pgn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fee2e2"/><stop offset=".5" stop-color="#fca5a5"/><stop offset="1" stop-color="#ef4444"/></linearGradient><filter id="pgs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".3"/></filter><filter id="rcg" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="rcb" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e7490"/><stop offset=".6" stop-color="#0b1220"/><stop offset="1" stop-color="#020617"/></radialGradient><radialGradient id="pgh" gradientUnits="userSpaceOnUse" cx="${C-40}" cy="${C-50}" r="135"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".4" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><linearGradient id="pgw" gradientUnits="userSpaceOnUse" x1="${C-175}" y1="${C-175}" x2="${C-85}" y2="${C-85}"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/><animateTransform attributeName="gradientTransform" type="translate" values="0 0;350 350;350 350" keyTimes="0;.55;1" dur="8s" repeatCount="indefinite"/></linearGradient><filter id="pgl" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="9"/></filter></defs>`;
+  const defs=`<defs><linearGradient id="pgo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bbf7d0"/><stop offset=".5" stop-color="#4ade80"/><stop offset="1" stop-color="#15803d"/></linearGradient><linearGradient id="pgn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a85"/><stop offset=".5" stop-color="#ff2d4a"/><stop offset="1" stop-color="#b3001b"/></linearGradient><filter id="pgs" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".3"/></filter><filter id="rcg" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="rcb" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#0e7490"/><stop offset=".6" stop-color="#0b1220"/><stop offset="1" stop-color="#020617"/></radialGradient><radialGradient id="pgh" gradientUnits="userSpaceOnUse" cx="${C-40}" cy="${C-50}" r="135"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".4" stop-color="#fff" stop-opacity=".14"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient><linearGradient id="pgw" gradientUnits="userSpaceOnUse" x1="${C-175}" y1="${C-175}" x2="${C-85}" y2="${C-85}"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/><animateTransform attributeName="gradientTransform" type="translate" values="0 0;350 350;350 350" keyTimes="0;.55;1" dur="8s" repeatCount="indefinite"/></linearGradient><filter id="pgl" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="9"/></filter></defs>`;
   /* cincin luar: dua cincin statis berdenyut halus + dua gelombang denyut yang memancar keluar */
   const rings=`<circle class="pb" cx="${C}" cy="${C}" r="150" fill="none" stroke="#22d3ee" stroke-opacity=".3"/><circle class="pb b" cx="${C}" cy="${C}" r="138" fill="none" stroke="#22d3ee" stroke-opacity=".4"/><circle class="pp" cx="${C}" cy="${C}" r="132"/><circle class="pp b" cx="${C}" cy="${C}" r="132"/>`;
   let body='',a=-Math.PI/2;const co=[];
-  const sl=[[ok,'url(#pgo)','#22c55e','OK'],[ng,'url(#pgn)','#f87171','NG']].filter(x=>x[0]>0);
+  const sl=[[ok,'url(#pgo)','#22c55e','OK'],[ng,'url(#pgn)','#ff2d4a','NG']].filter(x=>x[0]>0);
   if(!t)body=`<circle cx="${C}" cy="${C}" r="${R}" fill="rgba(128,128,128,.2)"/><text x="${C}" y="${C+(-40)}" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">Belum ada data</text>`;
   else sl.forEach(([n,fill,soft,lb])=>{const a1=a+n/t*Math.PI*2,full=sl.length==1,mid=(a+a1)/2,pc=Math.round(n/t*100);
     co.push({mid:full?-Math.PI/4:mid,a0:a,a1,pc,n,soft,lb});
     const on=PS.sel=='ALL'||PS.sel==lb,tx=full?0:Math.cos(mid)*12,ty=full?0:Math.sin(mid)*12;
     const shp=(x,fl)=>full?`<circle ${x} cx="${C}" cy="${C}" r="${R}" fill="${fl}"/>`:`<path ${x} d="${arc(a,a1,0,R)}" fill="${fl}"/>`;
     body+=`<g class="ps${on?' sel':''}" data-k="${lb}" style="--tx:${f(tx)}px;--ty:${f(ty)}px" onclick="pieSel('${lb}')">`
-      +shp('class="pglow" filter="url(#pgl)"',soft)
+      +shp('class="'+(lb=='NG'?'ngg':'pglow')+'" filter="url(#pgl)"',soft)
       +(full?`<circle cx="${C}" cy="${C}" r="${R}" fill="${fill}" filter="url(#pgs)"/>`:`<path d="${arc(a,a1,0,R)}" fill="${fill}" stroke="#fff" stroke-width="1.5" filter="url(#pgs)"/>`)
       +shp('pointer-events="none"','url(#pgh)')+shp('pointer-events="none"','url(#pgw)')
       +(full?`<circle cx="${C}" cy="${C}" r="125" fill="none" stroke="${soft}" stroke-opacity=".35" stroke-width="9"/>`:`<path d="${arc(a+.02,a1-.02,120,130)}" fill="${soft}" fill-opacity=".35"/>`)
@@ -1127,9 +1155,9 @@ function pieSvg(ok,ng){
     co.forEach(c=>{const th=c.mid,sd=Math.cos(th)<0?-1:1,sn=Math.sin(th),vs=Math.abs(sn)<.15?(sd>0?-1:1):(sn<0?-1:1),
       ax=C+Math.cos(th)*R*.84,ay=C+Math.sin(th)*R*.84,ty=C+vs*136,dya=Math.abs(ty-ay),
       dx=Math.max(14,Math.min(dya*1.5,128-Math.abs(ax-C))),bx=ax+sd*dx,ex=C+sd*Math.min(Math.abs(bx-C)+80,165),
-      col=c.lb=='OK'?'#22c55e':'#ef4444',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85,cx=ex+sd*(6+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
-      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-102+w/2,Math.min(422-w/2,cx+(+of[0]||0))),ncy=Math.max(6+h/2,Math.min(314-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy;
-      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${pieLd(ax,ay,ncx,ncy,w,h,h0)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><circle cx="${f(ax)}" cy="${f(ay)}" r="3.6" fill="${col}" stroke="#fff" stroke-width="1.2"/><g class="pcl" data-k="${c.lb}" data-ax="${f(ax)}" data-ay="${f(ay)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect x="${f(cx-w/2-4)}" y="${f(cy-h/2-2)}" width="${f(w+8)}" height="${h+4}" rx="6"/><text class="pie-ct" x="${f(cx)}" y="${f(ty)}" text-anchor="middle" font-size="22" fill="${col}">${pct}</text><text class="pie-ct" x="${f(cx)}" y="${f(ty+16)}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g></g>`})}
+      col=c.lb=='OK'?'#22c55e':'#ff1f3d',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*8.6)+24,cx=ex+sd*(10+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
+      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-102+w/2,Math.min(422-w/2,cx+(+of[0]||0))),ncy=Math.max(6+h/2,Math.min(314-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy,dof=(PS.dof&&PS.dof[c.lb])||[0,0],[px,py]=pieDotClamp(ax+(+dof[0]||0),ay+(+dof[1]||0));
+      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${pieLd(px,py,ncx,ncy,w,h,h0)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><g class="pcl" data-k="${c.lb}" data-ax="${f(px)}" data-ay="${f(py)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect x="${f(cx-w/2-4)}" y="${f(cy-h/2-2)}" width="${f(w+8)}" height="${h+4}" rx="6"/><text class="pie-ct" x="${f(cx)}" y="${f(ty)}" text-anchor="middle" font-size="22" fill="${col}"${c.lb=='NG'?' style="filter:drop-shadow(0 0 3px rgba(255,45,74,.55))"':''}>${pct}</text><text class="pie-ct" x="${f(cx)}" y="${f(ty+16)}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g><g class="pcd" data-k="${c.lb}" data-ax0="${f(ax)}" data-ay0="${f(ay)}" data-ox="${f(px-ax)}" data-oy="${f(py-ay)}" transform="translate(${f(px-ax)} ${f(py-ay)})" style="pointer-events:all;touch-action:none"><circle cx="${f(ax)}" cy="${f(ay)}" r="15" fill="transparent"/><circle cx="${f(ax)}" cy="${f(ay)}" r="4.6" fill="#0a0a0a" stroke="#fff" stroke-width="1.4"/></g></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
@@ -1138,7 +1166,7 @@ function pieSvg(ok,ng){
    +`<circle cx="${C}" cy="${C}" r="17" fill="none" stroke="#67e8f9" stroke-width="2.5" filter="url(#rcg)"><animate attributeName="stroke-opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></circle>`
    +`<g><polygon points="${tri}" fill="rgba(103,232,249,.25)" stroke="#cffafe" stroke-width="1.2" stroke-linejoin="round"/><animateTransform attributeName="transform" type="rotate" from="360 ${C} ${C}" to="0 ${C} ${C}" dur="5s" repeatCount="indefinite"/></g>`
    +`<circle cx="${C}" cy="${C}" r="6" fill="#ecfeff" filter="url(#rcg)"><animate attributeName="r" values="5;7.5;5" dur="1.6s" repeatCount="indefinite"/></circle></g>`;
-  return`<svg viewBox="-2 6 524 308" style="width:100%;max-width:580px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}${body}${calls}${ctr}</g></svg>`}
+  return`<svg class="${play?'pa':''}" viewBox="-2 6 524 308" style="width:100%;max-width:580px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}<g class="pw">${body}</g>${calls}${ctr}</g></svg>`}
 /* item data pada panel; NG menampilkan foto bila ada */
 function pieItem(i,ng){const s=stdOf(i),c=ng?'#dc2626':'#16a34a',bg=ng?'rgba(248,113,113,.12)':'rgba(34,197,94,.1)',bd=ng?'rgba(248,113,113,.35)':'rgba(34,197,94,.35)';
   const ph=!ng?'':i.photo?`<img src="${i.photo}" onclick="event.stopPropagation();pieBig('${esc(String(i.id))}')" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer">`:i.photoId?`<div style="width:72px;height:72px;border-radius:10px;flex-shrink:0;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center" class="opacity-70">Memuat foto...</div>`:'';
@@ -1157,7 +1185,7 @@ function pieUp(){const w=document.getElementById('pie-w');if(!w)return render();
 const PEYE=h=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>${h?'<path d="M3 3l18 18"/>':''}</svg>`;
 function pieEye(b){PS.hc=!PS.hc;const w=document.getElementById('pie-w');if(w)w.classList.toggle('nc',!!PS.hc);b.innerHTML=PEYE(PS.hc);b.title=PS.hc?'Show callout':'Hide callout';b.setAttribute('aria-label',b.title)}
 /* Panah futuristik kiri/kanan pie chart: kiri = tanggal sebelumnya, kanan = tanggal berikutnya (kalender, pie, grafik & tabel ikut) */
-function pnArrow(d){return`<button type="button" class="pnav-b ${d<0?'l':'r'}" onclick="pieStep(${d})" title="${d<0?(LG=='en'?'Previous date':'Tanggal sebelumnya'):(LG=='en'?'Next date':'Tanggal berikutnya')}" aria-label="${d<0?'Previous date':'Next date'}"><svg viewBox="0 0 100 130" aria-hidden="true"><g fill="none" stroke="#22d3ee" stroke-linejoin="miter" stroke-linecap="butt"><polyline points="10,8 88,65 10,122" stroke-width="8"/><polyline points="34,3 97,65 34,127" stroke-width="2.5" stroke-opacity=".75"/></g><polygon points="28,40 54,54 54,76 28,90" fill="#22d3ee" fill-opacity=".28" stroke="#22d3ee" stroke-width="1.5"/><g fill="#67e8f9"><rect x="56" y="55" width="4" height="20"/><rect x="62" y="55" width="4" height="20"/><rect x="68" y="55" width="4" height="20"/></g><g stroke="#22d3ee" stroke-width="2.5" fill="none"><polyline points="28,30 50,30 64,42"/><polyline points="28,100 50,100 64,88"/></g></svg></button>`}
+function pnArrow(d){return`<button type="button" class="pnav-b ${d<0?'l':'r'}" onclick="pieStep(${d})" title="${d<0?(LG=='en'?'Previous date':'Tanggal sebelumnya'):(LG=='en'?'Next date':'Tanggal berikutnya')}" aria-label="${d<0?'Previous date':'Next date'}"><svg viewBox="0 0 100 130" aria-hidden="true"><g fill="none" stroke-linejoin="miter" stroke-linecap="butt"><path d="M6 14H30L90 65L30 116H6" stroke="#38bdf8" stroke-width="8"/><path d="M42 6L98 65L42 124" stroke="#22d3ee" stroke-width="2.5" stroke-opacity=".75"/><path d="M24 34H40L68 65L40 96H24" stroke="#67e8f9" stroke-width="2.5"/><path d="M46 44L62 56V74L46 86" stroke="#1e90a9" stroke-width="7"/></g><g stroke="#22d3ee" stroke-width="2" fill="none"><path d="M30 24H48L60 34"/><path d="M30 106H48L60 96"/></g><circle cx="78" cy="52" r="2.2" fill="#67e8f9"/><circle cx="78" cy="78" r="2.2" fill="#67e8f9"/></svg></button>`}
 function pieStep(n){calInit();const p=(G.cal||ymd(new Date())).split('-').map(Number),d=new Date(p[0],p[1]-1,p[2]+n);G.cal=ymd(d);G.cy=d.getFullYear();G.cm=d.getMonth();G.pk=null;render()}
 function pieCard(a){
   const okA=a.filter(i=>stV(i)=='OK'),ngA=a.filter(i=>stV(i)!='OK'),ds=G.cal||ymd(new Date());
@@ -1943,7 +1971,7 @@ $('#app').innerHTML=backBar()+'<div class="vw vw-'+tab+(vmOf()?' vm-'+vmOf():'')
 const sl=n.scrollLeft,vt=visTabs(),bw=vt.length<4?100/vt.length:25;n.innerHTML=vt.map(([k,l])=>`<button data-k="${k}" class="${tab==k?'on':''}" style="flex-basis:${bw}%" onclick="go('${k}')">${NI[k]||''}<span>${k=='grafik'&&LG=='en'?'Charts':l}${k=='master'&&pend()?' &#9679;':''}</span></button>`).join('');n.scrollLeft=sl;
 trDom($('#app'));trDom(n);
 if(tab=='grafik'){if(G.view=='loc')locGroups(gData()).forEach((g,k)=>gzDraw('cl',k));else matList().forEach((m,k)=>gzDraw('cv',k));if(G.fitAll&&!G.hc)gzFitAll()}if(tab=='setting'&&isDev())acLoad();if(tab=='data'||tab=='grafik')calFix();scrollTo(0,y)}
-function go(t){if(!tabOK(t))return toast('Akses ditolak: khusus Developer / Admin');tab=t;scrollTo(0,0);render();const b=document.querySelector('nav button.on');if(b&&b.scrollIntoView)try{b.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}
+function go(t){if(!tabOK(t))return toast('Akses ditolak: khusus Developer / Admin');tab=t;PS.ak=null;scrollTo(0,0);render();const b=document.querySelector('nav button.on');if(b&&b.scrollIntoView)try{b.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})}catch(e){}}
 /* ---------- SINKRON MASTER KE APPWRITE ---------- */
 const AW_MT="6ad9e3270004fcc8e26d", AW_CH=15000;
 /* Collection khusus akun/role/presence (u_, v_, p_). Default = AW_MT supaya tetap jalan; ganti ke ID collection baru setelah dibuat di console (lihat SECURITY.md) */
