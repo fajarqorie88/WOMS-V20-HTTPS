@@ -399,6 +399,7 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 #pie-w.nc .pcall{display:none}
 .pcl{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .pcl rect{fill:transparent;stroke:transparent}
+.pcl rect.pbk{fill:var(--bg);fill-opacity:.88;stroke:currentColor;stroke-opacity:.25}
 .pcl:hover rect,.pcl.drag rect{stroke:currentColor;stroke-opacity:.35;stroke-dasharray:3 3}
 .pcl.drag{cursor:grabbing!important}
 /* Pie chart: slice interaktif, denyut luar, panel data */
@@ -430,10 +431,11 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 @keyframes pieIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.pp,.pb,.pie-pan{animation:none}.ps{transition:none}}
 /* Panah navigasi tanggal di kiri-kanan pie chart (tanpa background, berdetak) */
-.pnav{display:flex;align-items:center;gap:2px;max-width:760px;margin:0 auto}
+.pnav{position:relative;max-width:760px;margin:0 auto}
 .pnav #pie-w{flex:1;min-width:0}
-.pnav-b{flex:0 0 auto;width:clamp(30px,8vw,54px);padding:0;margin:0;border:0;background:none;cursor:pointer;line-height:0;-webkit-tap-highlight-color:transparent;animation:pnBeat 3.4s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(34,211,238,.5))}
+.pnav-b{position:absolute;top:0;bottom:0;margin:auto 0;height:fit-content;z-index:3;width:clamp(30px,8vw,54px);padding:0;border:0;background:none;cursor:pointer;line-height:0;-webkit-tap-highlight-color:transparent;animation:pnBeat 3.4s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(34,211,238,.5))}
 .pnav-b svg{width:100%;height:auto;display:block;transition:filter .15s}
+.pnav-b.l{left:0}.pnav-b.r{right:0}
 .pnav-b.l svg{transform:scaleX(-1)}
 .pnav-b:active svg{filter:brightness(1.6)}
 .pnav-b:focus-visible{outline:2px solid #22d3ee;outline-offset:3px;border-radius:6px}
@@ -1095,21 +1097,23 @@ function pieEb(ax,ay,cx,cy,w,h,h0){const L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2;
   const sy=ay<T?-1:1,ey=sy<0?T:B,vs=Math.max(8,Math.min(h0,Math.abs(ey-ay)-10));return[cx,ey+sy*vs]}
 /* garis callout: titik data -> elbow (bisa digeser, eo = selisih dari posisi otomatis) -> sisi kotak label terdekat */
 function pieLg(ax,ay,cx,cy,w,h,h0,eo){const f=n=>n.toFixed(2),L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,e0=pieEb(ax,ay,cx,cy,w,h,h0),o=eo||[0,0],
-  e=[Math.max(-96,Math.min(416,e0[0]+(+o[0]||0))),Math.max(10,Math.min(310,e0[1]+(+o[1]||0)))],c=[[L,cy],[R,cy],[cx,T],[cx,B]];
+  e=[Math.max(-98,Math.min(418,e0[0]+(+o[0]||0))),Math.max(-40,Math.min(360,e0[1]+(+o[1]||0)))],c=[[L,cy],[R,cy],[cx,T],[cx,B]];
   let i=0,m=1e9;c.forEach((q,k)=>{const t=Math.hypot(q[0]-e[0],q[1]-e[1]);if(t<m){m=t;i=k}});const q=c[i];
   return{d:`M${f(ax)} ${f(ay)}L${f(e[0])} ${f(e[1])}L${f(q[0])} ${f(q[1])}`,e,e0,s:i==0?'L':i==1?'R':'C'}}
 function pieLd(ax,ay,cx,cy,w,h,h0){return pieLg(ax,ay,cx,cy,w,h,h0).d}
 /* teks angka + keterangan dirata ke sisi tempat garis menyambung (jarak tetap 8), di tengah bila garis dari atas/bawah */
+function pieOv(cx,cy,w,h){const qx=Math.max(cx-w/2,Math.min(160,cx+w/2)),qy=Math.max(cy-h/2,Math.min(160,cy+h/2));return Math.hypot(qx-160,qy-160)<104}
 function pieTA(s,cx,w){return s=='L'?['start',cx-w/2+8]:s=='R'?['end',cx+w/2-8]:['middle',cx]}
 function pieRef(c){const l=c.querySelector('.pcl'),ld=c.querySelector('.pld');if(!l||!ld)return null;const Q=l.dataset,ge=c.querySelector('.pce'),w=+Q.w,
   g=pieLg(+Q.ax,+Q.ay,+Q.cx+(+Q.ox||0),+Q.cy+(+Q.oy||0),w,+Q.h,+Q.h0,ge?[+ge.dataset.eox||0,+ge.dataset.eoy||0]:[0,0]);
   ld.setAttribute('d',g.d);
   if(ge)ge.querySelectorAll('circle').forEach(n=>{n.setAttribute('cx',g.e[0].toFixed(2));n.setAttribute('cy',g.e[1].toFixed(2))});
+  const bk=l.querySelector('.pbk');if(bk)bk.style.display=pieOv(+Q.cx+(+Q.ox||0),+Q.cy+(+Q.oy||0),w,+Q.h)?'':'none';
   const ta=pieTA(g.s,+Q.cx,w);l.querySelectorAll('.pct,.pcs').forEach(t=>{t.setAttribute('text-anchor',ta[0]);t.setAttribute('x',ta[1].toFixed(2))});
   return g}
 function pieDotClamp(x,y){const C=160,vx=x-C,vy=y-C,r=Math.hypot(vx,vy),mn=44,mx=98;if(!r)return[C+mn,C];const k=r<mn?mn/r:r>mx?mx/r:1;return[C+vx*k,C+vy*k]}
 function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
-  cx=Math.max(-102+w/2,Math.min(422-w/2,cx0+ox)),cy=Math.max(6+h/2,Math.min(314-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
+  cx=Math.max(-50+w/2,Math.min(370-w/2,cx0+ox)),cy=Math.max(-40+h/2,Math.min(360-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
   g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
   pieRef(g.parentNode)}
 (function(){let d=null,last=null;
@@ -1184,9 +1188,9 @@ function pieSvg(ok,ng){
       ax=C+Math.cos(th)*R*.84,ay=C+Math.sin(th)*R*.84,ty=C+vs*136,dya=Math.abs(ty-ay),
       dx=Math.max(14,Math.min(dya*1.5,128-Math.abs(ax-C))),bx=ax+sd*dx,ex=C+sd*Math.min(Math.abs(bx-C)+80,165),
       col=c.lb=='OK'?'#22c55e':'#ff1f3d',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85+16,cx=ex+sd*(6+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
-      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-102+w/2,Math.min(422-w/2,cx+(+of[0]||0))),ncy=Math.max(6+h/2,Math.min(314-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy,dof=(PS.dof&&PS.dof[c.lb])||[0,0],[px,py]=pieDotClamp(ax+(+dof[0]||0),ay+(+dof[1]||0));
+      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-50+w/2,Math.min(370-w/2,cx+(+of[0]||0))),ncy=Math.max(-40+h/2,Math.min(360-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy,dof=(PS.dof&&PS.dof[c.lb])||[0,0],[px,py]=pieDotClamp(ax+(+dof[0]||0),ay+(+dof[1]||0));
       const eof=(PS.eof&&PS.eof[c.lb])||[0,0],g=pieLg(px,py,ncx,ncy,w,h,h0,eof),ta=pieTA(g.s,cx,w);
-      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${g.d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><g class="pcl" data-k="${c.lb}" data-ax="${f(px)}" data-ay="${f(py)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect x="${f(cx-w/2-4)}" y="${f(cy-h/2-2)}" width="${f(w+8)}" height="${h+4}" rx="6"/><text class="pie-ct pct" x="${f(ta[1])}" y="${f(ty)}" text-anchor="${ta[0]}" font-size="22" fill="${col}"${c.lb=='NG'?' style="filter:drop-shadow(0 0 3px rgba(255,45,74,.55))"':''}>${pct}</text><text class="pie-ct pcs" x="${f(ta[1])}" y="${f(ty+16)}" text-anchor="${ta[0]}" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g><g class="pce" data-k="${c.lb}" data-eox="${f(eof[0])}" data-eoy="${f(eof[1])}" style="pointer-events:all;touch-action:none"><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="12" fill="transparent"/><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="2" fill="${col}"/></g><g class="pcd" data-k="${c.lb}" data-ax0="${f(ax)}" data-ay0="${f(ay)}" data-ox="${f(px-ax)}" data-oy="${f(py-ay)}" transform="translate(${f(px-ax)} ${f(py-ay)})" style="pointer-events:all;touch-action:none"><circle cx="${f(ax)}" cy="${f(ay)}" r="15" fill="transparent"/><circle cx="${f(ax)}" cy="${f(ay)}" r="4.6" fill="#0a0a0a"/></g></g>`})}
+      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${g.d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><g class="pcl" data-k="${c.lb}" data-ax="${f(px)}" data-ay="${f(py)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect class="pbk" x="${f(cx-w/2)}" y="${f(cy-h/2)}" width="${f(w)}" height="${h}" rx="8" style="display:${pieOv(ncx,ncy,w,h)?'':'none'}"/><rect x="${f(cx-w/2-8)}" y="${f(cy-h/2-8)}" width="${f(w+16)}" height="${h+16}" rx="10"/><text class="pie-ct pct" x="${f(ta[1])}" y="${f(ty)}" text-anchor="${ta[0]}" font-size="22" fill="${col}"${c.lb=='NG'?' style="filter:drop-shadow(0 0 3px rgba(255,45,74,.55))"':''}>${pct}</text><text class="pie-ct pcs" x="${f(ta[1])}" y="${f(ty+16)}" text-anchor="${ta[0]}" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g><g class="pce" data-k="${c.lb}" data-eox="${f(eof[0])}" data-eoy="${f(eof[1])}" style="pointer-events:all;touch-action:none"><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="12" fill="transparent"/><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="2" fill="${col}"/></g><g class="pcd" data-k="${c.lb}" data-ax0="${f(ax)}" data-ay0="${f(ay)}" data-ox="${f(px-ax)}" data-oy="${f(py-ay)}" transform="translate(${f(px-ax)} ${f(py-ay)})" style="pointer-events:all;touch-action:none"><circle cx="${f(ax)}" cy="${f(ay)}" r="15" fill="transparent"/><circle cx="${f(ax)}" cy="${f(ay)}" r="4.6" fill="#0a0a0a"/></g></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
@@ -1195,7 +1199,7 @@ function pieSvg(ok,ng){
    +`<circle cx="${C}" cy="${C}" r="17" fill="none" stroke="#67e8f9" stroke-width="2.5" filter="url(#rcg)"><animate attributeName="stroke-opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></circle>`
    +`<g><polygon points="${tri}" fill="rgba(103,232,249,.25)" stroke="#cffafe" stroke-width="1.2" stroke-linejoin="round"/><animateTransform attributeName="transform" type="rotate" from="360 ${C} ${C}" to="0 ${C} ${C}" dur="5s" repeatCount="indefinite"/></g>`
    +`<circle cx="${C}" cy="${C}" r="6" fill="#ecfeff" filter="url(#rcg)"><animate attributeName="r" values="5;7.5;5" dur="1.6s" repeatCount="indefinite"/></circle></g>`;
-  return`<svg class="${play?'pa':''}" viewBox="-2 6 524 308" style="width:100%;max-width:580px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}<g class="pw">${body}</g>${calls}${ctr}</g></svg>`}
+  return`<svg class="${play?'pa':''}" viewBox="-2 -44 524 408" style="width:100%;max-width:580px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}<g class="pw">${body}</g>${calls}${ctr}</g></svg>`}
 /* item data pada panel; NG menampilkan foto bila ada */
 function pieItem(i,ng){const s=stdOf(i),c=ng?'#dc2626':'#16a34a',bg=ng?'rgba(248,113,113,.12)':'rgba(34,197,94,.1)',bd=ng?'rgba(248,113,113,.35)':'rgba(34,197,94,.35)';
   const ph=!ng?'':i.photo?`<img src="${i.photo}" onclick="event.stopPropagation();pieBig('${esc(String(i.id))}')" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer">`:i.photoId?`<div style="width:72px;height:72px;border-radius:10px;flex-shrink:0;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center" class="opacity-70">Memuat foto...</div>`:'';
