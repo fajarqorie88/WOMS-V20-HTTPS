@@ -432,7 +432,7 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 @keyframes pieIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.pp,.pb,.pie-pan{animation:none}.ps{transition:none}}
 /* Panah navigasi tanggal di kiri-kanan pie chart (tanpa background, berdetak) */
-.pnav{position:relative;max-width:760px;margin:0 auto}
+.pnav{position:relative;max-width:760px;margin:0 auto;box-sizing:border-box;padding:0 calc(clamp(30px,8vw,54px) + 4px)}
 .pnav #pie-w{flex:1;min-width:0}
 .pnav-b{position:absolute;top:0;bottom:0;margin:auto 0;height:fit-content;z-index:3;width:clamp(30px,8vw,54px);padding:0;border:0;background:none;cursor:pointer;line-height:0;-webkit-tap-highlight-color:transparent;animation:pnBeat 3.4s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(34,211,238,.5))}
 .pnav-b svg{width:100%;height:auto;display:block;transition:filter .15s}
@@ -1140,8 +1140,8 @@ function pieEb(ax,ay,cx,cy,w,h,h0){const L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2;
   if(ax<L||ax>R){const sx=ax<L?-1:1,ex=sx<0?L:R,hs=Math.max(8,Math.min(h0,Math.abs(ex-ax)-10));return[ex+sx*hs,cy]}
   const sy=ay<T?-1:1,ey=sy<0?T:B,vs=Math.max(8,Math.min(h0,Math.abs(ey-ay)-10));return[cx,ey+sy*vs]}
 /* garis callout: titik data -> elbow (bisa digeser, eo = selisih dari posisi otomatis) -> sisi kotak label terdekat */
-function pieLg(ax,ay,cx,cy,w,h,h0,eo){const f=n=>n.toFixed(2),L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,e0=pieEb(ax,ay,cx,cy,w,h,h0),o=eo||[0,0],
-  e=[Math.max(-98,Math.min(418,e0[0]+(+o[0]||0))),Math.max(-40,Math.min(360,e0[1]+(+o[1]||0)))],c=[[L,cy],[R,cy],[cx,T],[cx,B]];
+function pieLg(ax,ay,cx,cy,w,h,h0,eo){const f=n=>n.toFixed(2),Z=PS.z||{x0:-98,x1:418,y0:-40,y1:360},L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,e0=pieEb(ax,ay,cx,cy,w,h,h0),o=eo||[0,0],
+  e=[Math.max(Z.x0,Math.min(Z.x1,e0[0]+(+o[0]||0))),Math.max(Z.y0,Math.min(Z.y1,e0[1]+(+o[1]||0)))],c=[[L,cy],[R,cy],[cx,T],[cx,B]];
   let i=0,m=1e9;c.forEach((q,k)=>{const t=Math.hypot(q[0]-e[0],q[1]-e[1]);if(t<m){m=t;i=k}});const q=c[i];
   return{d:`M${f(ax)} ${f(ay)}L${f(e[0])} ${f(e[1])}L${f(q[0])} ${f(q[1])}`,e,e0,s:i==0?'L':i==1?'R':'C'}}
 function pieLd(ax,ay,cx,cy,w,h,h0){return pieLg(ax,ay,cx,cy,w,h,h0).d}
@@ -1157,7 +1157,7 @@ function pieRef(c){const l=c.querySelector('.pcl'),ld=c.querySelector('.pld');if
   return g}
 function pieDotClamp(x,y){const C=160,vx=x-C,vy=y-C,r=Math.hypot(vx,vy),mn=44,mx=98;if(!r)return[C+mn,C];const k=r<mn?mn/r:r>mx?mx/r:1;return[C+vx*k,C+vy*k]}
 function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
-  cx=Math.max(-50+w/2,Math.min(370-w/2,cx0+ox)),cy=Math.max(-40+h/2,Math.min(360-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
+  Z=PS.z||{x0:-50,x1:370,y0:-40,y1:360},cx=Math.max(Z.x0+w/2,Math.min(Z.x1-w/2,cx0+ox)),cy=Math.max(Z.y0+h/2,Math.min(Z.y1-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
   g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
   pieRef(g.parentNode)}
 (function(){let d=null,last=null;
@@ -1205,7 +1205,14 @@ function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
     else{const t=Date.now();if(last&&last.k==k&&t-last.t<400){put(g,0,0);delete PS.eof[k];sv();last=null}else last={k,t}}
     d=null};
   document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)})();
+/* Area pie chart = seluruh ruang di antara dua panah. Ukuran pie tetap (skala sama seperti sebelumnya), viewBox dilebarkan/dipotong mengikuti lebar area. Batas geser callout = tepi area itu */
+function pieVb(){const iw=window.innerWidth||360,g=Math.max(30,Math.min(54,iw*.08))+4,n=document.querySelector('.pnav'),pw=document.getElementById('pie-w'),W=(n&&n.clientWidth)||Math.min(760,iw-34),cw=(pw&&pw.clientWidth)||Math.max(120,W-2*g),s=Math.min(W,580)/524,vw=Math.max(300,cw/s),vx=260-vw/2;
+  PS.z={x0:vx-100+3,x1:vx+vw-100-3,y0:-41,y1:361};return{vx,vw}}
+function pieFit(){const s=document.querySelector('#pie-w>svg');if(!s)return;const v=pieVb();s.setAttribute('viewBox',v.vx.toFixed(2)+' -44 '+v.vw.toFixed(2)+' 408');
+  s.querySelectorAll('.pcl').forEach(g=>{const o=(PS.off&&PS.off[g.dataset.k])||[0,0];piePlace(g,+o[0]||0,+o[1]||0)})}
+addEventListener('resize',pieFit);
 function pieSvg(ok,ng){
+  const vb=pieVb(),Z=PS.z;
   const ak=ok+'|'+ng+'|'+(G.cal||''),play=PS.ak!==ak;PS.ak=ak;
   const t=ok+ng,C=160,R=104,pt=(a,r)=>[C+r*Math.cos(a),C+r*Math.sin(a)],f=n=>n.toFixed(2);
   const arc=(a0,a1,r0,r1)=>{const [x0,y0]=pt(a0,r1),[x1,y1]=pt(a1,r1),[x2,y2]=pt(a1,r0),[x3,y3]=pt(a0,r0),L=a1-a0>Math.PI?1:0;return`M${f(x0)} ${f(y0)}A${r1} ${r1} 0 ${L} 1 ${f(x1)} ${f(y1)}${r0?`L${f(x2)} ${f(y2)}A${r0} ${r0} 0 ${L} 0 ${f(x3)} ${f(y3)}Z`:`L${C} ${C}Z`}`};
@@ -1232,7 +1239,7 @@ function pieSvg(ok,ng){
       ax=C+Math.cos(th)*R*.84,ay=C+Math.sin(th)*R*.84,ty=C+vs*136,dya=Math.abs(ty-ay),
       dx=Math.max(14,Math.min(dya*1.5,128-Math.abs(ax-C))),bx=ax+sd*dx,ex=C+sd*Math.min(Math.abs(bx-C)+80,165),
       col=c.lb=='OK'?'#22c55e':'#ff1f3d',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85+16,cx=ex+sd*(6+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
-      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-50+w/2,Math.min(370-w/2,cx+(+of[0]||0))),ncy=Math.max(-40+h/2,Math.min(360-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy,dof=(PS.dof&&PS.dof[c.lb])||[0,0],[px,py]=pieDotClamp(ax+(+dof[0]||0),ay+(+dof[1]||0));
+      of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(Z.x0+w/2,Math.min(Z.x1-w/2,cx+(+of[0]||0))),ncy=Math.max(Z.y0+h/2,Math.min(Z.y1-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy,dof=(PS.dof&&PS.dof[c.lb])||[0,0],[px,py]=pieDotClamp(ax+(+dof[0]||0),ay+(+dof[1]||0));
       const eof=(PS.eof&&PS.eof[c.lb])||[0,0],g=pieLg(px,py,ncx,ncy,w,h,h0,eof),ta=pieTA(g.s,cx,w);
       calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${g.d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><g class="pcl" data-k="${c.lb}" data-ax="${f(px)}" data-ay="${f(py)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect class="pbk" x="${f(cx-w/2)}" y="${f(cy-h/2)}" width="${f(w)}" height="${h}" rx="8" style="display:${pieOv(ncx,ncy,w,h)?'':'none'}"/><rect x="${f(cx-w/2-8)}" y="${f(cy-h/2-8)}" width="${f(w+16)}" height="${h+16}" rx="10"/><text class="pie-ct pct" x="${f(ta[1])}" y="${f(ty)}" text-anchor="${ta[0]}" font-size="22" fill="${col}"${c.lb=='NG'?' style="filter:drop-shadow(0 0 3px rgba(255,45,74,.55))"':''}>${pct}</text><text class="pie-ct pcs" x="${f(ta[1])}" y="${f(ty+16)}" text-anchor="${ta[0]}" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g><g class="pce" data-k="${c.lb}" data-eox="${f(eof[0])}" data-eoy="${f(eof[1])}" style="pointer-events:all;touch-action:none"><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="12" fill="transparent"/><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="2" fill="${col}"/></g><g class="pcd" data-k="${c.lb}" data-ax0="${f(ax)}" data-ay0="${f(ay)}" data-ox="${f(px-ax)}" data-oy="${f(py-ay)}" transform="translate(${f(px-ax)} ${f(py-ay)})" style="pointer-events:all;touch-action:none"><circle cx="${f(ax)}" cy="${f(ay)}" r="15" fill="transparent"/><circle cx="${f(ax)}" cy="${f(ay)}" r="4.6" fill="#0a0a0a"/></g></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
@@ -1243,7 +1250,7 @@ function pieSvg(ok,ng){
    +`<circle cx="${C}" cy="${C}" r="17" fill="none" stroke="#67e8f9" stroke-width="2.5" filter="url(#rcg)"><animate attributeName="stroke-opacity" values="1;.55;1" dur="1.8s" repeatCount="indefinite"/></circle>`
    +`<g><polygon points="${tri}" fill="rgba(103,232,249,.25)" stroke="#cffafe" stroke-width="1.2" stroke-linejoin="round"/><animateTransform attributeName="transform" type="rotate" from="360 ${C} ${C}" to="0 ${C} ${C}" dur="5s" repeatCount="indefinite"/></g>`
    +`<circle cx="${C}" cy="${C}" r="6" fill="#ecfeff" filter="url(#rcg)"><animate attributeName="r" values="5;7.5;5" dur="1.6s" repeatCount="indefinite"/></circle></g>`;
-  return`<svg class="${play?'pa':''}" viewBox="-2 -44 524 408" style="width:100%;max-width:580px;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}<g class="pw">${body}</g>${calls}${ctr}</g></svg>`}
+  return`<svg class="${play?'pa':''}" viewBox="${f(vb.vx)} -44 ${f(vb.vw)} 408" style="width:100%;display:block;margin:0 auto;color:inherit;overflow:visible"><g transform="translate(100,0)">${defs}${rings}<g class="pw">${body}</g>${calls}${ctr}</g></svg>`}
 /* item data pada panel; NG menampilkan foto bila ada */
 function pieItem(i,ng){const s=stdOf(i),c=ng?'#dc2626':'#16a34a',bg=ng?'rgba(248,113,113,.12)':'rgba(34,197,94,.1)',bd=ng?'rgba(248,113,113,.35)':'rgba(34,197,94,.35)';
   const ph=!ng?'':i.photo?`<img src="${i.photo}" onclick="event.stopPropagation();pieBig('${esc(String(i.id))}')" style="width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer">`:i.photoId?`<div style="width:72px;height:72px;border-radius:10px;flex-shrink:0;background:rgba(128,128,128,.2);display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center" class="opacity-70">Memuat foto...</div>`:'';
@@ -1271,6 +1278,7 @@ function pieCard(a){
   const byT=(x,y)=>new Date(y.dt)-new Date(x.dt);
   PS.okA=okA.slice().sort(byT);PS.ngA=ngA.slice().sort(byT);
   if(PS.sel=='NG'||PS.sel=='ALL')setTimeout(()=>pieFetch(PS.ngA),0);
+  setTimeout(pieFit,0);
   return`<div class="c"><div class="flex justify-between items-center"><span style="display:inline-flex;align-items:center;gap:8px"><b>Overall Condition</b><button type="button" class="pe-eye" onclick="pieEye(this)" title="${PS.hc?'Show callout':'Hide callout'}" aria-label="${PS.hc?'Show callout':'Hide callout'}">${PEYE(PS.hc)}</button></span><b class="opacity-70">${dtx}</b></div>
 <div class="pnav">${pnArrow(-1)}<div id="pie-w" class="${(PS.sel&&PS.sel!='ALL'?'has-sel':'')+(PS.hc?' nc':'')}" style="margin-top:6px">${pieSvg(okA.length,ngA.length)}</div>${pnArrow(1)}</div>
 <div class="flex justify-center gap-4 flex-wrap text-sm mt-1">${lg('#22c55e','OK',okA.length)}${lg('#f87171','NG',ngA.length)}</div>
