@@ -380,7 +380,8 @@ html[data-theme=dark] .ck-d{color-scheme:dark}
 /* Mode HP: hanya No, Equipment, Sub+Type, Material, Output, Judge - pas selebar layar */
 html[data-view=hp] .ck{table-layout:fixed;width:100%;font-size:11px}
 html[data-view=hp] .ck th,html[data-view=hp] .ck td{white-space:normal;word-break:break-word;padding:5px 2px;overflow-wrap:anywhere}
-html[data-view=hp] .ck .hx,html[data-view=hp] .ck .sn{display:none}
+html[data-view=hp] .ck .hx,html[data-view=hp] .ck .sn,html[data-view=hp] .ck .cmc{display:none}
+.ck tbody tr{cursor:pointer}.ck tbody tr:hover td{background:rgba(37,99,235,.08)}
 html[data-view=hp] .ck th:nth-child(1){width:7%}html[data-view=hp] .ck th:nth-child(2){width:20%}html[data-view=hp] .ck th:nth-child(3){width:17%}html[data-view=hp] .ck th:nth-child(4){width:28%}html[data-view=hp] .ck th:nth-child(5){width:14%}html[data-view=hp] .ck th:nth-child(6){width:14%}html[data-view=hp] .ck td.mt{white-space:nowrap;word-break:keep-all;overflow-wrap:normal;overflow:hidden;text-overflow:ellipsis}
 html[data-view=hp] .ck thead th{font-size:10px;padding-left:1px;padding-right:1px;letter-spacing:0}
 html[data-view=hp] .ck .jb{min-width:0;padding:2px 6px;font-size:10px}
@@ -755,7 +756,7 @@ html[data-theme=dark] .cb-gi{background:rgba(37,99,235,.2);border-color:rgba(96,
 .pu-nm{flex:1;min-width:0;height:34px;line-height:34px;box-sizing:border-box;text-align:center;padding:0 12px;border-radius:999px;background:#fde68a;color:#78350f;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pu-r{margin-top:10px}.pu-rw{display:flex;gap:4px;align-items:center}
 .pu-ip{flex:1;min-width:0;display:flex;align-items:center;gap:4px;border:1.5px solid #60a5fa;border-radius:999px;padding:0 10px;height:40px;background:var(--bg);overflow:hidden;box-sizing:border-box}
-.pu-ip b.pu-lb{flex:0 1 auto;max-width:46%;line-height:1.1;font-weight:700;color:#3b82f6;word-break:normal;overflow-wrap:anywhere;display:none;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
+.pu-ip b.pu-lb{flex:0 1 auto;max-width:46%;line-height:1.1;font-weight:700;color:#3b82f6;word-break:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
 .pu-lb.f1{font-size:13px}.pu-lb.f2{font-size:12px}.pu-lb.f3{font-size:11px}.pu-lb.f4,.pu-lb.f5{font-size:10px}
 .pu-ip input{border:0;background:transparent;color:var(--tx);flex:1 0 60px;min-width:60px;width:auto;margin:0;padding:0;text-align:right;font-size:16px;font-weight:600;outline:0}
 .pu-ip i{font-style:normal;font-size:11px;opacity:.7;flex:none;white-space:nowrap}
@@ -783,16 +784,10 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-ft{position:sticky;bottom:0;z-index:2;padding:10px 12px;background:var(--bg);border-top:1px solid var(--bd)}
 .pu-fs{width:100%;height:44px;border-radius:999px;border:0;color:#fff;font-weight:800;font-size:15px;background:linear-gradient(135deg,#22c55e,#15803d);box-shadow:0 4px 12px rgba(34,197,94,.35)}
 .pu-b0{flex:1;height:40px;border-radius:999px;background:var(--bd);color:var(--tx);border:0;font-weight:700}
-.pu-ml{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 3px 12px;font-size:12px}
-.pu-ml b{font-weight:700;color:#3b82f6;font-size:13px;line-height:1.15;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis}
-.pu-ml span{opacity:.65;font-size:11px;white-space:nowrap;flex:none}
-.pu-std{display:none}
-@media(max-width:339px){.pu-ip{padding:0 8px;gap:2px}.pu-sv{width:56px}}
 @media(min-width:600px){
 .pu-rw{gap:6px}
 .pu-ip{gap:6px;padding:0 12px}
-.pu-ip b.pu-lb{display:-webkit-box;max-width:52%}
-.pu-ml{display:none}.pu-std{display:block}
+.pu-ip b.pu-lb{max-width:52%}
 .pu-lb.f1,.pu-lb.f2,.pu-lb.f3{font-size:14px}
 .pu-lb.f4{font-size:12px}
 .pu-lb.f5{font-size:11px}
@@ -803,6 +798,18 @@ html[data-theme=dark] .pu-sv.dn{background:#334155;color:#cbd5e1}
 .pu-b{width:48px;font-size:14px}
 .pu-ed{width:38px;height:38px}
 }
+html[data-view=pc] .pu-rw{gap:6px}
+html[data-view=pc] .pu-ip{gap:6px;padding:0 12px}
+html[data-view=pc] .pu-ip b.pu-lb{max-width:52%}
+html[data-view=pc] .pu-lb.f1,html[data-view=pc] .pu-lb.f2,html[data-view=pc] .pu-lb.f3{font-size:14px}
+html[data-view=pc] .pu-lb.f4{font-size:12px}
+html[data-view=pc] .pu-lb.f5{font-size:11px}
+html[data-view=pc] .pu-ip i{font-size:12px}
+html[data-view=pc] .pu-sv{width:72px;font-size:13px;gap:4px}
+html[data-view=pc] .pu-sv svg{width:16px;height:16px}
+html[data-view=pc] .pu-bg{width:48px}
+html[data-view=pc] .pu-b{width:48px;font-size:14px}
+html[data-view=pc] .pu-ed{width:38px;height:38px}
 .cp{display:inline-flex;align-items:center;border-radius:999px;background:linear-gradient(135deg,#dbeafe,#e0e7ff);color:#1e3a8a;font-size:13px;font-weight:600;overflow:hidden;max-width:100%}
 .cp button{padding:7px 10px;color:inherit;font:inherit;background:transparent;border:0;text-align:left}
 .cp button.cpx{padding:7px 10px 7px 2px;font-size:16px;line-height:1;opacity:.7}
@@ -834,6 +841,9 @@ html[data-theme=dark] .cp.on{background:linear-gradient(135deg,#2563EB,#0891b2);
 .c:has(.cb-l.show){position:relative;z-index:40}
 /* ===== AUTO ROTATE: landscape HP & PC sempit ===== */
 @media (orientation:landscape) and (max-height:620px){
+html[data-view=hp] .ck{table-layout:auto}
+html[data-view=hp] .ck .cmc{display:table-cell}
+html[data-view=hp] .ck th:nth-child(n){width:auto}
 html[data-view=hp] #app{max-width:980px!important}
 html[data-view=hp] body{padding-bottom:calc(46px + env(safe-area-inset-bottom,0px))}
 html[data-view=hp] nav button{padding:6px 0}
@@ -1541,7 +1551,7 @@ function puOpen(){const m=mainBy(F.main);if(!m)return;PUC=m.id;document.body.sty
 function puBadge(R,mat){const k=parseFloat(R.kA);if(isNaN(k))return'';const ok=k>=mat.min&&k<=mat.max;return`<span class="pu-b ${ok?'ok':'no'}">${ok?'OK':'NG'}</span>`}
 const puFs=n=>{const w=String(n).split(/[\s-]+/).reduce((a,x)=>Math.max(a,x.length),0);return w<=4?'f1':w<=6?'f2':w<=8?'f3':w<=10?'f4':'f5'};
 function puRowH(si,s,mat,mi,S){const R=puRow(S,s.id,mat.mt),d=R.saved,kk=s.id+'|'+mat.mt,ket=S.ket[kk]||'',ph=S.ph[kk]||'';
- return`<div class="pu-r"><div class="pu-ml"><b title="${esc(mat.mt)}">${esc(mat.mt).replace(/-/g,'-<wbr>')}</b><span>std ${f1(mat.min)}-${f1(mat.max)} kA</span></div><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b class="pu-lb ${puFs(mat.mt)}" title="${esc(mat.mt)}">${esc(mat.mt).replace(/-/g,'-<wbr>')}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div>${S.open[kk]?`<textarea id="puK_${si}_${mi}" class="pu-ta" rows="2" oninput="puKin(${si},${mi},this.value)" onchange="puApply(${si},${mi})" placeholder="Remarks ${esc(mat.mt)}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si},${mi})">&times;</button></div>`:''}</div>`}
+ return`<div class="pu-r"><div class="pu-rw"><label class="pu-ip${d?' lk':''}"><b class="pu-lb ${puFs(mat.mt)}" title="${esc(mat.mt)}">${esc(mat.mt).replace(/-/g,'-<wbr>')}</b><input id="puI_${si}_${mi}" type="number" step="0.1" inputmode="decimal" enterkeyhint="done" value="${esc(R.kA)}"${d?' readonly':''} oninput="puIn(${si},${mi},this)" onblur="puFmt(${si},${mi},this)" onkeydown="if(event.key=='Enter'){event.preventDefault();this.blur();puSave(${si},${mi})}"><i>kA</i></label><button type="button" class="pu-sv${d?' dn':''}" onclick="puSave(${si},${mi})">${d?PUI.ck+'Saved':'Save'}</button><span id="puB_${si}_${mi}" class="pu-bg">${puBadge(R,mat)}</span><button type="button" class="pu-ed" aria-label="Edit" style="visibility:${d?'visible':'hidden'}" onclick="puEdit(${si},${mi})">${PUI.ed}</button></div><div class="pu-std">std ${f1(mat.min)}-${f1(mat.max)} kA</div><div class="pu-er" id="puR_${si}_${mi}">${esc(R.err||'')}</div>${S.open[kk]?`<textarea id="puK_${si}_${mi}" class="pu-ta" rows="2" oninput="puKin(${si},${mi},this.value)" onchange="puApply(${si},${mi})" placeholder="Remarks ${esc(mat.mt)}">${esc(ket)}</textarea>`:''}${ph?`<div class="pu-th"><img src="${ph}" alt=""><button type="button" aria-label="Hapus foto" onclick="puPhDel(${si},${mi})">&times;</button></div>`:''}</div>`}
 function puMenuH(si,s,S){const k=S.menu[0]=='k';return`<div class="pu-mn" id="puM_${si}"><div class="pu-mt">${k?TT('Remarks untuk material:','Remarks for material:'):TT('Foto untuk material:','Photo for material:')}</div>${s.mats.map((mat,mi)=>{const kk=s.id+'|'+mat.mt,has=k?S.ket[kk]:S.ph[kk];return k?`<button type="button" class="pu-mi" onclick="puPick(${si},${mi})"><span>${esc(mat.mt)}</span>${has?PUI.ck:''}</button>`:`<div class="pu-mi"><span>${esc(mat.mt)}${has?' '+PUI.ck:''}</span><span class="pu-mb"><button type="button" onclick="puPick(${si},${mi},'c')">${TT('Kamera','Camera')}</button><button type="button" onclick="puPick(${si},${mi},'g')">${TT('Galeri','Gallery')}</button></span></div>`}).join('')}</div>`}
 function puSec(m,si,S){const s=m.subs[si],hk=s.mats.some(x=>S.ket[s.id+'|'+x.mt]),hp=s.mats.some(x=>S.ph[s.id+'|'+x.mt]);
  return`<div class="pu-sec"><div class="pu-ph"><span class="pu-ty ${/^x/i.test(s.type)?'tx':'tc'}">${esc(s.type)}</span><span class="pu-nm">${esc(s.name)}</span></div>${s.mats.map((mat,mi)=>puRowH(si,s,mat,mi,S)).join('')}<div class="pu-ac"><button type="button" class="pu-ab k${hk?' on':''}" onclick="puMenu('k',${si})">${TT('Keterangan','Remarks')}</button><button type="button" class="pu-ab p${hp?' on':''}" aria-label="Foto" onclick="puMenu('p',${si})">${PUI.cm}</button></div>${S.menu&&S.menu[1]==si?puMenuH(si,s,S):''}<input type="file" id="puF_${si}" accept="image/*" capture="environment" hidden onchange="puPhoto(${si},this)"><input type="file" id="puG_${si}" accept="image/*" hidden onchange="puPhoto(${si},this)"></div>`}
@@ -1742,12 +1752,16 @@ async function msCommit(){if(MSB)return;MSB=1;msProg(0);
   if(ok){msProg(100);awSuccess('Master tersimpan','Terkirim ke server (semua perangkat)');setTimeout(()=>{MSB=0;msProg(100)},2400)}else{MSB=0;msProg(100)}}
 /* ---------- COUNTER MEASURE (di dalam kotak detail): teks C/M, Data after C/M (kA), Judge otomatis ---------- */
 const cmJv=(i,k)=>{if(k===''||k==null||isNaN(parseFloat(k)))return'';const s=stdOf(i);return parseFloat(k)>=s.min&&parseFloat(k)<=s.max?'OK':'NG'};
+const cmV=i=>{const v=parseFloat(i.cmKA);return i.cmKA===''||i.cmKA==null||isNaN(v)?null:v};
 const cmJh=(i,k)=>{const j=cmJv(i,k);return j?`<span class="bg ${j=='OK'?'ok':'no'}" style="margin:0;font-weight:800">${j}</span>`:'<span class="opacity-60">-</span>'};
 function cmRow(i){const ed=canEdit(i),ka=i.cmKA!=null&&i.cmKA!==''?f1(i.cmKA):'';
  return`<tr><td class="opacity-60 py-1" style="vertical-align:top;padding-top:10px">Counter Measure</td><td><div class="cmx" style="display:flex;flex-direction:column;gap:6px;padding:4px 0">
 <input id="cmT" class="i" style="margin:0" placeholder="Counter measure" value="${esc(i.cm||'')}"${ed?'':' readonly'} onkeydown="cmKey(event,'cmA')">
-<div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap"><span class="opacity-60" style="white-space:nowrap">Data after C/M:</span><input id="cmA" type="number" step="0.1" inputmode="decimal" class="i" style="margin:0;width:72px;min-width:0;flex:0 1 72px" value="${ka}"${ed?'':' readonly'} oninput="cmLive('${i.id}')" onblur="cmFmt(this)" onkeydown="cmKey(event,'cmU')"><span style="white-space:nowrap;flex:none">kA</span></div>
-<div>Judge: <span id="cmJ">${cmJh(i,i.cmKA)}</span> <span class="text-xs opacity-60">(std ${f1(i.min)} - ${f1(i.max)} kA)</span></div>
+<div style="display:flex;align-items:stretch;gap:8px">
+<div style="flex:1;min-width:0;border:1px solid var(--bd);border-radius:10px;padding:8px 10px"><div class="text-xs opacity-60">Before</div><div style="font-size:20px;font-weight:700;line-height:1.3">${f1(i.kA)} <span class="text-xs" style="font-weight:400;opacity:.65">kA</span></div><div style="margin-top:4px">${cmJh(i,i.kA)}</div></div>
+<div style="display:flex;align-items:center;font-size:20px;opacity:.5">&rarr;</div>
+<div style="flex:1;min-width:0;border:1px solid var(--bd);border-radius:10px;padding:8px 10px"><div class="text-xs opacity-60">After C/M</div><div style="display:flex;align-items:center;gap:4px;margin:3px 0"><input id="cmA" type="number" step="0.1" inputmode="decimal" class="i" style="margin:0;width:100%;min-width:0;padding:5px 8px;font-size:16px;font-weight:700" value="${ka}"${ed?'':' readonly'} oninput="cmLive('${i.id}')" onblur="cmFmt(this)" onkeydown="cmKey(event,'cmU')"><span class="text-xs" style="flex:none">kA</span></div><div style="margin-top:4px"><span id="cmJ">${cmJh(i,i.cmKA)}</span></div></div></div>
+<div class="text-xs opacity-60">Std ${f1(i.min)} - ${f1(i.max)} kA</div>
 ${ed?`<button type="button" id="cmU" class="b" style="align-self:flex-start;padding:7px 16px" onclick="cmSave('${i.id}')">&#10003; Update</button>`:''}</div></td></tr>`}
 function cmKey(e,nx){if(e.key!='Enter')return;e.preventDefault();const n=document.getElementById(nx);if(n){n.focus();if(n.tagName=='BUTTON')try{n.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(x){}}}
 function cmFmt(el){const n=parseFloat(el.value);if(!isNaN(n))el.value=n.toFixed(1)}
@@ -1762,7 +1776,7 @@ function cmSave(id){const i=D.insp.find(x=>x.id==id);if(!i)return;if(!canEdit(i)
 function detail(id){const i=D.insp.find(x=>x.id==id),d=document.createElement('div');d.className='fixed inset-0 z-40 overflow-auto p-4';d.style.background='rgba(0,0,0,.7)';
 d.onclick=e=>{if(e.target.closest('button[onclick^="editInsp"]')||e.target.closest('.cmx'))return;d.remove()};
 const sv=stV(i);
-d.innerHTML=`<div class="c max-w-xl mx-auto text-sm" style="position:relative"><button style="position:absolute;top:8px;right:12px;font-size:18px;line-height:1" onclick="this.closest('.fixed').remove()">&#10005;</button><div style="display:flex;align-items:center;gap:8px;padding-right:26px"><b style="flex:1;min-width:0;font-size:17px;line-height:1.25;word-break:break-word">${esc(i.main)} - ${esc(i.sub)}</b><span class="bg ${sv=='OK'?'ok':'no'}" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0;border-radius:12px;font-size:20px;font-weight:800">${sv}</span></div><table class="w-full mt-2">${[['Waktu',new Date(i.dt).toLocaleString(LC())],['Type',i.subType],['Material',i.mat],['Aktual',f1(i.kA)+' kA'],['Standar',f1(i.min)+' - '+f1(i.max)],['Shift',i.shift],['Checker',i.c1+' / '+i.c2],['Lokasi',i.loc],['Description',i.desc],['Job',i.job],['Keterangan',i.ket],['Counter Measure','CM@@'],['Approval',apTxt(i)]].concat([['Diinput oleh',inpShow(i)]]).concat(isDev()&&i.ea?[['Terakhir diedit',(i.editedByName||i.editedBy||'-')+' - '+new Date(i.ea).toLocaleString(LC())]]:[]).map(r=>r[1]==='CM@@'?cmRow(i):`<tr><td class="opacity-60 py-1">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>${i.photo?`<img src="${i.photo}" class="w-full rounded-lg mt-2">`:''}${canEdit(i)?`<button class="b w-full mt-3" onclick="editInsp('${i.id}')">&#9998; Edit Data</button>`:''}${apBtn(i)}</div>`;trDom(d);document.body.appendChild(d)}
+d.innerHTML=`<div class="c max-w-xl mx-auto text-sm" style="position:relative"><button style="position:absolute;top:8px;right:12px;font-size:18px;line-height:1" onclick="this.closest('.fixed').remove()">&#10005;</button><div style="display:flex;align-items:center;gap:8px;padding-right:26px"><b style="flex:1;min-width:0;font-size:17px;line-height:1.25;word-break:break-word">${esc(i.main)} - ${esc(i.sub)}</b><span class="bg ${sv=='OK'?'ok':'no'}" style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0;border-radius:12px;font-size:20px;font-weight:800">${sv}</span></div><table class="w-full mt-2">${[['Waktu',new Date(i.dt).toLocaleString(LC())],['Type',i.subType],['Material',i.mat],['Standar',f1(i.min)+' - '+f1(i.max)],['Shift',i.shift],['Checker',i.c1+' / '+i.c2],['Lokasi',i.loc],['Description',i.desc],['Job',i.job],['Keterangan',i.ket],['Counter Measure','CM@@'],['Approval',apTxt(i)]].concat([['Diinput oleh',inpShow(i)]]).concat(isDev()&&i.ea?[['Terakhir diedit',(i.editedByName||i.editedBy||'-')+' - '+new Date(i.ea).toLocaleString(LC())]]:[]).map(r=>r[1]==='CM@@'?cmRow(i):`<tr><td class="opacity-60 py-1">${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>${i.photo?`<img src="${i.photo}" class="w-full rounded-lg mt-2">`:''}${canEdit(i)?`<button class="b w-full mt-3" onclick="editInsp('${i.id}')">&#9998; Edit Data</button>`:''}${apBtn(i)}</div>`;trDom(d);document.body.appendChild(d)}
 
 /* ---------- GRAFIK ---------- */
 /* Tombol Show/Hide Chart (di bawah pie chart): menyembunyikan kartu grafik per material/lokasi */
@@ -1775,7 +1789,7 @@ return`<div class="flex justify-between items-center flex-wrap"><h2 class="font-
 const tLang=(a,b)=>LG=='en'?b:a;
 /* Tabel Data Check (tab Grafik): No, Sub, Material, Judge (OK/NG), Approval (Pending/Approved), Remarks */
 let EQLP=0,EQT=0;
-const ckVal=(i,k)=>k=='sub'&&document.documentElement.dataset.view=='hp'?(i.subType||i.sub)+' '+i.sub:k=='status'?stV(i):k=='ap'?apSt(i):i[k];
+const ckVal=(i,k)=>k=='sub'&&document.documentElement.dataset.view=='hp'?(i.subType||i.sub)+' '+i.sub:k=='status'?stV(i):k=='ap'?apSt(i):k=='cmKA'?cmV(i):k=='cmJ'?cmJv(i,i.cmKA):i[k];
 function chkTbl(a){
   const ar=k=>ss.k==k?(ss.d>0?' &#9650;':' &#9660;'):'';
   const th=(k,t,x)=>`<th${x?' class="'+x+'"':''} onclick="ss={k:'${k}',d:ss.k=='${k}'?-ss.d:1};render()">${t}${ar(k)}</th>`;
@@ -1785,10 +1799,10 @@ function chkTbl(a){
   const rk=i=>String(i.mat||'').trim().toUpperCase()=='SCGA'?0:1;
   const cmp=(x,y)=>{let r=0;if(ss.k!='dt'){const A=ckVal(x,ss.k),B=ckVal(y,ss.k);r=((typeof A=='number'&&typeof B=='number')?A-B:nat(A,B))*ss.d}
     return r||nat(x.main,y.main)||nat(x.sub,y.sub)||nat(x.subType,y.subType)||rk(x)-rk(y)||nat(x.mat,y.mat)||(ss.k=='dt'?new Date(y.dt)-new Date(x.dt):new Date(x.dt)-new Date(y.dt))};
-  const rows=[...a].sort(cmp).map((i,n)=>{const g=ok(i),p=apSt(i)=='p';
-    return`<tr><td>${n+1}</td><td>${esc(i.main)}</td><td>${i.subType?`<span class="sn">${esc(i.sub)} </span>${esc(i.subType)}`:esc(i.sub)}</td><td class="mt">${esc(i.mat)}</td><td>${f1(i.kA)}</td><td><span class="jb ${g?'ok':'ng'}">${g?'OK':'NG'}</span></td><td class="hx"><span class="jb ${p?'pe':'ap'}">${p?'Pending':'Approved'}</span></td><td class="rm hx">${esc(i.ket)||'-'}</td></tr>`}).join('');
+  const rows=[...a].sort(cmp).map((i,n)=>{const g=ok(i),p=apSt(i)=='p',cv=cmV(i),cj=cv==null?'':cmJv(i,cv);
+    return`<tr onclick="detail('${esc(String(i.id))}')"><td>${n+1}</td><td>${esc(i.main)}</td><td>${i.subType?`<span class="sn">${esc(i.sub)} </span>${esc(i.subType)}`:esc(i.sub)}</td><td class="mt">${esc(i.mat)}</td><td>${f1(i.kA)}</td><td><span class="jb ${g?'ok':'ng'}">${g?'OK':'NG'}</span></td><td class="cmc">${cv==null?'-':f1(cv)}</td><td class="cmc">${cj?`<span class="jb ${cj=='OK'?'ok':'ng'}">${cj}</span>`:'-'}</td><td class="hx"><span class="jb ${p?'pe':'ap'}">${p?'Pending':'Approved'}</span></td><td class="rm hx">${esc(i.ket)||'-'}</td></tr>`}).join('');
   const ds=G.cal||ymd(new Date());
-  return`<div class="c overflow-x-auto"><div class="ck-h"><b>Data Check</b><label class="ck-dw"><span class="ck-d">${ds.split('-').reverse().join('-')}</span><input type="date" class="ck-di" value="${ds}" onclick="try{this.showPicker()}catch(e){}" onchange="ckDate(this.value)" title="Pilih tanggal"></label></div><table class="ck"><thead><tr><th>No</th>${thE}${th('sub','Sub Type')}${th('mat','Material')}${th('kA','Output<br><span style="text-transform:none">(kA)</span>')}${th('status','Judge')}${th('ap','Approval','hx')}${th('ket',tLang('Keterangan','Remarks'),'hx')}</tr></thead><tbody>${rows}</tbody></table></div>`}
+  return`<div class="c overflow-x-auto"><div class="ck-h"><b>Data Check</b><label class="ck-dw"><span class="ck-d">${ds.split('-').reverse().join('-')}</span><input type="date" class="ck-di" value="${ds}" onclick="try{this.showPicker()}catch(e){}" onchange="ckDate(this.value)" title="Pilih tanggal"></label></div><table class="ck"><thead><tr><th>No</th>${thE}${th('sub','Sub Type')}${th('mat','Material')}${th('kA','Output<br><span style="text-transform:none">(kA)</span>')}${th('status','Judge')}${th('cmKA','After C/M<br><span style="text-transform:none">(kA)</span>','cmc')}${th('cmJ','Judge<br>After','cmc')}${th('ap','Approval','hx')}${th('ket',tLang('Keterangan','Remarks'),'hx')}</tr></thead><tbody>${rows}</tbody></table></div>`}
 /* klik kanan (atau tekan lama di HP) pada judul Equipment: urutkan Ascending / Descending lalu tampilkan data */
 /* pilih tanggal dari kotak Data Check: kalender, pie chart, line chart & tabel ikut berubah */
 function ckDate(v){if(!v)return;const d=new Date(v+'T00:00:00');if(isNaN(d))return;G.cal=v;G.cy=d.getFullYear();G.cm=d.getMonth();G.pk=null;render()}
@@ -1828,7 +1842,7 @@ doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(90);doc.te
 doc.text('Equipment: '+mn+'   Lokasi: '+ln+'   Type: '+(G.type||'Semua')+'   Rentang: '+dtxt+'   '+stat,10,14);doc.setTextColor(0);
 doc.addImage(c2.toDataURL('image/jpeg',.92),'JPEG',10,17,277,186)}});
 doc.addPage();doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(37,99,235);doc.text('Data Pengecekan',10,12);doc.setTextColor(0);doc.setFont('helvetica','normal');
-pdfTable(doc,20,[['Waktu',10,20],['Main',50,18],['Sub',85,24],['Material',130,14],['kA',160,8],['Standar (Master)',180,14],['Status',220,6]],[...a].sort((x,y)=>new Date(y.dt)-new Date(x.dt)).map(i=>{const s=stdOf(i);return[new Date(i.dt).toLocaleString(LC()),i.main,i.sub+' '+i.subType,i.mat,f1(i.kA),f1(s.min)+'-'+f1(s.max),ok(i)?'OK':'NG']}));
+pdfTable(doc,20,[['Waktu',10,20],['Main',50,18],['Sub',85,24],['Material',130,14],['kA',160,8],['Standar (Master)',180,14],['Status',220,6],['After C/M (kA)',238,10],['Judge After',266,6]],[...a].sort((x,y)=>new Date(y.dt)-new Date(x.dt)).map(i=>{const s=stdOf(i),cv=cmV(i);return[new Date(i.dt).toLocaleString(LC()),i.main,i.sub+' '+i.subType,i.mat,f1(i.kA),f1(s.min)+'-'+f1(s.max),ok(i)?'OK':'NG',cv==null?'-':f1(cv),cv==null?'-':cmJv(i,cv)]}));
 await outPdf(doc,'WMS_Grafik_'+stamp()+'.pdf',dl)}
 const matList=()=>G.mat?[G.mat]:D.M.mats;
 function locGroups(a,sel){const ls=[...D.M.locs];a.forEach(i=>{const l=i.loc||'';if(!ls.includes(l))ls.push(l)});const out=[];ls.forEach(l=>{if(G.loc&&l!=G.loc)return;matList().filter(m=>!sel||sel.includes(m)).forEach(mt=>{const r=a.filter(i=>(i.loc||'')==l&&i.mat==mt);if(r.length)out.push({loc:l,mat:mt,all:cats(r)})})});return out}
@@ -1884,7 +1898,7 @@ const wrapT=(t,w)=>{const ws=String(t||'').split(/\s+/).filter(Boolean),o2=[];le
 const clampL=(a,m)=>{if(a.length<=m)return a;const r=a.slice(0,m);let t=r[m-1];while(t&&x.measureText(t+'\u2026').width>lw)t=t.slice(0,-1);r[m-1]=t+'\u2026';return r};
 x.font='bold '+lf+'px sans-serif';const LB=ct.map(k=>({m:clampL(wrapT(k.main,lw),3)}));x.font=lf+'px sans-serif';LB.forEach((b,i)=>b.s=clampL(wrapT(ct[i].sub,lw),2));x.font=12*sc+'px sans-serif';
 const mL=Math.max(...LB.map(b=>b.m.length)),sL=Math.max(...LB.map(b=>b.s.length)),B=Math.round(10*sc+lf+(mL+sL-1)*lh+3*sc);
-const sd=ct.map(k=>stdOf(k.rows[0])),vs=[].concat(...ct.map(k=>k.rows.map(i=>i.kA)),sd.map(s=>s.min),sd.map(s=>s.max)),lo=Math.min(...vs)-1,hi=Math.max(...vs)+1,T=30*sc,Y=v=>H-B-(v-lo)/(hi-lo)*(H-B-T),cw=(W-p-10*sc)/n,X=i=>p+(i+.5)*cw,g=pr?8:4;
+const sd=ct.map(k=>stdOf(k.rows[0])),vs=[].concat(...ct.map(k=>k.rows.map(i=>i.kA)),...ct.map(k=>k.rows.map(cmV).filter(v=>v!=null)),sd.map(s=>s.min),sd.map(s=>s.max)),lo=Math.min(...vs)-1,hi=Math.max(...vs)+1,T=30*sc,Y=v=>H-B-(v-lo)/(hi-lo)*(H-B-T),cw=(W-p-10*sc)/n,X=i=>p+(i+.5)*cw,g=pr?8:4;
 x.strokeStyle='#8884';x.lineWidth=sc;for(let k=0;k<=g;k++){const v=lo+(hi-lo)*k/g;x.beginPath();x.moveTo(p,Y(v));x.lineTo(W-10*sc,Y(v));x.stroke();x.fillText(v.toFixed(1),2,Y(v)+4*sc)}
 x.strokeStyle=fg;x.beginPath();x.moveTo(p,H-B);x.lineTo(W-10*sc,H-B);x.stroke();
 const pts=[];ct.forEach((k,i)=>{const s=sd[i],rs=[...k.rows].sort((u,w)=>new Date(u.dt)-new Date(w.dt)),st=Math.min(10*sc,cw*.8/rs.length);rs.forEach((o2,j)=>pts.push({px:X(i)+(j-(rs.length-1)/2)*st,o:o2,min:s.min,max:s.max}));
@@ -1894,11 +1908,36 @@ const ls=f=>{if(pts.length>1)return ln(f,'#dc2626',[8,5],3.5);const q=pts[0],yy=
 pts.forEach(q=>{x.fillStyle='#2563EB';x.beginPath();x.arc(q.px,Y(q.o.kA),7*sc,0,7);x.fill();if(!ok(q.o)){x.strokeStyle='#dc2626';x.lineWidth=3*sc;x.beginPath();x.arc(q.px,Y(q.o.kA),11*sc,0,7);x.stroke()}
 x.fillStyle=fg;x.font='bold '+13*sc+'px sans-serif';x.textAlign='center';x.fillText(f1(q.o.kA),q.px,Y(q.o.kA)-13*sc)});
 if(!lt&&!pr)ngPulse(c,pts.filter(q=>!ok(q.o)).map(q=>({x:q.px,y:Y(q.o.kA)})),W,H,sc);
-pts.forEach(q=>{if(ok(q.o))return;const py=Y(q.o.kA),w=28*sc,h=16*sc;let up=q.o.kA>q.max,gap=(up?32:16)*sc,by=up?py-gap-h:py+gap;if(up&&by<2*sc){up=false;by=py+16*sc}
-const bx=Math.max(2,Math.min(W-w-2,q.px-w/2));x.fillStyle='#dc2626';x.beginPath();x.rect(bx,by,w,h);x.fill();x.beginPath();
+const nb=[];pts.forEach(q=>{if(ok(q.o))return;const py=Y(q.o.kA),w=28*sc,h=16*sc;let up=q.o.kA>q.max,gap=(up?32:16)*sc,by=up?py-gap-h:py+gap;if(up&&by<2*sc){up=false;by=py+16*sc}
+const bx=Math.max(2,Math.min(W-w-2,q.px-w/2));nb.push([bx,by,w,h]);x.fillStyle='#dc2626';x.beginPath();x.rect(bx,by,w,h);x.fill();x.beginPath();
 if(up){x.moveTo(q.px-4*sc,by+h);x.lineTo(q.px+4*sc,by+h);x.lineTo(q.px,py-12*sc)}else{x.moveTo(q.px-4*sc,by);x.lineTo(q.px+4*sc,by);x.lineTo(q.px,py+12*sc)}x.closePath();x.fill();
 x.fillStyle='#fff';x.font='bold '+10*sc+'px sans-serif';x.textAlign='center';x.fillText('NG',bx+w/2,by+h*.75)});
-x.textAlign='left';x.font=11*sc+'px sans-serif';x.fillStyle='#2563EB';x.fillText('Aktual',p,14*sc);x.fillStyle='#dc2626';x.fillText('Std Min',p+55*sc,14*sc);x.fillStyle='#dc2626';x.fillText('Std Max',p+120*sc,14*sc);x.fillStyle=fg;x.fillText('kA - '+mat+' (callout NG = di luar standar)',p+190*sc,14*sc)}
+/* After C/M: segitiga hijau + garis putus ke titik Before + kartu callout (kanan-bawah; kalau bentrok pindah ke atas, lalu versi ringkas) */
+{const ZG='#639922',ZD='#27500A',sec=dk?'#cbd5e1':'#475569',T0=24*sc,yB=H-B-2*sc,hit=(a,b)=>a[0]<b[0]+b[2]&&a[0]+a[2]>b[0]&&a[1]<b[1]+b[3]&&a[1]+a[3]>b[1],
+ rr=(X0,Y0,w,h,r)=>{x.beginPath();x.moveTo(X0+r,Y0);x.arcTo(X0+w,Y0,X0+w,Y0+h,r);x.arcTo(X0+w,Y0+h,X0,Y0+h,r);x.arcTo(X0,Y0+h,X0,Y0,r);x.arcTo(X0,Y0,X0+w,Y0,r);x.closePath()},
+ am=pts.map(q=>{const k=cmV(q.o);return k==null?null:{q,k,ax:q.px+14*sc,ay:Y(k),jd:cmJv(q.o,k)}}).filter(Boolean);
+ if(am.length){const occ=nb.slice();pts.forEach(q=>occ.push([q.px-13*sc,Y(q.o.kA)-13*sc,26*sc,26*sc]));am.forEach(a=>occ.push([a.ax-9*sc,a.ay-10*sc,18*sc,18*sc]));
+  am.forEach(a=>{x.save();x.strokeStyle=ZG;x.lineWidth=1.5*sc;x.setLineDash([4*sc,3*sc]);x.beginPath();x.moveTo(a.q.px,Y(a.q.o.kA));x.lineTo(a.ax,a.ay);x.stroke();x.restore();
+   x.beginPath();x.moveTo(a.ax,a.ay-8*sc);x.lineTo(a.ax-7*sc,a.ay+5*sc);x.lineTo(a.ax+7*sc,a.ay+5*sc);x.closePath();x.fillStyle=ZG;x.fill();x.strokeStyle=ZD;x.lineWidth=1.5*sc;x.lineJoin='round';x.stroke()});
+  am.forEach(a=>{let pl=null;
+   for(const[w,h,cp]of[[132*sc,54*sc,0],[70*sc,34*sc,1]]){const cs=[[a.ax+10*sc,a.ay+14*sc],[a.ax+10*sc,a.ay-14*sc-h],[a.ax-10*sc-w,a.ay+14*sc],[a.ax-10*sc-w,a.ay-14*sc-h]];
+    for(const[cx,cy]of cs){const r=[cx,cy,w,h];if(cx<2||cy<T0||cx+w>W-2||cy+h>yB)continue;if(occ.some(o=>hit(r,o)))continue;pl={r,cp};break}if(pl)break}
+   if(!pl){const w=70*sc,h=34*sc;pl={r:[Math.max(2,Math.min(W-w-2,a.ax+10*sc)),Math.max(T0,Math.min(yB-h,a.ay+14*sc)),w,h],cp:1}}
+   occ.push(pl.r);const[X0,Y0,w,h]=pl.r,qx=Math.max(X0,Math.min(X0+w,a.ax)),qy=Math.max(Y0,Math.min(Y0+h,a.ay));
+   x.save();x.strokeStyle=ZG;x.lineWidth=1.2*sc;x.beginPath();x.moveTo(a.ax,a.ay+(qy>a.ay?5:-8)*sc);x.lineTo(qx,qy);x.stroke();x.fillStyle=ZG;x.beginPath();x.arc(qx,qy,2.5*sc,0,7);x.fill();x.restore();
+   rr(X0,Y0,w,h,10*sc);x.fillStyle=dk?'#1e293b':'#fff';x.fill();x.strokeStyle=ZG;x.lineWidth=1.2*sc;x.stroke();
+   const okk=a.jd=='OK',pw=(pl.cp?24:30)*sc,ph=14*sc,pyy=pl.cp?Y0+h/2-ph/2:Y0+8*sc;
+   rr(X0+w-6*sc-pw,pyy,pw,ph,ph/2);x.fillStyle=okk?'#dcfce7':'#fee2e2';x.fill();
+   x.fillStyle=okk?'#15803d':'#b91c1c';x.font='bold '+9*sc+'px sans-serif';x.textAlign='center';x.fillText(a.jd,X0+w-6*sc-pw/2,pyy+10.5*sc);x.textAlign='left';
+   if(!pl.cp){x.beginPath();x.moveTo(X0+10*sc,Y0+10*sc);x.lineTo(X0+6*sc,Y0+17*sc);x.lineTo(X0+14*sc,Y0+17*sc);x.closePath();x.fillStyle=ZG;x.fill();
+    x.fillStyle=sec;x.font=10*sc+'px sans-serif';x.fillText('After C/M',X0+19*sc,Y0+17*sc);
+    const vt=f1(a.k),by2=Y0+h-10*sc;x.fillStyle=fg;x.font='bold '+18*sc+'px sans-serif';x.fillText(vt,X0+10*sc,by2);const tw=x.measureText(vt).width;
+    x.fillStyle=sec;x.font=10*sc+'px sans-serif';x.fillText('kA',X0+14*sc+tw,by2);
+    const d=a.k-a.q.o.kA;x.textAlign='right';x.fillStyle=okk?'#15803d':'#b91c1c';x.font='bold '+10*sc+'px sans-serif';x.fillText((d>0?'+':'')+d.toFixed(1),X0+w-8*sc,by2);x.textAlign='left'}
+   else{x.fillStyle=fg;x.font='bold '+14*sc+'px sans-serif';x.fillText(f1(a.k),X0+8*sc,Y0+h/2+5*sc)}})}}
+x.textAlign='left';x.font=11*sc+'px sans-serif';x.fillStyle='#2563EB';x.fillText('Aktual',p,14*sc);x.fillStyle='#dc2626';x.fillText('Std Min',p+55*sc,14*sc);x.fillStyle='#dc2626';x.fillText('Std Max',p+120*sc,14*sc);
+x.beginPath();x.moveTo(p+196*sc,5*sc);x.lineTo(p+191*sc,13*sc);x.lineTo(p+201*sc,13*sc);x.closePath();x.fillStyle='#639922';x.fill();x.fillStyle='#3B6D11';x.fillText('After C/M',p+206*sc,14*sc);
+x.fillStyle=fg;x.fillText('kA - '+mat+' (callout NG = di luar standar)',p+275*sc,14*sc)}
 
 /* ---------- MASTER ---------- */
 const r2=v=>Math.round(v*100)/100,tgOf=x=>x.tg!=null&&x.tg!==''?x.tg:r2((x.min+x.max)/2),alOf=x=>x.al!=null&&x.al!==''?x.al:(tgOf(x)>0?r2((x.max-x.min)/2/tgOf(x)*100):'');
