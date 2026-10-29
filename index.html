@@ -423,7 +423,7 @@ html[data-view=hp] .c.overflow-x-auto{overflow-x:hidden;padding-left:6px;padding
 @keyframes pcIn{from{opacity:0}}
 .ngg{pointer-events:none;transform-box:fill-box;transform-origin:center;animation:ngP 1.6s ease-in-out infinite}
 @keyframes ngP{0%,100%{opacity:.25}50%{opacity:.95}}
-.pcd{cursor:grab}.pcd.drag{cursor:grabbing}
+.pcd,.pce{cursor:grab}.pcd.drag,.pce.drag{cursor:grabbing}
 @media (prefers-reduced-motion:reduce){.pa .pw,.pa .pcall{animation:none}.ngg{animation:none;opacity:.55}}
 .pie-pan{animation:pieIn .4s ease both}
 .pie-sec+.pie-sec{margin-top:12px}
@@ -1086,18 +1086,32 @@ ${warn?`<div class="mt-2 p-2" style="border-radius:8px;background:${pc>=90?'#fee
 <p class="text-xs opacity-60 mt-2">Foto: ${fmtB(SC.fb)} (${SC.files} file) - Data: ${fmtB(SC.db)} (${SC.docs} dokumen, perkiraan)</p>`:`<p class="text-xs opacity-60 my-2">Memuat...</p>`}
 <p class="text-xs opacity-60 mt-1">Total kapasitas ${fmtB(cap)} <button class="underline" onclick="scEdit()">ubah</button></p></div>`}
 /* ---------- PIE CHART OK / NG (tab Grafik) ---------- */
-let PS={sel:null,fetching:false,okA:[],ngA:[],off:(()=>{try{return JSON.parse(L.wms_pieoff||'{}')||{}}catch(e){return{}}})(),dof:(()=>{try{return JSON.parse(L.wms_piedot||'{}')||{}}catch(e){return{}}})(),ak:null};
+let PS={sel:null,fetching:false,okA:[],ngA:[],off:(()=>{try{return JSON.parse(L.wms_pieoff||'{}')||{}}catch(e){return{}}})(),dof:(()=>{try{return JSON.parse(L.wms_piedot||'{}')||{}}catch(e){return{}}})(),eof:(()=>{try{return JSON.parse(L.wms_pieelb||'{}')||{}}catch(e){return{}}})(),ak:null};
 function pieBig(id){const r=D.insp.find(x=>String(x.id)==String(id));if(!r||!r.photo)return;const d=document.createElement('div');d.className='fixed';d.style.cssText='inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:12px';d.onclick=()=>d.remove();d.innerHTML='<img src="'+r.photo+'" style="max-width:100%;max-height:100%;border-radius:12px">';document.body.appendChild(d)}
 async function pieFetch(list){if(PS.fetching)return;PS.fetching=true;let n=0;for(const r of list){if(r.photo||!r.photoId||!awST)continue;try{if(await awPhotoGet(r))n++}catch(e){}}PS.fetching=false;if(n&&tab=='grafik')render()}
 /* Callout pie bisa digeser (drag): garis penunjuk ikut menyambung ke sisi kotak label yang terdekat, seperti callout Excel. Ketuk 2x untuk kembalikan ke posisi awal */
-function pieLd(ax,ay,cx,cy,w,h,h0){const L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,f=n=>n.toFixed(2);
-  if(ax<L||ax>R){const sx=ax<L?-1:1,ex=sx<0?L:R,hs=Math.max(8,Math.min(h0,Math.abs(ex-ax)-10)),bx=ex+sx*hs;return`M${f(ax)} ${f(ay)}L${f(bx)} ${f(cy)}L${f(ex)} ${f(cy)}`}
-  const sy=ay<T?-1:1,ey=sy<0?T:B,vs=Math.max(8,Math.min(h0,Math.abs(ey-ay)-10)),by=ey+sy*vs;return`M${f(ax)} ${f(ay)}L${f(cx)} ${f(by)}L${f(cx)} ${f(ey)}`}
+function pieEb(ax,ay,cx,cy,w,h,h0){const L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2;
+  if(ax<L||ax>R){const sx=ax<L?-1:1,ex=sx<0?L:R,hs=Math.max(8,Math.min(h0,Math.abs(ex-ax)-10));return[ex+sx*hs,cy]}
+  const sy=ay<T?-1:1,ey=sy<0?T:B,vs=Math.max(8,Math.min(h0,Math.abs(ey-ay)-10));return[cx,ey+sy*vs]}
+/* garis callout: titik data -> elbow (bisa digeser, eo = selisih dari posisi otomatis) -> sisi kotak label terdekat */
+function pieLg(ax,ay,cx,cy,w,h,h0,eo){const f=n=>n.toFixed(2),L=cx-w/2,R=cx+w/2,T=cy-h/2,B=cy+h/2,e0=pieEb(ax,ay,cx,cy,w,h,h0),o=eo||[0,0],
+  e=[Math.max(-96,Math.min(416,e0[0]+(+o[0]||0))),Math.max(10,Math.min(310,e0[1]+(+o[1]||0)))],c=[[L,cy],[R,cy],[cx,T],[cx,B]];
+  let i=0,m=1e9;c.forEach((q,k)=>{const t=Math.hypot(q[0]-e[0],q[1]-e[1]);if(t<m){m=t;i=k}});const q=c[i];
+  return{d:`M${f(ax)} ${f(ay)}L${f(e[0])} ${f(e[1])}L${f(q[0])} ${f(q[1])}`,e,e0,s:i==0?'L':i==1?'R':'C'}}
+function pieLd(ax,ay,cx,cy,w,h,h0){return pieLg(ax,ay,cx,cy,w,h,h0).d}
+/* teks angka + keterangan dirata ke sisi tempat garis menyambung (jarak tetap 8), di tengah bila garis dari atas/bawah */
+function pieTA(s,cx,w){return s=='L'?['start',cx-w/2+8]:s=='R'?['end',cx+w/2-8]:['middle',cx]}
+function pieRef(c){const l=c.querySelector('.pcl'),ld=c.querySelector('.pld');if(!l||!ld)return null;const Q=l.dataset,ge=c.querySelector('.pce'),w=+Q.w,
+  g=pieLg(+Q.ax,+Q.ay,+Q.cx+(+Q.ox||0),+Q.cy+(+Q.oy||0),w,+Q.h,+Q.h0,ge?[+ge.dataset.eox||0,+ge.dataset.eoy||0]:[0,0]);
+  ld.setAttribute('d',g.d);
+  if(ge)ge.querySelectorAll('circle').forEach(n=>{n.setAttribute('cx',g.e[0].toFixed(2));n.setAttribute('cy',g.e[1].toFixed(2))});
+  const ta=pieTA(g.s,+Q.cx,w);l.querySelectorAll('.pct,.pcs').forEach(t=>{t.setAttribute('text-anchor',ta[0]);t.setAttribute('x',ta[1].toFixed(2))});
+  return g}
 function pieDotClamp(x,y){const C=160,vx=x-C,vy=y-C,r=Math.hypot(vx,vy),mn=44,mx=98;if(!r)return[C+mn,C];const k=r<mn?mn/r:r>mx?mx/r:1;return[C+vx*k,C+vy*k]}
 function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
   cx=Math.max(-102+w/2,Math.min(422-w/2,cx0+ox)),cy=Math.max(6+h/2,Math.min(314-h/2,cy0+oy));ox=cx-cx0;oy=cy-cy0;
   g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
-  const ld=g.parentNode.querySelector('.pld');if(ld)ld.setAttribute('d',pieLd(+D.ax,+D.ay,cx,cy,w,h,+D.h0))}
+  pieRef(g.parentNode)}
 (function(){let d=null,last=null;
   const xy=(e,rt)=>{const m=rt.getScreenCTM();if(!m)return null;const p=rt.ownerSVGElement.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(m.inverse())};
   const sv=()=>{try{L.wms_pieoff=JSON.stringify(PS.off)}catch(e){}};
@@ -1117,8 +1131,7 @@ function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
   const sv=()=>{try{L.wms_piedot=JSON.stringify(PS.dof)}catch(e){}};
   const put=(g,ox,oy)=>{const D=g.dataset,ax0=+D.ax0,ay0=+D.ay0,[x,y]=pieDotClamp(ax0+ox,ay0+oy);ox=x-ax0;oy=y-ay0;
     g.setAttribute('transform','translate('+ox.toFixed(2)+' '+oy.toFixed(2)+')');D.ox=ox;D.oy=oy;
-    const c=g.parentNode,l=c.querySelector('.pcl'),ld=c.querySelector('.pld');
-    if(l&&ld){const Q=l.dataset;Q.ax=x.toFixed(2);Q.ay=y.toFixed(2);ld.setAttribute('d',pieLd(x,y,+Q.cx+(+Q.ox||0),+Q.cy+(+Q.oy||0),+Q.w,+Q.h,+Q.h0))}};
+    const c=g.parentNode,l=c.querySelector('.pcl');if(l){l.dataset.ax=x.toFixed(2);l.dataset.ay=y.toFixed(2);pieRef(c)}};
   document.addEventListener('pointerdown',e=>{const g=e.target&&e.target.closest?e.target.closest('.pcd'):null;if(!g)return;const rt=g.parentNode.parentNode,q=xy(e,rt);if(!q)return;
     d={g,rt,q,sx:e.clientX,sy:e.clientY,ox:+g.dataset.ox||0,oy:+g.dataset.oy||0,id:e.pointerId,mv:false};try{g.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
   document.addEventListener('pointermove',e=>{if(!d||e.pointerId!=d.id)return;
@@ -1127,6 +1140,21 @@ function piePlace(g,ox,oy){const D=g.dataset,cx0=+D.cx,cy0=+D.cy,w=+D.w,h=+D.h,
   const up=e=>{if(!d||e.pointerId!=d.id)return;const g=d.g,k=g.dataset.k;g.classList.remove('drag');
     if(d.mv){PS.dof[k]=[+(+g.dataset.ox).toFixed(1),+(+g.dataset.oy).toFixed(1)];sv();last=null}
     else{const t=Date.now();if(last&&last.k==k&&t-last.t<400){put(g,0,0);delete PS.dof[k];sv();last=null}else last={k,t}}
+    d=null};
+  document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)})();
+/* Titik elbow callout: sewarna garis, bisa digeser. Posisi disimpan sebagai selisih dari posisi otomatis. Ketuk 2x untuk reset */
+(function(){let d=null,last=null;
+  const xy=(e,rt)=>{const m=rt.getScreenCTM();if(!m)return null;const p=rt.ownerSVGElement.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(m.inverse())};
+  const sv=()=>{try{L.wms_pieelb=JSON.stringify(PS.eof)}catch(e){}};
+  const put=(g,ox,oy)=>{g.dataset.eox=ox;g.dataset.eoy=oy;const r=pieRef(g.parentNode);if(r){g.dataset.eox=r.e[0]-r.e0[0];g.dataset.eoy=r.e[1]-r.e0[1]}};
+  document.addEventListener('pointerdown',e=>{const g=e.target&&e.target.closest?e.target.closest('.pce'):null;if(!g)return;const rt=g.parentNode.parentNode,q=xy(e,rt);if(!q)return;
+    d={g,rt,q,sx:e.clientX,sy:e.clientY,ox:+g.dataset.eox||0,oy:+g.dataset.eoy||0,id:e.pointerId,mv:false};try{g.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+  document.addEventListener('pointermove',e=>{if(!d||e.pointerId!=d.id)return;
+    if(!d.mv){if(Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<4)return;d.mv=true;d.g.classList.add('drag')}
+    const q=xy(e,d.rt);if(!q)return;put(d.g,d.ox+q.x-d.q.x,d.oy+q.y-d.q.y);e.preventDefault()});
+  const up=e=>{if(!d||e.pointerId!=d.id)return;const g=d.g,k=g.dataset.k;g.classList.remove('drag');
+    if(d.mv){PS.eof[k]=[+(+g.dataset.eox).toFixed(1),+(+g.dataset.eoy).toFixed(1)];sv();last=null}
+    else{const t=Date.now();if(last&&last.k==k&&t-last.t<400){put(g,0,0);delete PS.eof[k];sv();last=null}else last={k,t}}
     d=null};
   document.addEventListener('pointerup',up);document.addEventListener('pointercancel',up)})();
 function pieSvg(ok,ng){
@@ -1155,9 +1183,10 @@ function pieSvg(ok,ng){
     co.forEach(c=>{const th=c.mid,sd=Math.cos(th)<0?-1:1,sn=Math.sin(th),vs=Math.abs(sn)<.15?(sd>0?-1:1):(sn<0?-1:1),
       ax=C+Math.cos(th)*R*.84,ay=C+Math.sin(th)*R*.84,ty=C+vs*136,dya=Math.abs(ty-ay),
       dx=Math.max(14,Math.min(dya*1.5,128-Math.abs(ax-C))),bx=ax+sd*dx,ex=C+sd*Math.min(Math.abs(bx-C)+80,165),
-      col=c.lb=='OK'?'#22c55e':'#ff1f3d',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*8.6)+24,cx=ex+sd*(10+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
+      col=c.lb=='OK'?'#22c55e':'#ff1f3d',sub=c.lb+' - '+c.n+' Data',pct=c.pc+'%',w=Math.max(pct.length*22,sub.length*9)*.85+16,cx=ex+sd*(6+w/2),cy=ty+1,h=40,h0=Math.abs(ex-bx),
       of=(PS.off&&PS.off[c.lb])||[0,0],ncx=Math.max(-102+w/2,Math.min(422-w/2,cx+(+of[0]||0))),ncy=Math.max(6+h/2,Math.min(314-h/2,cy+(+of[1]||0))),fx=ncx-cx,fy=ncy-cy,dof=(PS.dof&&PS.dof[c.lb])||[0,0],[px,py]=pieDotClamp(ax+(+dof[0]||0),ay+(+dof[1]||0));
-      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${pieLd(px,py,ncx,ncy,w,h,h0)}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><g class="pcl" data-k="${c.lb}" data-ax="${f(px)}" data-ay="${f(py)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect x="${f(cx-w/2-4)}" y="${f(cy-h/2-2)}" width="${f(w+8)}" height="${h+4}" rx="6"/><text class="pie-ct" x="${f(cx)}" y="${f(ty)}" text-anchor="middle" font-size="22" fill="${col}"${c.lb=='NG'?' style="filter:drop-shadow(0 0 3px rgba(255,45,74,.55))"':''}>${pct}</text><text class="pie-ct" x="${f(cx)}" y="${f(ty+16)}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g><g class="pcd" data-k="${c.lb}" data-ax0="${f(ax)}" data-ay0="${f(ay)}" data-ox="${f(px-ax)}" data-oy="${f(py-ay)}" transform="translate(${f(px-ax)} ${f(py-ay)})" style="pointer-events:all;touch-action:none"><circle cx="${f(ax)}" cy="${f(ay)}" r="15" fill="transparent"/><circle cx="${f(ax)}" cy="${f(ay)}" r="4.6" fill="#0a0a0a" stroke="#fff" stroke-width="1.4"/></g></g>`})}
+      const eof=(PS.eof&&PS.eof[c.lb])||[0,0],g=pieLg(px,py,ncx,ncy,w,h,h0,eof),ta=pieTA(g.s,cx,w);
+      calls+=`<g class="pcall" style="pointer-events:none"><path class="pld" d="${g.d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/><g class="pcl" data-k="${c.lb}" data-ax="${f(px)}" data-ay="${f(py)}" data-cx="${f(cx)}" data-cy="${f(cy)}" data-w="${f(w)}" data-h="${h}" data-h0="${f(h0)}" data-ox="${f(fx)}" data-oy="${f(fy)}" transform="translate(${f(fx)} ${f(fy)})" style="pointer-events:all;cursor:grab;touch-action:none"><rect x="${f(cx-w/2-4)}" y="${f(cy-h/2-2)}" width="${f(w+8)}" height="${h+4}" rx="6"/><text class="pie-ct pct" x="${f(ta[1])}" y="${f(ty)}" text-anchor="${ta[0]}" font-size="22" fill="${col}"${c.lb=='NG'?' style="filter:drop-shadow(0 0 3px rgba(255,45,74,.55))"':''}>${pct}</text><text class="pie-ct pcs" x="${f(ta[1])}" y="${f(ty+16)}" text-anchor="${ta[0]}" font-size="9" fill="currentColor" opacity=".7">${sub}</text></g><g class="pce" data-k="${c.lb}" data-eox="${f(eof[0])}" data-eoy="${f(eof[1])}" style="pointer-events:all;touch-action:none"><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="12" fill="transparent"/><circle cx="${f(g.e[0])}" cy="${f(g.e[1])}" r="2" fill="${col}"/></g><g class="pcd" data-k="${c.lb}" data-ax0="${f(ax)}" data-ay0="${f(ay)}" data-ox="${f(px-ax)}" data-oy="${f(py-ay)}" transform="translate(${f(px-ax)} ${f(py-ay)})" style="pointer-events:all;touch-action:none"><circle cx="${f(ax)}" cy="${f(ay)}" r="15" fill="transparent"/><circle cx="${f(ax)}" cy="${f(ay)}" r="4.6" fill="#0a0a0a"/></g></g>`})}
   /* ARC REACTOR (Iron Man) - 10 kumparan berputar, segitiga inti berputar balik, inti menyala */
   const D=Math.PI/180;let seg='';for(let k=0;k<10;k++)seg+=`<path d="${arc((k*36+5)*D,(k*36+31)*D,19,30)}" fill="#1e293b" stroke="#67e8f9" stroke-width="1"/>`;
   const tri=[0,1,2].map(k=>pt(-Math.PI/2+k*2*Math.PI/3,12).map(f).join(',')).join(' ');
